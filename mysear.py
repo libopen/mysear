@@ -8,6 +8,7 @@ class dbSource:
         self.dbName=dbName
 
     def makedb(self) :
+        print('makedb')
         filePath=self.dbPath + self.dbName
         self.db=pd.read_csv(filePath,header=None,parse_dates=[1])
         self.Allti=self.db.loc[:,0].drop_duplicates()
@@ -85,7 +86,7 @@ class dbSource:
     """--------b 3 -----------
       Order:  r4 g3 r2 g1
               r2(ph)>r4(ph) g1(pl)>r4(ph) g3(abs(ma)<r4(ma)
-    """------- end b3 --------
+    ------- end b3 --------"""
     def validB3(self,retdf):
         isValid=0
         ldf=len(retdf)
@@ -94,20 +95,22 @@ class dbSource:
            retdf = retdf.tail(5)  
            r1=retdf.iloc[4,1]		
            if (r1==1)  :
+              g1=abs(retdf.iloc[3,1])
               r4h=retdf.iloc[0,5]
               r2h=retdf.iloc[2,5]
               g1l=retdf.iloc[3,4]
               g3m=retdf.iloc[1,6]
               r4m=retdf.iloc[0,6]  
-              if (r2h>r4h) and (g1l>r4h) and (r4m>g3m) :
+              if (g1>10) and  (r2h>r4h) and (g1l>r4h) and (r4m>g3m) :
                   isValid=1
-           elif (r1<=-3)  :
+           elif (r1<=-10)  :
+              g1=abs(retdf.iloc[4,1])
               r4h=retdf.iloc[1,5]
               r2h=retdf.iloc[3,5]
               g1l=retdf.iloc[4,4]
               g3m=retdf.iloc[2,6]
               r4m=retdf.iloc[1,6]  
-              if (r2h>r4h) and (g1l>r4h) and (r4m>g3m) :
+              if (g1>=10) and (r2h>r4h) and (g1l>r4h) and (r4m>g3m) :
                   isValid=1
         return isValid
      
@@ -121,11 +124,47 @@ class dbSource:
         result.sort(['begindate'],ascending=[False])
         return result
 
+    """-------B3_6643------
+      region_1 [r3 p g2 l] r1(ph)>r2(ph) and g1(pl in (region_1) and  r1(ph)<1.3r3(ph)
+    ----------B3_6643------"""
+    
+    def validB3_2(selft,retdf) :
+        isValid=0
+        ldf=len(retdf)
+        if ldf>5 :
+        # cur = r so r(num)=1  is ok
+           retdf = retdf.tail(5)  
+           r1=retdf.iloc[4,1]
+           print('r1 %s'%(r1))		
+           if (r1==1)  :
+              g1=abs(retdf.iloc[3,1])
+              reg_H=retdf.iloc[0,5] #r4h
+              reg_L=retdf.iloc[1,4] #r3l
+              r4h=reg_H
+              r2h=retdf.iloc[2,5]
+              g1l=retdf.iloc[3,4]
+              g3m=retdf.iloc[1,1]
+              r4m=retdf.iloc[0,1]  
+              if (g1>8) and  (reg_H>=g1l>=reg_L) and (r2h>r4h) and ((g3m+r4m)>20) :
+                  isValid=1
+           elif (r1<=-10)  :
+              g1=abs(retdf.iloc[4,1])
+              reg_H=retdf.iloc[1,5] #r4h
+              reg_L=retdf.iloc[2,4] #r3l
+              r4h=reg_H
+              r2h=retdf.iloc[3,5]
+              g1l=retdf.iloc[4,4]
+              g3m=retdf.iloc[2,1]
+              r4m=retdf.iloc[1,1]  
+              print('g1 %s,reg_H %s,reg_L %s,g1l %s g3m %s,r4m %s'%(g1,reg_H,reg_L,g1l,g3m,r4m))
+              if (g1>8) and  (reg_H>=g1l>=reg_L) and (r2h>r4h) and ((g3m+r4m)>20) :
+                  isValid=1
+        return isValid
 
     """--------B1 -----------
       Order:  r4 g3 r2 g1
               g1(pl)<=g3(pl) g1(ph)<g3(ph) g1(abs(ma)<g3(ma)
-    """------- end b3 --------
+    ------- end b1 -------"""
     def validB1(self,retdf):
         isValid=0
         ldf=len(retdf)
@@ -134,6 +173,7 @@ class dbSource:
            retdf = retdf.tail(5)  
            r1=retdf.iloc[4,1]		
            if (r1==1)  :
+              g3=retdf.iloc[1,1]
               r4h=retdf.iloc[0,5]
               r2h=retdf.iloc[2,5]
               g1h=retdf.iloc[3,5]
@@ -142,9 +182,10 @@ class dbSource:
               g3l=retdf.iloc[1,4]
               g1m=retdf.iloc[3,6]
               g3m=retdf.iloc[1,6]  
-              if (r4h>r2h) and (g3l>g1l) and (g3h>g1h) and (g3m>g1m) :
-                 aa isValid=1
+              if (g3>=20) and (r4h>r2h) and (g3l>g1l) and (g3h>g1h) and (g3m>g1m) :
+                  isValid=1
            elif (r1<=-3)  :
+              g3=retdf.iloc[2,1]
               r4h=retdf.iloc[1,5]
               r2h=retdf.iloc[3,5]
               g1h=retdf.iloc[4,5]
@@ -153,10 +194,20 @@ class dbSource:
               g3l=retdf.iloc[2,4]
               g1m=retdf.iloc[4,6]
               g3m=retdf.iloc[2,6]  
-              if (r4h>r2h) and (g3l>g1l) and (g3h>g1h) and (g3m>g1m) :
+              if (g3>=20) and (r4h>r2h) and (g3l>g1l) and (g3h>g1h) and (g3m>g1m) :
                   isValid=1
         return isValid
 
+
+    def searB1(self) :
+        result=pd.DataFrame(columns=['begindate','maType','zu','zd','pl','ph','minmacd','ti'])
+        for t in self.Allti:
+             retdf=self.get_gngroup(t)
+             if self.validB1(retdf)==1 :
+                result=result.append(retdf.tail(1))
+        #result.set_index('begindate')
+        result.sort(['begindate'],ascending=[False])
+        return result
 
 
     """2 segment comp """		
