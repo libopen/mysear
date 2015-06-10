@@ -1,6 +1,33 @@
 import pandas as pd
 import math
 import time
+import pdb
+class gnGroup:
+    def __init__(self,df):
+        self.begindate=df.iloc[0,0]
+        self.maType=df.iloc[0,1]
+        self.zu=df.iloc[0,2]
+        self.zd=df.iloc[0,3]
+        self.pl=df.iloc[0,4]
+        self.ph=df.iloc[0,5]
+        self.macd=df.iloc[0,6]
+    def  maType(self) :
+        return self.maType
+  
+    def  zu(self) :
+        return self.zu
+        
+    def  zd(self) :
+        return self.zd
+    def  pl(self) :
+        return self.pl
+
+    def  ph(self) :
+        return self.ph
+
+    def  macd(self) :
+        return self.macd
+
 class dbSource:
     
     def __init__(self,dbPath,dbName):
@@ -8,7 +35,7 @@ class dbSource:
         self.dbName=dbName
 
     def makedb(self) :
-        print('makedb')
+        #print('makedb')
         filePath=self.dbPath + self.dbName
         self.db=pd.read_csv(filePath,header=None,parse_dates=[1])
         self.Allti=self.db.loc[:,0].drop_duplicates()
@@ -16,6 +43,12 @@ class dbSource:
 
     def getAllti(self):
        return self.Allti
+                        
+    def getGnlist(self,retdf):
+       gnlist=[]
+       for i in range(len(retdf)):
+           gnlist.append(gnGroup(retdf[i:i+1]))
+       return gnlist
 
     def exp_gngroup(self) :
         result=pd.DataFrame(columns=['begindate','maType','zu','zd','pl','ph','minmacd','ti'])
@@ -92,26 +125,29 @@ class dbSource:
         ldf=len(retdf)
         if ldf>5 :
         # cur = r so r(num)=1  is ok
-           retdf = retdf.tail(5)  
-           r1=retdf.iloc[4,1]		
-           if (r1==1)  :
-              g1=abs(retdf.iloc[3,1])
-              r4h=retdf.iloc[0,5]
-              r2h=retdf.iloc[2,5]
-              g1l=retdf.iloc[3,4]
-              g3m=retdf.iloc[1,6]
-              r4m=retdf.iloc[0,6]  
-              if (g1>10) and  (r2h>r4h) and (g1l>r4h) and (r4m>g3m) :
+           gnlist=self.getGnlist(retdf.tail(5))
+           
+           gnbase=gnlist[4]
+           if gnbase.maType==1 :
+              r2=gnlist[0]
+              r1=gnlist[2]
+              g2=gnlist[1]
+              g1=gnlist[3]
+              isValid=1
+           elif gnbase.maType<-10 :
+              r2=gnlist[1]
+              r1=gnlist[3]
+              g2=gnlist[2]
+              g1=gnlist[4]   
+              isValid=1
+           
+           if isValid==1 :
+             # print(' %d %d %d %d %d %d %d '%(g1.maType,r1.ph,r2.ph,g1.pl,g2.pl,r2.maType,g2.maType))
+              if (abs(g1.maType)>10) and  (r1.ph>r2.ph) and (r2.ph >=g1.pl>=g2.pl) and (abs(r2.maType)>abs(g2.maType)) :
                   isValid=1
-           elif (r1<=-10)  :
-              g1=abs(retdf.iloc[4,1])
-              r4h=retdf.iloc[1,5]
-              r2h=retdf.iloc[3,5]
-              g1l=retdf.iloc[4,4]
-              g3m=retdf.iloc[2,6]
-              r4m=retdf.iloc[1,6]  
-              if (g1>=10) and (r2h>r4h) and (g1l>r4h) and (r4m>g3m) :
-                  isValid=1
+              else:
+                  isValid=0  
+                          
         return isValid
      
     def searB3(self) :
@@ -120,217 +156,58 @@ class dbSource:
              retdf=self.get_gngroup(t)
              if self.validB3(retdf)==1 :
                 result=result.append(retdf.tail(1))
-        #result.set_index('begindate')
-        result.sort(['begindate'],ascending=[False])
         return result
 
-    """-------B3_6643------
-      region_1 [r3 p g2 l] r1(ph)>r2(ph) and g1(pl in (region_1) and  r1(ph)<1.3r3(ph)
-    ----------B3_6643------"""
-    
-    def validB3_2(selft,retdf) :
+    """ m851 """
+    def validB3_2(self,retdf) :
         isValid=0
         ldf=len(retdf)
-        if ldf>5 :
+        if ldf>=6 :
         # cur = r so r(num)=1  is ok
-           retdf = retdf.tail(5)  
-           r1=retdf.iloc[4,1]
-           print('r1 %s'%(r1))		
-           if (r1==1)  :
-              g1=abs(retdf.iloc[3,1])
-              reg_H=retdf.iloc[0,5] #r4h
-              reg_L=retdf.iloc[1,4] #r3l
-              r4h=reg_H
-              r2h=retdf.iloc[2,5]
-              g1l=retdf.iloc[3,4]
-              g3m=retdf.iloc[1,1]
-              r4m=retdf.iloc[0,1]  
-              if (g1>8) and  (reg_H>=g1l>=reg_L) and (r2h>r4h) and ((g3m+r4m)>20) :
+           gnlist=self.getGnlist(retdf.tail(6))
+           
+           gnbase=gnlist[5] # the last
+            
+           if (gnbase.maType==1)  :
+              r2=gnlist[1]
+              r1=gnlist[3]
+              g2=gnlist[2]
+              g1=gnlist[4]
+              isValid=1
+           elif gnbase.maType<-10 :
+              r2=gnlist[2]
+              r1=gnlist[4]
+              g2=gnlist[3]
+              g1=gnlist[5]   
+              isValid=1
+           
+           if isValid==1 :
+              #pdb.set_trace()
+              #print(' %d %d %d %d %d %d %d '%(g1.maType,r1.ph,r2.ph,g1.pl,g2.pl,r2.maType,g2.maType))
+              if (abs(g1.maType)>10) and (r1.maType>10) and (abs(g2.maType)>abs(g1.maType)*1.1) and  (r2.ph>r1.ph*1.2) and (g2.pl>g1.pl*1.1) and (g2.macd>g1.macd) : 
                   isValid=1
-           elif (r1<=-10)  :
-              g1=abs(retdf.iloc[4,1])
-              reg_H=retdf.iloc[1,5] #r4h
-              reg_L=retdf.iloc[2,4] #r3l
-              r4h=reg_H
-              r2h=retdf.iloc[3,5]
-              g1l=retdf.iloc[4,4]
-              g3m=retdf.iloc[2,1]
-              r4m=retdf.iloc[1,1]  
-              print('g1 %s,reg_H %s,reg_L %s,g1l %s g3m %s,r4m %s'%(g1,reg_H,reg_L,g1l,g3m,r4m))
-              if (g1>8) and  (reg_H>=g1l>=reg_L) and (r2h>r4h) and ((g3m+r4m)>20) :
-                  isValid=1
+              else:
+                  isValid=0  
+                          
         return isValid
 
-    """--------B1 -----------
-      Order:  r4 g3 r2 g1
-              g1(pl)<=g3(pl) g1(ph)<g3(ph) g1(abs(ma)<g3(ma)
-    ------- end b1 -------"""
-    def validB1(self,retdf):
-        isValid=0
-        ldf=len(retdf)
-        if ldf>5 :
-        # cur = r so r(num)=1  is ok
-           retdf = retdf.tail(5)  
-           r1=retdf.iloc[4,1]		
-           if (r1==1)  :
-              g3=retdf.iloc[1,1]
-              r4h=retdf.iloc[0,5]
-              r2h=retdf.iloc[2,5]
-              g1h=retdf.iloc[3,5]
-              g3h=retdf.iloc[1,5]
-              g1l=retdf.iloc[3,4]
-              g3l=retdf.iloc[1,4]
-              g1m=retdf.iloc[3,6]
-              g3m=retdf.iloc[1,6]  
-              if (g3>=20) and (r4h>r2h) and (g3l>g1l) and (g3h>g1h) and (g3m>g1m) :
-                  isValid=1
-           elif (r1<=-3)  :
-              g3=retdf.iloc[2,1]
-              r4h=retdf.iloc[1,5]
-              r2h=retdf.iloc[3,5]
-              g1h=retdf.iloc[4,5]
-              g3h=retdf.iloc[2,5]
-              g1l=retdf.iloc[4,4]
-              g3l=retdf.iloc[2,4]
-              g1m=retdf.iloc[4,6]
-              g3m=retdf.iloc[2,6]  
-              if (g3>=20) and (r4h>r2h) and (g3l>g1l) and (g3h>g1h) and (g3m>g1m) :
-                  isValid=1
-        return isValid
-
-
-    def searB1(self) :
+    def searB3_2(self) :
         result=pd.DataFrame(columns=['begindate','maType','zu','zd','pl','ph','minmacd','ti'])
         for t in self.Allti:
              retdf=self.get_gngroup(t)
-             if self.validB1(retdf)==1 :
+             if self.validB3_2(retdf)==1 :
                 result=result.append(retdf.tail(1))
-        #result.set_index('begindate')
-        result.sort(['begindate'],ascending=[False])
         return result
 
 
-    """2 segment comp """		
-    def valid2Seg(self,retdf):
-        isValid=0
-        seg1=retdf.iloc[len(retdf.index)-1,1]
-        seg1begindate=retdf.iloc[len(retdf.index)-1,0]
-        ldf=len(retdf.index)
-        # [g4 r3 g2 (r1<3)  g4>g2   
-        # [g5 r4 g3 r2 g1  then g3>g1
-        if ldf>5 :		
-           if (0<seg1<3)  :
-              maType1=retdf.iloc[len(retdf.index)-2,1]
-              maType3=retdf.iloc[len(retdf.index)-4,1]
-              mac1=retdf.iloc[len(retdf.index)-2,6]
-              mac3=retdf.iloc[len(retdf.index)-4,6]
-              zu1=retdf.iloc[len(retdf.index)-2,2]
-              zd1=retdf.iloc[len(retdf.index)-2,3]
-              if (abs(maType3)>abs(maType1)) and (mac1>mac3) :
-                  isValid=1
-           elif (seg1<-3)  :
-              maType1=retdf.iloc[len(retdf.index)-1,1]
-              maType3=retdf.iloc[len(retdf.index)-3,1]
-              mac1=retdf.iloc[len(retdf.index)-1,6]
-              mac3=retdf.iloc[len(retdf.index)-3,6]
-              zu1=retdf.iloc[len(retdf.index)-1,2]
-              zd1=retdf.iloc[len(retdf.index)-1,3]
-              if (abs(maType3)>abs(maType1)) and (mac1>mac3) :
-                 isValid=1        
-        return isValid
-          
-              
-    def sear2Seg(self):
-        print(time.strftime('%Y-%m-%d %H:%M:%S'))
-        result=pd.DataFrame(columns=['begindate','maType','zu','zd','pl','ph','minmacd','ti'])
-        for t in self.Allti:
-             # if t<1000:
-                   retdf=self.get_gngroup(t)
-                   if self.valid2Seg(retdf)==1 :
-                      result=result.append(retdf.tail(1))
-        print(time.strftime('%Y-%m-%d %H:%M:%S'))
-        #result.set_index('begindate')
-        result.sort(['begindate'],ascending=[False])
-        return result
 
-    """ g1 > 20 or g2 >20 zu>zd  """      
-    def valid1Seg(self,retdf):
-        isvalid=0
-        """ 1 seg1<-20 
-            2 minmac<curmac
-            3 pl(minmac)<curpl
-            4.zu>zd
-        """
-        df = retdf.tail(2)
-        if len(df)==2 :
-            # r3 g2 r1 r1=1 then comp(g2)
-            seg1=df.iloc[1]['maType']
-            seg2=df.iloc[0]['maType']
-            if (seg1==1) and (abs(seg2)>20) :
-                  zu=df.iloc[0]['zu']
-                  zd=df.iloc[0]['zd']
-                  if (zu>zd>0) :
-                      isvalid=1
-            elif seg1<=-20 :
-                  begindate=df.iloc[1]['begindate']
-                  minMac= df.iloc[1]['minmacd']
-                  ti=df.iloc[1]['ti']
-                  curdf=self.get_macd(ti).tail(1)
-                  curMac=curdf.iloc[0]['MACD']
-                  zu=df.iloc[0]['zu']
-                  zd=df.iloc[0]['zd']
-                  if (zu>zd>0) and (curMac>minMac) :
-                      isvalid=1
-        return isvalid
-        
-          
-    def sear1Seg(self):
-         # 
-         result=pd.DataFrame(columns=['begindate','maType','zu','zd','pl','ph','minmacd','ti'])
-         for t in self.Allti:
-             # if t<1000:
-                retdf=self.get_gngroup(t)
-                if self.valid1Seg(retdf)==1:
-                   result=result.append(retdf.tail(1))
-         print(time.strftime('%Y-%m-%d %H:%M:%S'))
-         return result
+def Main():
+    p=dbSource('/home/user/programe/','mygd.csv')
+    p.makedb()
+    p.imp_gngroup()
+    df=p.get_gngroup(851)
+    df=df.head(6)
+    p.validB3_2(df)
+    return p
 
-
-    def valid1Seg2(self,retdf):
-        """
-		1 : seg1<=20
-		2 : max(macd)
-		3 : last > max(macd)
-        """
-        isvalid=0
-        seg1=retdf.iloc[len(retdf.index)-1,1]
-        ldf=len(retdf.index)
-        if ldf>2:
-           # g2(seg2) zu1>zd1 & r1(seg1)  zd1>1 
-           seg2=retdf.iloc[len(retdf.index)-2,1]
-           zu1=retdf.iloc[len(retdf.index)-1,2]
-           zd1=retdf.iloc[len(retdf.index)-1,3]
-           zu2=retdf.iloc[len(retdf.index)-2,2]
-           zd2=retdf.iloc[len(retdf.index)-2,3]
-          
-           if (seg1>0) and ( zd1>0) and (zu2>zd2>0) :
-               isvalid=1
-        return isvalid
-        
-    """    
-    def sear3Seg(self):
-         # 
-         print(time.strftime('%Y-%m-%d %H:%M:%S'))
-         result=pd.DataFrame(columns=['begindate','maType','zu','zd','pl','ph','minmacd','ti'])
-         for t in self.Allti:
-             # if t<1000:
-                retdf=self.makegroup(self,t)
-                if dbSource.valid3df(self,retdf)==1:
-                   result=result.append(retdf.tail(1))
-         print(time.strftime('%Y-%m-%d %H:%M:%S'))
-         return result
-    """ 
-    
-
-
-
+Main()
