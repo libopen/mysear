@@ -1,0 +1,68 @@
+import urllib.request
+import re
+from datetime import timedelta,date
+debug=False
+
+class Utility:
+    def ToGB(str):
+        if(debug):print(str)
+        return str.decode('gb2312')
+
+class StockInfo:
+      """ get stock information """
+      def GetStockStrByNum(num) :
+           f=urllib.request.urlopen('http://hq.sinajs.cn/list='+str(num))
+           if(debug) : print(f.geturl())
+           if(debug) : print(f.info())
+           return f.readline()
+           f.close()
+
+      def ParseResultStr(resultStr) :
+           if(debug) : print(resultStr)
+           slist=resultStr.split(',')
+           #  print(slist[0]) 
+           # find ti
+           ti=''
+           reg='var hq_str_s[hz]\d{6}'
+           p=re.compile(reg)
+           #print(slist[0])
+           #print(p.match(slist[0]))
+           if (p.match(slist[0])!=None):
+              ti=p.match(slist[0]).group()
+              
+              ti=ti[-2:]
+              
+           name=slist[0][-4:]
+           yesterdayendprice=slist[2]
+           todaystartprice=slist[1]
+           nowprice=slist[3]
+           todayhighprice=slist[4]
+           upgraderate=(float(nowprice)-float(yesterdayendprice))/float(yesterdayendprice)
+           upgraderate=upgraderate *100
+           dateandtime=slist[30]+' ' + slist[31]
+           print('t %s, c %s, h %s '%(ti,nowprice,todayhighprice))
+
+      def GetStockInfo(num):
+           str=StockInfo.GetStockStrByNum(num)
+           strGB=Utility.ToGB(str)
+           StockInfo.ParseResultStr(strGB)
+
+      def downloadcsv(num,begindate='20140101',enddate=date.today()) :
+          if num>600000 :
+              ti='0%s'%(num)
+          else:
+              ti='1%s'%(num)
+          bdate=begindate
+          edate=date.strftime(enddate,'%Y%m%d')
+          numurl='http://quotes.money.163.com/service/chddata.html?code=%s&start=%s&end=%s&fields=TCLOSE;HIGH;LOW;TOPEN;LCLOSE;CHG;PCHG;TURNOVER;VOTURNOVER;VATURNOVER;TCAP;MCAP'%(ti,bdate,edate)
+          f=urllib.request.urlopen(numurl)
+          with open(num+'csv','wb') as code:
+               code.write(f.readall())
+
+def   Main():
+      stocks=['sz002100','sz000960','sh601866']
+      for stock in stocks:
+          StockInfo.GetStockInfo(stock)
+
+Main()
+
