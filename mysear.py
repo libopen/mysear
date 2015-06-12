@@ -1,7 +1,6 @@
 import pandas as pd
 import math
-import time
-import pdb
+from datetime import timedelta,date
 class gnGroup:
     def __init__(self,df):
         self.begindate=df.iloc[0,0]
@@ -55,13 +54,16 @@ class dbSource:
         for t in self.Allti:
             retdf=self.makegroup(t)
             result=result.append(retdf)
-        result.to_csv('/home/user/programe/gngroup.csv',index=False)
+        filePath=self.dbPath+'gngroup.csv'
+        result.to_csv(filePath,index=False)
    
     #load old gngroupdata   
     def imp_gngroup(self):
         filePath=self.dbPath+'gngroup.csv'
         self.gndb=pd.read_csv(filePath,parse_dates=['begindate'])
         self.gndb.set_index('ti')
+        filePath=self.dbPath+'exright.csv'
+        self.exdb=pd.read_csv(filePath,parse_dates=['begindate'])
     
     # first do imp_gngroup
     def get_gngroup(self,ti):
@@ -71,9 +73,10 @@ class dbSource:
     def get_macd(self,ti):
         db=self.db
         df=db[db[0]==ti].copy()
+             # print(' %d %d %d %d %d %d %d '%(g1.maType,r1.ph,r2.ph,g1.pl,g2.pl,r2.maType,g2.maType))
         df.set_index(1)
         df.sort(1,ascending=0)
-        ema_list=[12,26]
+        ema_list=[12,26,60]
         for ema in ema_list:
             df.loc[:,'EMA'+str(ema)]=pd.ewma(df[5],span=ema)
 
@@ -120,7 +123,7 @@ class dbSource:
       Order:  r4 g3 r2 g1
               r2(ph)>r4(ph) g1(pl)>r4(ph) g3(abs(ma)<r4(ma)
     ------- end b3 --------"""
-    def validB3(self,retdf):
+    def validB3(self,retdf,nLow=1):
         isValid=0
         ldf=len(retdf)
         if ldf>5 :
@@ -128,7 +131,7 @@ class dbSource:
            gnlist=self.getGnlist(retdf.tail(5))
            
            gnbase=gnlist[4]
-           if gnbase.maType==1 :
+           if gnbase.maType==nLow :
               r2=gnlist[0]
               r1=gnlist[2]
               g2=gnlist[1]
@@ -142,7 +145,6 @@ class dbSource:
               isValid=1
            
            if isValid==1 :
-             # print(' %d %d %d %d %d %d %d '%(g1.maType,r1.ph,r2.ph,g1.pl,g2.pl,r2.maType,g2.maType))
               if (abs(g1.maType)>10) and  (r1.ph>r2.ph) and (r2.ph >=g1.pl>=g2.pl) and (abs(r2.maType)>abs(g2.maType)) :
                   isValid=1
               else:
@@ -150,16 +152,16 @@ class dbSource:
                           
         return isValid
      
-    def searB3(self) :
+    def searB3(self,nLow=1) :
         result=pd.DataFrame(columns=['begindate','maType','zu','zd','pl','ph','minmacd','ti'])
         for t in self.Allti:
              retdf=self.get_gngroup(t)
-             if self.validB3(retdf)==1 :
+             if self.validB3(retdf,nLow)==1 :
                 result=result.append(retdf.tail(1))
         return result
 
     """ m851 """
-    def validB3_2(self,retdf) :
+    def validB3_2(self,retdf,nLow=1) :
         isValid=0
         ldf=len(retdf)
         if ldf>=6 :
@@ -168,7 +170,7 @@ class dbSource:
            
            gnbase=gnlist[5] # the last
             
-           if (gnbase.maType==1)  :
+           if (gnbase.maType==nLow)  :
               r2=gnlist[1]
               r1=gnlist[3]
               g2=gnlist[2]
@@ -182,8 +184,6 @@ class dbSource:
               isValid=1
            
            if isValid==1 :
-              #pdb.set_trace()
-              #print(' %d %d %d %d %d %d %d '%(g1.maType,r1.ph,r2.ph,g1.pl,g2.pl,r2.maType,g2.maType))
               if (abs(g1.maType)>10) and (r1.maType>10) and (abs(g2.maType)>abs(g1.maType)*1.1) and  (r2.ph>r1.ph*1.2) and (g2.pl>g1.pl*1.1) and (g2.macd>g1.macd) : 
                   isValid=1
               else:
@@ -191,23 +191,109 @@ class dbSource:
                           
         return isValid
 
-    def searB3_2(self) :
+    def searB3_2(self,nLow=1) :
         result=pd.DataFrame(columns=['begindate','maType','zu','zd','pl','ph','minmacd','ti'])
         for t in self.Allti:
              retdf=self.get_gngroup(t)
-             if self.validB3_2(retdf)==1 :
+             if self.validB3_2(retdf,nLow)==1 :
+                result=result.append(retdf.tail(1))
+        return result
+   
+    """ B3_3                      """
+    def validB3_3(self,retdf,nLow=1) :
+        isValid=0
+        ldf=len(retdf)
+        if ldf>=6 :
+        # cur = r so r(num)=1  is ok
+           gnlist=self.getGnlist(retdf.tail(6))
+           
+           gnbase=gnlist[5] # the last
+            
+           if (gnbase.maType==nLow)   :
+              r2=gnlist[1]
+              r1=gnlist[3]
+              g2=gnlist[2]
+              g1=gnlist[4]
+              if r1.maType>5 :
+                 isValid=1
+           elif gnbase.maType<-10 :
+              r2=gnlist[2]
+              r1=gnlist[4]
+              g2=gnlist[3]
+              g1=gnlist[5]
+              if r1.maType>5 :  
+                   isValid=1
+           
+           if isValid==1 :
+              if (g2.macd>g1.macd) and (g2.pl>g1.pl) and (g2.macd>r1.macd) and  (g1.pl>=r2.pl) and (r2.macd>g2.macd)  : 
+                  isValid=1
+              else:
+                  isValid=0  
+                          
+        return isValid
+
+    def searB3_3(self,nLow=1) :
+        result=pd.DataFrame(columns=['begindate','maType','zu','zd','pl','ph','minmacd','ti'])
+        for t in self.Allti:
+             retdf=self.get_gngroup(t)
+             if self.validB3(retdf,nLow)==1 :
                 result=result.append(retdf.tail(1))
         return result
 
+    """  60 line """
+    def valid60(self,exdate,cdate=date.today()) :
+        result=pd.DataFrame(columns=['begindate','maType','zu','zd','pl','ph','minmacd','ti'])
+        begindate=cdate
+        enddate=begindate-timedelta(days=5)
+        for t in self.Allti:
+            retdf=self.get_macd(t).tail(5)
+            retdf=retdf[(retdf[1]>=enddate) & (retdf[1]<=begindate) & (retdf['EMA60']>=retdf[4])]
+            if retdf.empty==False :
+               result=result.append(self.get_gngroup(t).tail(1)) 
+        exdf=self.exdb
+        retdf=pd.merge(result,exdf,on='ti',how='left')
+        retdf=retdf[(retdf.begindate_y.isnull())|(retdf.begindate_y<exdate)][['ti','begindate_x','maType','begindate_y','pl','ph']]          
+        return retdf
+        
+    def exp_exright(self):
+        db=self.db
+        row_list=[]
+        for t in self.Allti:
+            df=db[db[0]==t].copy()
+            df.set_index(1)
+            df.sort(1,ascending=0)
+            ret=self.isexright(df)
+            if len(ret)>0:
+               row_list.append(ret)
+        df=pd.DataFrame(row_list)
+        filePath=self.dbPath+'exright.csv'
+        df.to_csv(filePath,index=False)
+    
+    def get_exright(self):
+        return self.exdb
+            
+    def isexright(self,df):
+        last=df.irow(0)
+        t=last[0]
+        isValid=0
+        for i in range(0,df.shape[0]):
+            cur=df.irow(i)
+            # use the last pla 
+            if (last[5]/cur[5])>1.15 :
+                cdate=cur[1]
+                isValid=1
+            last=cur
+        if isValid==1:
+            return {'ti':t,'begindate':cdate}
+        else :
+            return {}
+
+                
 
 
 def Main():
     p=dbSource('/home/user/programe/','mygd.csv')
-    p.makedb()
-    p.imp_gngroup()
-    df=p.get_gngroup(851)
-    df=df.head(6)
-    p.validB3_2(df)
-    return p
+ #   p.makedb()
+#    p.exp_exright()
 
 Main()
