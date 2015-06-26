@@ -288,6 +288,54 @@ class dbSource:
         else :
             return {}
 
+    """  analysis every one state """
+    """  1:current segment r or g and length """
+    def collectInfo(self,ti):
+        retdf=self.get_gngroup(ti)
+        curpl=self.get_macd(ti).tail(1).iloc[0,5]
+        if len(retdf)>5 :
+            gnlist=self.getGnlist(retdf.tail(5)) 
+            """current state"""
+            cur=gnlist[4] 
+            cur_1=gnlist[3]
+            cur_2=gnlist[2]
+            cur_3=gnlist[1]
+            if cur.zu>0 and cur.zu>cur.zd :
+                  tz='BM'
+            elif cur.zu>0 and cur.zu<cur.zd:
+                  tz='BL'
+            else :
+                  tz='S'
+            ppos='{:.3f}-{:.3f}'.format((cur.ph-curpl)/cur.ph,curpl/cur.pl)
+           
+            p_1=cur.ph/cur_1.pl
+            p_2=cur_2.ph/cur_3.pl 
+            if cur.maType>0 :
+               if cur.ph>cur_2.ph and cur.pl>cur_2.pl:
+                  t_state='RU'
+               elif cur.ph<cur_2.ph and cur.pl<cur_2.pl :
+                  t_state='RD'
+               else:
+                  t_state='RM'
+            else:
+                if cur.pl<cur_2.pl and cur.ph<cur_2.ph:
+                   t_state='GD'
+                else:
+                   t_state='GM'
+                             
+            return {'ti':ti,'state':t_state+tz,'per1':p_1,'per2':p_2,'ppos':ppos}
+        else :
+            return{}   
+    
+    def wholeSear(self):
+        db=self.db
+        row_list=[]
+        for t in self.Allti:
+            ret=self.collectInfo(t)
+            if len(ret)>0:
+               row_list.append(ret)
+        df=pd.DataFrame(row_list)
+        return df
                 
 
 
