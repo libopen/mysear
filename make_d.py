@@ -26,6 +26,8 @@ class dbSource:
             retdf=self.makegroup(t)
             result=result.append(retdf)
         filePath=self.dbPath+'gngroup_d.csv'
+        alltifilePath=self.dbPath+'Allti.csv'
+        self.Allti.to_csv(alltifilePath,index=False)
         result.to_csv(filePath,index=False)
    
     #load old gngroupdata   

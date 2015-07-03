@@ -27,8 +27,38 @@ class gnGroup:
     def  macd(self) :
         return self.macd
 
+class WMM :
+    def __init__(self,df):
+        self.begindate=df.iloc[0,0]
+        self.op=df.iloc[0,2]
+        self.hi=df.iloc[0,3]
+        self.lo=df.iloc[0,4]
+        self.la=df.iloc[0,5]
+        self.vo=df.iloc[0,6]
+        
+    def  op(self) :
+        return self.op
+  
+    def  hi(self) :
+        return self.hi
+        
+    def  lo(self) :
+        return self.lo
+    def  la(self) :
+        return self.la
+
+    def  vo(self) :
+        return self.vo
+
+
+
 class dbSource:
+    def dbw(self):
+        return self.dfw
     
+    def dbm(self):
+        return self.dfm
+
     def __init__(self,dbPath,dbName):
         self.dbPath=dbPath
         self.dbName=dbName
@@ -64,7 +94,13 @@ class dbSource:
         self.gndb.set_index('ti')
         filePath=self.dbPath+'exright.csv'
         self.exdb=pd.read_csv(filePath,parse_dates=['begindate'])
-    
+        filePath=self.dbPath+'mygdw.csv'
+        self.dbw=pd.read_csv(filePath,parse_dates=[0])
+        self.dbw.set_index('0')
+        filePath=self.dbPath+'mygdm.csv'
+        self.dbm=pd.read_csv(filePath,parse_dates=[0])
+        self.dbm.set_index('0')
+
     # first do imp_gngroup
     def get_gngroup(self,ti):
         df=self.gndb[self.gndb['ti']==ti]
@@ -73,7 +109,6 @@ class dbSource:
     def get_macd(self,ti):
         db=self.db
         df=db[db[0]==ti].copy()
-             # print(' %d %d %d %d %d %d %d '%(g1.maType,r1.ph,r2.ph,g1.pl,g2.pl,r2.maType,g2.maType))
         df.set_index(1)
         df.sort(1,ascending=0)
         ema_list=[12,26,60]
@@ -336,12 +371,71 @@ class dbSource:
                row_list.append(ret)
         df=pd.DataFrame(row_list)
         return df
-                
+    """  week month resample """
+    def make_tiw(self,ti):
+        db=self.db
+        df=db[db[0]==ti]
+        df=df.set_index(1)
+        dfw=df.resample('W',how='last')
+        dfw[2]=df[2].resample('W',how='first')
+        dfw[3]=df[3].resample('W',how='max')
+        dfw[4]=df[4].resample('W',how='min')
+        dfw[6]=df[6].resample('W',how='sum')
+        #dfw.columns=['cdate','ti','op','hi','lo','la','vo']
+        return dfw
+                      
+    def exp_w(self):
+        result=pd.DataFrame()
+        for t in self.Allti:
+            dfw=self.make_tiw(t)
+            result=result.append(dfw)
+        #result.set_index('ti')
+        filePath=self.dbPath+'mygdw.csv'
+        result.to_csv(filePath,index=True)
 
+
+    def exp_m(self):
+        result=pd.DataFrame()
+        for t in self.Allti:
+            dfm=self.make_tim(t)
+            result=result.append(dfm)
+        #result.set_index('ti')
+        filePath=self.dbPath+'mygdm.csv'
+        result.to_csv(filePath,index=True)
+
+    def make_tim(self,ti):
+        db=self.db
+        df=db[db[0]==ti]
+        df=df.set_index(1)
+        dfw=df.resample('M',how='last')
+        dfw[2]=df[2].resample('M',how='first')
+        dfw[3]=df[3].resample('M',how='max')
+        dfw[4]=df[4].resample('M',how='min')
+        dfw[6]=df[6].resample('M',how='sum')
+        return dfw
+
+    """  top type and bottom type """
+    def getWMMlist(self,retdf):
+       wmmlist=[]
+       for i in range(len(retdf)):
+           wmmlist.append(WMM(retdf[i:i+1]))
+       return wmmlist
+    """ from week month judge is bottom or top type by vo and rate and direct """ 
+    def tbType(wm1,wm2,wm3):
+        # top or bottom order : wm3 wm2 wm1 
+        if wm1.la>wm1.op and wm1.hi>wm2.hi :
+           if (wm2.hi/wm2.lo)>(wm1.hi/wm1.lo):
+               
+    def estimate(self,ti):
+        dfw=self.dbw[self.dbw['0']==ti].tail(6)
+        if len(df)=6:
+           wlist=self.getWMMlist(df)
+           
+               
 
 def Main():
     p=dbSource('/home/user/programe/','mygd.csv')
- #   p.makedb()
-#    p.exp_exright()
+    #p.makedb()
+    #p.exp_w()
 
 Main()

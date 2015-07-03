@@ -20,35 +20,55 @@ class dbSource:
        return self.Allti
                         
 
-    def exp_gngroup(self) :
-        result=pd.DataFrame(columns=['begindate','maType','zu','zd','pl','ph','minmacd','ti'])
+    def make_tim(self,ti):
+        db=self.db
+        df=db[db[0]==ti]
+        df=df.set_index(1)
+        dfw=df.resample('M',how='last')
+        dfw['ti']=dfw[0]
+        dfw['cdate']=dfw.index
+        dfw['op']=df[2].resample('M',how='first')
+        dfw['hi']=df[3].resample('M',how='max')
+        dfw['lo']=df[4].resample('M',how='min')
+        dfw['la']=dfw[5]
+        dfw['vo']=df[6].resample('M',how='sum')
+        return dfw.iloc[:,6:13]
+                      
+    def exp_m(self):
+        result=pd.DataFrame()
         for t in self.Allti:
-            retdf=self.makegroup(t)
-            result=result.append(retdf)
-        filePath=self.dbPath+'gngroup_d.csv'
-        result.to_csv(filePath,index=False)
+            dfw=self.make_tim(t)
+            result=result.append(dfw)
+        
+        self.dbw=result
+        filePath=self.dbPath+'mygdm.csv'
+        result.to_csv(filePath,index=False)      
+
    
     #load old gngroupdata   
-    def imp_gngroup(self):
-        filePath=self.dbPath+'gngroup_d.csv'
-        self.gndb=pd.read_csv(filePath,parse_dates=['begindate'])
-        self.gndb.set_index('ti')
-        filePath=self.dbPath+'exright.csv'
-        self.exdb=pd.read_csv(filePath,parse_dates=['begindate'])
+    def imp_gngroupw(self):
+        filePath=self.dbPath+'gngroup_m.csv'
+        self.gnmdb=pd.read_csv(filePath,parse_dates=['begindate'])
+        return self.gnmdb
 
     # first do imp_gngroup
-    def get_gngroup(self,ti):
-        df=self.gndb[self.gndb['ti']==ti]
+    def get_gngroupm(self,ti):
+        df=self.gnmdb[self.gnmdb['ti']==ti]
         return df
 
-    def get_macd(self,ti):
-        db=self.db
-        df=db[db[0]==ti].copy()
-        df.set_index(1)
-        df.sort(1,ascending=0)
+    def imp_dbm(self) :
+        filePath=self.dbPath+'mygdm.csv'
+        self.dbm=pd.read_csv(filePath,parse_dates=['cdate'])
+        #return self.dbm
+
+    def get_mmacd(self,ti):
+        dbw=self.dbm
+        df=dbw[dbw['ti']==ti].copy()
+        df.set_index('cdate')
+        df.sort('cdate',ascending=1)
         ema_list=[12,26,60]
         for ema in ema_list:
-            df.loc[:,'EMA'+str(ema)]=pd.ewma(df[5],span=ema)
+            df.loc[:,'EMA'+str(ema)]=pd.ewma(df['la'],span=ema)
 
         df.loc[:,'DIF']=df['EMA12']-df['EMA26']
         df.loc[:,'DEA']=pd.ewma(df['DIF'],span=9)
@@ -60,8 +80,8 @@ class dbSource:
         df['gn']=0
         return df    
 
-    def makegroup(self,ti):
-        df=self.get_macd(ti)
+    def makemgroup(self,ti):
+        df=self.get_mmacd(ti)
         df['MACD']=abs(df['MACD'])      
         #loop construct group
         n=1
@@ -75,9 +95,9 @@ class dbSource:
                 df.loc[index,'gn']=n
 
 
-        dfg_date=df.groupby('gn').apply(lambda x: x[1].min())
-        dfg_pl=df.groupby('gn').apply(lambda x: x[4].min())
-        dfg_ph=df.groupby('gn').apply(lambda x: x[3].max())
+        dfg_date=df.groupby('gn').apply(lambda x: x['cdate'].min())
+        dfg_pl=df.groupby('gn').apply(lambda x: x['lo'].min())
+        dfg_ph=df.groupby('gn').apply(lambda x: x['hi'].max())
         dfg_macd_type=df.groupby('gn').apply(lambda x: x['color'].sum())
         dfg_u=df.groupby('gn').apply(lambda x: x[x['location']==1]['location'].count())
         dfg_d=df.groupby('gn').apply(lambda x: x[x['location']==-1]['location'].count())
@@ -89,81 +109,13 @@ class dbSource:
         result.loc[:,'ti']=ti
         return result.tail(30) 
     
-    def exp_exright(self):
-        db=self.db
-        row_list=[]
+    def exp_mgngroup(self) :
+        result=pd.DataFrame(columns=['begindate','maType','zu','zd','pl','ph','minmacd','ti'])
         for t in self.Allti:
-            df=db[db[0]==t].copy()
-            df.set_index(1)
-            df.sort(1,ascending=0)
-            ret=self.isexright(df)
-            if len(ret)>0:
-               row_list.append(ret)
-        df=pd.DataFrame(row_list)
-        filePath=self.dbPath+'exright.csv'
-        df.to_csv(filePath,index=False)
-    
-    def get_exright(self):
-        return self.exdb
-            
-    def isexright(self,df):
-        last=df.irow(0)
-        t=last[0]
-        isValid=0
-        for i in range(0,df.shape[0]):
-            cur=df.irow(i)
-            # use the last pla 
-            if (last[5]/cur[5])>1.15 :
-                cdate=cur[1]
-                isValid=1
-            last=cur
-        if isValid==1:
-            return {'ti':t,'begindate':cdate}
-        else :
-            return {}
-
-    def make_tiw(self,ti):
-        db=self.db
-        df=db[db[0]==ti]
-        df=df.set_index(1)
-        dfw=df.resample('W',how='last')
-        dfw[2]=df[2].resample('W',how='first')
-        dfw[3]=df[3].resample('W',how='max')
-        dfw[4]=df[4].resample('W',how='min')
-        dfw[6]=df[6].resample('W',how='sum')
-        #dfw.columns=['cdate','ti','op','hi','lo','la','vo']
-        return dfw
-                      
-    def exp_w(self):
-        result=pd.DataFrame()
-        for t in self.Allti:
-            dfw=self.make_tiw(t)
-            result=result.append(dfw)
-        #result.set_index('ti')
-        filePath=self.dbPath+'mygdw.csv'
-        result.to_csv(filePath,index=True)
-
-
-    def exp_m(self):
-        result=pd.DataFrame()
-        for t in self.Allti:
-            dfm=self.make_tim(t)
-            result=result.append(dfm)
-        #result.set_index('ti')
-        filePath=self.dbPath+'mygdm.csv'
-        result.to_csv(filePath,index=True)
-
-    def make_tim(self,ti):
-        db=self.db
-        df=db[db[0]==ti]
-        df=df.set_index(1)
-        dfw=df.resample('M',how='last')
-        dfw[2]=df[2].resample('M',how='first')
-        dfw[3]=df[3].resample('M',how='max')
-        dfw[4]=df[4].resample('M',how='min')
-        dfw[6]=df[6].resample('M',how='sum')
-        return dfw
-
+            retdf=self.makemgroup(t)
+            result=result.append(retdf)
+        filePath=self.dbPath+'gngroup_m.csv'
+        result.to_csv(filePath,index=False)
            
                
 
