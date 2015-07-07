@@ -9,7 +9,7 @@ class dbSource:
 
     def __init__(self,dbPath):
         self.dbPath=dbPath
-        self.Allti=pd.read_csv(self.dbPath+'Allti.csv')
+        self.Allti=pd.read_csv(self.dbPath+'Allti.csv',header=None)
         filePath=self.dbPath+'gngroup_d.csv'
         self.gndb=pd.read_csv(filePath,parse_dates=['begindate'])
         self.gndb.set_index('ti')
@@ -88,7 +88,6 @@ class dbSource:
             return{}   
     
     def wholeSear(self):
-        db=self.db
         row_list=[]
         for t in self.Allti:
             ret=self.collectInfo(t)
@@ -102,37 +101,90 @@ class dbSource:
     #from week month judge is bottom or top type by vo and rate and direct  
     def tbType(self ,wm1,wm2,wm3):
         # top or bottom order : wm3 wm2 wm1
-        if (wm1.mType=='R') and (wm2.mType=='G') and  (wm3.mType=='G') and (wm3.la>wm2.la) and (wm3.hi>wm2.hi) and ( wm3.la>wm2.la)  and (wm1.la>wm2.la) and (wm3.vo>wm2.vo) and (wm1.vo>wm2.vo) :
-           
-           isBot='B1'
+        level=wm1.mType()+wm1.b_s()+wm2.mType()+wm3.mType()#'Rb1GG'
+        if level=='Rb1GG':
+           isBot='B1'           
+        elif level=='Rb1GG' and  (wm3.lo>wm2.lo) and (wm3.hi>wm2.hi):
+               isBot='B2'
+        elif  level=='Rb1GG' and (wm3.lo>wm2.lo) and (wm3.hi>wm2.hi) and (wm1.vo>wm2.vo):
+           isBot='B3'        
         else:
            isBot='N'
-          
         return isBot
-    def get_dfw(self,ti):
-        return self.dbw[self.dbw['ti']==ti].tail(3)
-    
-    def estimate(self,ti):
-        dfw=self.dbw[self.dbw['ti']==ti].tail(3)
-        dfm=self.dbm[self.dbm['ti']==ti].tail(3)
-        gndf=self.get_gngroup(ti,1).tail(2)
-        wgndf=self.get_gngroup(ti,2).tail(2)
-        if len(dfw)==3 and len(dfm)==3:
-           wlist=self.getWMMlist(dfw)
-           iswb=self.tbType(wlist[2],wlist[1],wlist[0])
-           mlist=self.getWMMlist(dfm)
-           ismb=self.tbType(mlist[2],mlist[1],mlist[0])
-           wgnlist=self.getGnlist(wgndf)
-           wColor=wgnlist[1].maColor()
-           return {'ti':ti,'w':iswb+wColor,'m':ismb}
-           
-        
-               
 
+    def get_dfw(self,ti):
+        return self.dbw[self.dbw['ti']==ti]
+    def find_wb(self,ti):
+         blist=[]
+         dfw=self.dbw[self.dbw['ti']==ti]
+         for i in range(len(dfw)):
+             if (i+3)<=len(dfw):
+                if i==0:
+                   df=dfw.tail(3)
+                else:
+                   df=dfw[-3-i:-i]
+             if len(df)==3:
+                wlist=self.getWMMlist(df)
+                sret=self.tbType(wlist[2],wlist[1],wlist[0])
+                #if self.tbType(wlist[2],wlist[1],wlist[0])=='B1':
+                # blist.append(wlist[2].begindate)
+                blist.append(wlist[2].begindate.strftime('%y%m%d')+'-'+sret)
+         return blist 
+        
+           
+    def find_mb(self,ti):
+         blist=[]
+         dfm=self.dbm[self.dbm['ti']==ti]
+         for i in range(len(dfm)):
+             if (i+3)<=len(dfm):
+                if i==0:
+                   df=dfm.tail(3)
+                else:
+                   df=dfm[-3-i:-i]
+             if len(df)==3:
+                wlist=self.getWMMlist(df)
+                sret=self.tbType(wlist[2],wlist[1],wlist[0])
+                #if self.tbType(wlist[2],wlist[1],wlist[0])=='B1':
+                # blist.append(wlist[2].begindate)
+                blist.append(wlist[2].begindate.strftime('%y%m%d')+'-'+sret)
+         return blist 
+
+    def estimate(self,ti,start=0):
+        try:
+           if start==0:
+              dfw=self.dbw[self.dbw['ti']==ti].tail(3)
+              dfm=self.dbm[self.dbm['ti']==ti].tail(3)
+           else:
+              dfw=self.dbw[self.dbw['ti']==ti][-3-start:-start]
+              dfm=self.dbm[self.dbm['ti']==ti][-3-start:-start]
+           gndf=self.get_gngroup(ti,1).tail(2)
+           wgndf=self.get_gngroup(ti,2).tail(2)
+           if len(dfw)==3 and len(dfm)==3:
+              wlist=sealf.getWMMlist(dfw)
+              iswb=self.tbType(wlist[2],wlist[1],wlist[0])
+              mlist=self.getWMMlist(dfm)
+              ismb=self.tbType(mlist[2],mlist[1],mlist[0])
+              wgnlist=self.getGnlist(wgndf)
+              wColor=wgnlist[1].maColor()
+              return {'ti':ti,'w':iswb+wColor,'m':ismb}
+           else:
+              return ''
+        except:
+              return ''  
+    def Sear_WM(self,start=0):
+        row_list=[]
+        for row in self.Allti.iterrows():
+            ret=self.estimate(int(row[1]),start)
+            if len(ret)>0:
+               row_list.append(ret)
+        df=pd.DataFrame(row_list)
+        return df
+   
 def Main():
-    #p=dbSource('/home/user/programe/')
+    p=dbSource('/home/user/programe/')
     #p.makedb()
-    #p.exp_w()
-    pass  
+    #p.Sear_WM()
+    #pass 
+    #p.find_b(600643) 
 
 Main()
