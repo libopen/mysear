@@ -99,17 +99,20 @@ class dbSource:
 
     # top type and bottGom type 
     #from week month judge is bottom or top type by vo and rate and direct  
-    def tbType(self ,wm1,wm2,wm3):
-        # top or bottom order : wm3 wm2 wm1
-        level=wm1.mType()+wm1.b_s()+wm2.mType()+wm3.mType()#'Rb1GG'
-        if level=='Rb1GG':
-           isBot='B1'           
-        elif level=='Rb1GG' and  (wm3.lo>wm2.lo) and (wm3.hi>wm2.hi):
+    def tbType(self ,wm1,wm2,wm3,wm4):
+        # top or bottom order : wm4,wm3 wm2 wm1
+        if wm4.hi>wm1.la and wm4.hi>wm3.hi: #only support wm4.high > wm1.la
+           level=wm1.mType()+wm1.b_s()+wm2.mType()+wm3.mType()#'Rb1GG'
+           if level=='Rb1GG' and (wm1.la<=wm2.hi) and (wm3.la>wm2.la): 
+               isBot='B1'           
+           elif level=='Rb1GG' and  (wm1.la<wm3.hi) and (wm3.lo>wm2.lo) and (wm3.hi>wm2.hi):
                isBot='B2'
-        elif  level=='Rb1GG' and (wm3.lo>wm2.lo) and (wm3.hi>wm2.hi) and (wm1.vo>wm2.vo):
-           isBot='B3'        
+           elif  level=='Rb1GG' and (wm3.lo>wm2.lo) and (wm3.hi>wm2.hi) and (wm1.vo>wm2.vo):
+               isBot='B3'        
+           else:
+               isBot='N'
         else:
-           isBot='N'
+              isBot='N'
         return isBot
 
     def get_dfw(self,ti):
@@ -118,17 +121,15 @@ class dbSource:
          blist=[]
          dfw=self.dbw[self.dbw['ti']==ti]
          for i in range(len(dfw)):
-             if (i+3)<=len(dfw):
+             if (i+4)<=len(dfw):
                 if i==0:
-                   df=dfw.tail(3)
+                   df=dfw.tail(4)
                 else:
-                   df=dfw[-3-i:-i]
-             if len(df)==3:
+                   df=dfw[-4-i:-i]
+             if len(df)==4:
                 wlist=self.getWMMlist(df)
-                sret=self.tbType(wlist[2],wlist[1],wlist[0])
-                #if self.tbType(wlist[2],wlist[1],wlist[0])=='B1':
-                # blist.append(wlist[2].begindate)
-                blist.append(wlist[2].begindate.strftime('%y%m%d')+'-'+sret)
+                sret=self.tbType(wlist[3],wlist[2],wlist[1],wlist[0])
+                blist.append(wlist[3].begindate.strftime('%y%m%d')+'-'+sret)
          return blist 
         
            
@@ -136,34 +137,33 @@ class dbSource:
          blist=[]
          dfm=self.dbm[self.dbm['ti']==ti]
          for i in range(len(dfm)):
-             if (i+3)<=len(dfm):
+             if (i+4)<=len(dfm):
                 if i==0:
-                   df=dfm.tail(3)
+                   df=dfm.tail(4)
                 else:
-                   df=dfm[-3-i:-i]
-             if len(df)==3:
+                   df=dfm[-4-i:-i]
+             if len(df)==4:
                 wlist=self.getWMMlist(df)
-                sret=self.tbType(wlist[2],wlist[1],wlist[0])
-                #if self.tbType(wlist[2],wlist[1],wlist[0])=='B1':
-                # blist.append(wlist[2].begindate)
-                blist.append(wlist[2].begindate.strftime('%y%m%d')+'-'+sret)
+                sret=self.tbType(wlist[3],wlist[2],wlist[1],wlist[0])
+                #if self.tbType(wlist[3],wlist[2],wlist[1],wlist[0])=='B1':
+                blist.append(wlist[3].begindate.strftime('%y%m%d')+'-'+sret)
          return blist 
 
     def estimate(self,ti,start=0):
         try:
            if start==0:
-              dfw=self.dbw[self.dbw['ti']==ti].tail(3)
-              dfm=self.dbm[self.dbm['ti']==ti].tail(3)
+              dfw=self.dbw[self.dbw['ti']==ti].tail(4)
+              dfm=self.dbm[self.dbm['ti']==ti].tail(4)
            else:
-              dfw=self.dbw[self.dbw['ti']==ti][-3-start:-start]
-              dfm=self.dbm[self.dbm['ti']==ti][-3-start:-start]
+              dfw=self.dbw[self.dbw['ti']==ti][-4-start:-start]
+              dfm=self.dbm[self.dbm['ti']==ti][-4-start:-start]
            gndf=self.get_gngroup(ti,1).tail(2)
            wgndf=self.get_gngroup(ti,2).tail(2)
-           if len(dfw)==3 and len(dfm)==3:
-              wlist=sealf.getWMMlist(dfw)
-              iswb=self.tbType(wlist[2],wlist[1],wlist[0])
+           if len(dfw)==4 and len(dfm)==4:
+              wlist=self.getWMMlist(dfw)
+              iswb=self.tbType(wlist[3],wlist[2],wlist[1],wlist[0])
               mlist=self.getWMMlist(dfm)
-              ismb=self.tbType(mlist[2],mlist[1],mlist[0])
+              ismb=self.tbType(wlist[3],mlist[2],mlist[1],mlist[0])
               wgnlist=self.getGnlist(wgndf)
               wColor=wgnlist[1].maColor()
               return {'ti':ti,'w':iswb+wColor,'m':ismb}
@@ -185,6 +185,7 @@ def Main():
     #p.makedb()
     #p.Sear_WM()
     #pass 
-    #p.find_b(600643) 
+    #p.find_b(600643)
+    #p.estimate(960) 
 
 Main()
