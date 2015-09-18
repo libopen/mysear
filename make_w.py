@@ -13,11 +13,11 @@ class dbSource:
     def makedb(self) :
         filePath=self.dbPath + self.dbName
         self.db=pd.read_csv(filePath,header=None,parse_dates=[1])
-        self.Allti=self.db.loc[:,0].drop_duplicates()
         self.db.set_index(0)
+        self.Allti=self.db.loc[:,0].drop_duplicates()
 
     def getAllti(self):
-       return self.Allti
+        return self.Allti
                         
 
     def make_tiw(self,ti):
@@ -85,9 +85,10 @@ class dbSource:
         df = self.get_wmacd(ti)
         df['gd']=''
         CrossPos=df['DIF']>df['DEA']
+        
         df.loc[CrossPos[(CrossPos==True) & (CrossPos.shift()==False)].index,'gd']='gold'
         df.loc[CrossPos[(CrossPos==False) & (CrossPos.shift()==True)].index,'gd']='die'
-        dfret=df[df['gd']=='gold'].tail(2)[['ti','cdate','la']]
+        dfret=df[(df['gd']=='gold') & (df['DEA']<0)].tail(2)[['ti','cdate','la','DEA']]
         return dfret
 
 
@@ -142,7 +143,7 @@ class dbSource:
 
 def Main():
     p=dbSource('/home/user/programe/','mygd.csv')
-    #p.makedb()
-    #p.exp_w()
+    p.makedb()
+    p.exp_w()
 
 Main()
