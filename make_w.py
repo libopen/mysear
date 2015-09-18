@@ -69,7 +69,7 @@ class dbSource:
         ema_list=[12,26,60]
         for ema in ema_list:
             df.loc[:,'EMA'+str(ema)]=pd.ewma(df['la'],span=ema)
-
+        
         df.loc[:,'DIF']=df['EMA12']-df['EMA26']
         df.loc[:,'DEA']=pd.ewma(df['DIF'],span=9)
         df.loc[:,'MACD']=(df['DIF']-df['DEA'])*2
@@ -78,7 +78,18 @@ class dbSource:
         df.loc[(df['MACD']>=0)  ,'color']=1
         df.loc[(df['MACD']<0)  ,'color']=-1
         df['gn']=0
+        
         return df    
+
+    def get_wmacdCross(self,ti):
+        df = self.get_wmacd(ti)
+        df['gd']=''
+        CrossPos=df['DIF']>df['DEA']
+        df.loc[CrossPos[(CrossPos==True) & (CrossPos.shift()==False)].index,'gd']='gold'
+        df.loc[CrossPos[(CrossPos==False) & (CrossPos.shift()==True)].index,'gd']='die'
+        dfret=df[df['gd']=='gold'].tail(2)[['ti','cdate','la']]
+        return dfret
+
 
     def makewgroup(self,ti):
         df=self.get_wmacd(ti)
@@ -118,6 +129,16 @@ class dbSource:
         result.to_csv(filePath,index=False)
            
                
+    def exp_wmacdCross(self) :
+        result=pd.DataFrame()
+        for t in self.Allti:
+            retdf=self.get_wmacdCross(t)
+            if retdf.empty:
+               continue
+            result=result.append(retdf)
+        #filePath=self.dbPath+'m_w.csv'
+        #result.to_csv(filePath,index=False)
+        return result
 
 def Main():
     p=dbSource('/home/user/programe/','mygd.csv')
