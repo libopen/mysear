@@ -1,0 +1,412 @@
+2015/12/29 13:51:41 [error] [exception.CException] exception 'CException' with message 'Alias "ext.redis.CRedisCache" is invalid. Make sure it points to an existing PHP file and the file is readable.' in /home/user/yii/framework/YiiBase.php:323
+Stack trace:
+#0 /home/user/yii/framework/YiiBase.php(196): YiiBase::import('ext.redis.CRedi...', true)
+#1 /home/user/yii/framework/base/CModule.php(393): YiiBase::createComponent(Array)
+#2 /home/user/yii/framework/base/CModule.php(103): CModule->getComponent('redis')
+#3 /var/www/yii2/protected/commands/TestCommand.php(7): CModule->__get('redis')
+#4 [internal function]: TestCommand->actionIndex()
+#5 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs(Object(TestCommand), Array)
+#6 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): CConsoleCommand->run(Array)
+#7 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run(Array)
+#8 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#9 /home/user/yii/framework/yiic.php(33): CApplication->run()
+#10 /var/www/yii2/protected/yiic.php(7): require_once('/home/user/yii/...')
+#11 /var/www/yii2/protected/yiic(4): require_once('/var/www/yii2/p...')
+#12 {main}
+---
+2015/12/29 13:56:41 [error] [exception.CException] exception 'CException' with message 'Alias "ext.redis.CRedisCache" is invalid. Make sure it points to an existing PHP file and the file is readable.' in /home/user/yii/framework/YiiBase.php:323
+Stack trace:
+#0 /home/user/yii/framework/YiiBase.php(196): YiiBase::import('ext.redis.CRedi...', true)
+#1 /home/user/yii/framework/base/CModule.php(393): YiiBase::createComponent(Array)
+#2 /home/user/yii/framework/base/CModule.php(103): CModule->getComponent('redis')
+#3 /var/www/yii2/protected/commands/TestCommand.php(7): CModule->__get('redis')
+#4 [internal function]: TestCommand->actionIndex()
+#5 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs(Object(TestCommand), Array)
+#6 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): CConsoleCommand->run(Array)
+#7 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run(Array)
+#8 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#9 /home/user/yii/framework/yiic.php(33): CApplication->run()
+#10 /var/www/yii2/protected/yiic.php(7): require_once('/home/user/yii/...')
+#11 /var/www/yii2/protected/yiic(4): require_once('/var/www/yii2/p...')
+#12 {main}
+---
+2015/12/29 14:31:39 [error] [exception.Predis_ClientException] exception 'Predis_ClientException' with message 'Cannot send 'MSET' commands to a cluster of connections' in /var/www/yii2/protected/extensions/redis/Predis.php:1442
+Stack trace:
+#0 /var/www/yii2/protected/extensions/redis/Predis.php(1467): Predis_ConnectionCluster->getConnection(Object(Predis_Commands_SetMultiple))
+#1 /var/www/yii2/protected/extensions/redis/Predis.php(207): Predis_ConnectionCluster->executeCommand(Object(Predis_Commands_SetMultiple))
+#2 [internal function]: Predis_Client->__call('mset', Array)
+#3 [internal function]: Predis_Client->mset(Array)
+#4 /var/www/yii2/protected/extensions/redis/CRedisCache.php(143): call_user_func_array(Array, Array)
+#5 /var/www/yii2/protected/commands/TestCommand.php(15): CRedisCache->__call('mset', Array)
+#6 /var/www/yii2/protected/commands/TestCommand.php(15): CRedisCache->mset(Array)
+#7 [internal function]: TestCommand->actionIndex()
+#8 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs(Object(TestCommand), Array)
+#9 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): CConsoleCommand->run(Array)
+#10 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run(Array)
+#11 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#12 /home/user/yii/framework/yiic.php(33): CApplication->run()
+#13 /var/www/yii2/protected/yiic.php(7): require_once('/home/user/yii/...')
+#14 /var/www/yii2/protected/yiic(4): require_once('/var/www/yii2/p...')
+#15 {main}
+---
+2015/12/29 14:36:19 [error] [exception.Predis_ClientException] exception 'Predis_ClientException' with message 'Cannot send 'MSET' commands to a cluster of connections' in /var/www/yii2/protected/extensions/redis/Predis.php:1442
+Stack trace:
+#0 /var/www/yii2/protected/extensions/redis/Predis.php(1467): Predis_ConnectionCluster->getConnection(Object(Predis_Commands_SetMultiple))
+#1 /var/www/yii2/protected/extensions/redis/Predis.php(207): Predis_ConnectionCluster->executeCommand(Object(Predis_Commands_SetMultiple))
+#2 [internal function]: Predis_Client->__call('mset', Array)
+#3 [internal function]: Predis_Client->mset(Array)
+#4 /var/www/yii2/protected/extensions/redis/CRedisCache.php(143): call_user_func_array(Array, Array)
+#5 /var/www/yii2/protected/commands/TestCommand.php(15): CRedisCache->__call('mset', Array)
+#6 /var/www/yii2/protected/commands/TestCommand.php(15): CRedisCache->mset(Array)
+#7 [internal function]: TestCommand->actionIndex()
+#8 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs(Object(TestCommand), Array)
+#9 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): CConsoleCommand->run(Array)
+#10 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run(Array)
+#11 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#12 /home/user/yii/framework/yiic.php(33): CApplication->run()
+#13 /var/www/yii2/protected/yiic.php(7): require_once('/home/user/yii/...')
+#14 /var/www/yii2/protected/yiic(4): require_once('/var/www/yii2/p...')
+#15 {main}
+---
+2015/12/29 14:56:45 [error] [php] include(PDO.php): failed to open stream: No such file or directory (/home/user/yii/framework/YiiBase.php:432)
+Stack trace:
+#0 unknown(0): spl_autoload_call()
+#1 /home/user/yii/framework/db/CDbConnection.php(441): class_exists()
+#2 /home/user/yii/framework/db/CDbConnection.php(391): CDbConnection->createPdoInstance()
+#3 /home/user/yii/framework/db/CDbConnection.php(347): CDbConnection->open()
+#4 /home/user/yii/framework/db/CDbConnection.php(325): CDbConnection->setActive()
+#5 /home/user/yii/framework/base/CModule.php(394): CDbConnection->init()
+#6 /home/user/yii/framework/base/CModule.php(103): CConsoleApplication->getComponent()
+#7 /var/www/yii2/protected/commands/TestCommand.php(20): CConsoleApplication->__get()
+#8 unknown(0): TestCommand->actionIndex()
+#9 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs()
+#10 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): TestCommand->run()
+#11 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#12 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#13 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#14 /var/www/yii2/protected/yiic.php(7): require_once()
+#15 /var/www/yii2/protected/yiic(4): require_once()
+
+2015/12/29 15:03:26 [error] [php] include(PDO.php): failed to open stream: No such file or directory (/home/user/yii/framework/YiiBase.php:432)
+Stack trace:
+#0 unknown(0): spl_autoload_call()
+#1 /home/user/yii/framework/db/CDbConnection.php(441): class_exists()
+#2 /home/user/yii/framework/db/CDbConnection.php(391): CDbConnection->createPdoInstance()
+#3 /home/user/yii/framework/db/CDbConnection.php(347): CDbConnection->open()
+#4 /home/user/yii/framework/db/CDbConnection.php(325): CDbConnection->setActive()
+#5 /home/user/yii/framework/base/CModule.php(394): CDbConnection->init()
+#6 /home/user/yii/framework/base/CModule.php(103): CConsoleApplication->getComponent()
+#7 /var/www/yii2/protected/commands/TestCommand.php(20): CConsoleApplication->__get()
+#8 unknown(0): TestCommand->actionIndex()
+#9 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs()
+#10 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): TestCommand->run()
+#11 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#12 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#13 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#14 /var/www/yii2/protected/yiic.php(7): require_once()
+#15 /var/www/yii2/protected/yiic(4): require_once()
+
+2015/12/29 15:10:49 [error] [php] include(PDO.php): failed to open stream: No such file or directory (/home/user/yii/framework/YiiBase.php:432)
+Stack trace:
+#0 unknown(0): spl_autoload_call()
+#1 /home/user/yii/framework/db/CDbConnection.php(441): class_exists()
+#2 /home/user/yii/framework/db/CDbConnection.php(391): CDbConnection->createPdoInstance()
+#3 /home/user/yii/framework/db/CDbConnection.php(347): CDbConnection->open()
+#4 /home/user/yii/framework/db/CDbConnection.php(325): CDbConnection->setActive()
+#5 /home/user/yii/framework/base/CModule.php(394): CDbConnection->init()
+#6 /home/user/yii/framework/base/CModule.php(103): CConsoleApplication->getComponent()
+#7 /var/www/yii2/protected/commands/TestCommand.php(20): CConsoleApplication->__get()
+#8 unknown(0): TestCommand->actionIndex()
+#9 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs()
+#10 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): TestCommand->run()
+#11 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#12 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#13 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#14 /var/www/yii2/protected/yiic.php(7): require_once()
+#15 /var/www/yii2/protected/yiic(4): require_once()
+
+2015/12/29 15:20:43 [error] [php] include(PDO.php): failed to open stream: No such file or directory (/home/user/yii/framework/YiiBase.php:432)
+Stack trace:
+#0 unknown(0): spl_autoload_call()
+#1 /home/user/yii/framework/db/CDbConnection.php(441): class_exists()
+#2 /home/user/yii/framework/db/CDbConnection.php(391): CDbConnection->createPdoInstance()
+#3 /home/user/yii/framework/db/CDbConnection.php(347): CDbConnection->open()
+#4 /home/user/yii/framework/db/CDbConnection.php(325): CDbConnection->setActive()
+#5 /home/user/yii/framework/base/CModule.php(394): CDbConnection->init()
+#6 /home/user/yii/framework/base/CModule.php(103): CConsoleApplication->getComponent()
+#7 /var/www/yii2/protected/commands/TestCommand.php(20): CConsoleApplication->__get()
+#8 unknown(0): TestCommand->actionIndex()
+#9 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs()
+#10 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): TestCommand->run()
+#11 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#12 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#13 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#14 /var/www/yii2/protected/yiic.php(7): require_once()
+#15 /var/www/yii2/protected/yiic(4): require_once()
+
+2015/12/29 07:26:25 [error] [exception.Predis_ServerException] exception 'Predis_ServerException' with message 'wrong number of arguments for 'hmget' command' in /var/www/yii2/protected/extensions/redis/Predis.php:573
+Stack trace:
+#0 /var/www/yii2/protected/extensions/redis/Predis.php(711): Predis_ResponseErrorHandler->handle(Object(Predis_Connection), 'ERR wrong numbe...')
+#1 /var/www/yii2/protected/extensions/redis/Predis.php(1312): Predis_ResponseReader->read(Object(Predis_Connection))
+#2 /var/www/yii2/protected/extensions/redis/Predis.php(1469): Predis_Connection->readResponse(Object(Predis_Commands_HashGetMultiple))
+#3 /var/www/yii2/protected/extensions/redis/Predis.php(207): Predis_ConnectionCluster->executeCommand(Object(Predis_Commands_HashGetMultiple))
+#4 [internal function]: Predis_Client->__call('hmget', Array)
+#5 [internal function]: Predis_Client->hmget('080301203010106...')
+#6 /var/www/yii2/protected/extensions/redis/CRedisCache.php(143): call_user_func_array(Array, Array)
+#7 /var/www/yii2/protected/commands/TestCommand.php(29): CRedisCache->__call('hmget', Array)
+#8 /var/www/yii2/protected/commands/TestCommand.php(29): CRedisCache->hmget('080301203010106...')
+#9 [internal function]: TestCommand->actionIndex()
+#10 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs(Object(TestCommand), Array)
+#11 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): CConsoleCommand->run(Array)
+#12 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run(Array)
+#13 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#14 /home/user/yii/framework/yiic.php(33): CApplication->run()
+#15 /var/www/yii2/protected/yiic.php(7): require_once('/home/user/yii/...')
+#16 /var/www/yii2/protected/yiic(4): require_once('/var/www/yii2/p...')
+#17 {main}
+---
+2015/12/29 07:56:32 [error] [php] PDOStatement::fetchAll(): column 2 data was too large for buffer and was truncated to fit it (/home/user/yii/framework/db/CDbCommand.php:518)
+Stack trace:
+#0 /var/www/yii2/protected/commands/TestCommand.php(20): CDbCommand->queryAll()
+#1 unknown(0): TestCommand->actionIndex()
+#2 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs()
+#3 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): TestCommand->run()
+#4 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#5 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#6 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#7 /var/www/yii2/protected/yiic.php(7): require_once()
+#8 /var/www/yii2/protected/yiic(4): require_once()
+
+2015/12/29 07:58:30 [error] [php] PDOStatement::fetchAll(): column 2 data was too large for buffer and was truncated to fit it (/home/user/yii/framework/db/CDbCommand.php:518)
+Stack trace:
+#0 /var/www/yii2/protected/commands/TestCommand.php(20): CDbCommand->queryAll()
+#1 unknown(0): TestCommand->actionIndex()
+#2 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs()
+#3 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): TestCommand->run()
+#4 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#5 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#6 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#7 /var/www/yii2/protected/yiic.php(7): require_once()
+#8 /var/www/yii2/protected/yiic(4): require_once()
+
+2015/12/29 08:10:45 [error] [php] PDOStatement::fetchAll(): column 2 data was too large for buffer and was truncated to fit it (/home/user/yii/framework/db/CDbCommand.php:518)
+Stack trace:
+#0 /var/www/yii2/protected/commands/TestCommand.php(20): CDbCommand->queryAll()
+#1 unknown(0): TestCommand->actionIndex()
+#2 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs()
+#3 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): TestCommand->run()
+#4 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#5 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#6 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#7 /var/www/yii2/protected/yiic.php(7): require_once()
+#8 /var/www/yii2/protected/yiic(4): require_once()
+
+2015/12/29 08:11:35 [error] [php] Undefined index: TCPNAME (/var/www/yii2/protected/commands/TestCommand.php:25)
+Stack trace:
+#0 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): TestCommand->run()
+#1 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#2 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#3 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#4 /var/www/yii2/protected/yiic.php(7): require_once()
+#5 /var/www/yii2/protected/yiic(4): require_once()
+
+2015/12/30 04:36:44 [error] [php] Argument 1 passed to Predis_Client::executeCommand() must be an instance of Predis_Command, string given (/var/www/yii2/protected/extensions/redis/Predis.php:214)
+Stack trace:
+#0 /var/www/yii2/protected/commands/TestCommand.php(34): CRedisCache->__call()
+#1 /var/www/yii2/protected/commands/TestCommand.php(34): CRedisCache->executeCommand()
+#2 unknown(0): TestCommand->actionIndex()
+#3 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs()
+#4 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): TestCommand->run()
+#5 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#6 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#7 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#8 /var/www/yii2/protected/yiic.php(7): require_once()
+#9 /var/www/yii2/protected/yiic(4): require_once()
+
+2015/12/30 04:49:50 [error] [php] Argument 1 passed to Predis_Client::executeCommand() must be an instance of Predis_Command, string given (/var/www/yii2/protected/extensions/redis/Predis.php:214)
+Stack trace:
+#0 /var/www/yii2/protected/commands/TestCommand.php(35): CRedisCache->__call()
+#1 /var/www/yii2/protected/commands/TestCommand.php(35): CRedisCache->executeCommand()
+#2 unknown(0): TestCommand->actionIndex()
+#3 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs()
+#4 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): TestCommand->run()
+#5 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#6 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#7 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#8 /var/www/yii2/protected/yiic.php(7): require_once()
+#9 /var/www/yii2/protected/yiic(4): require_once()
+
+2015/12/30 04:57:57 [error] [exception.Predis_ServerException] exception 'Predis_ServerException' with message 'wrong number of arguments for 'hmset' command' in /var/www/yii2/protected/extensions/redis/Predis.php:573
+Stack trace:
+#0 /var/www/yii2/protected/extensions/redis/Predis.php(711): Predis_ResponseErrorHandler->handle(Object(Predis_Connection), 'ERR wrong numbe...')
+#1 /var/www/yii2/protected/extensions/redis/Predis.php(1312): Predis_ResponseReader->read(Object(Predis_Connection))
+#2 /var/www/yii2/protected/extensions/redis/Predis.php(1469): Predis_Connection->readResponse(Object(Predis_Commands_HashSetMultiple))
+#3 /var/www/yii2/protected/extensions/redis/Predis.php(207): Predis_ConnectionCluster->executeCommand(Object(Predis_Commands_HashSetMultiple))
+#4 [internal function]: Predis_Client->__call('hmset', Array)
+#5 [internal function]: Predis_Client->hmset('150301202010102...', 's:68:"['TCPCODE...')
+#6 /var/www/yii2/protected/extensions/redis/CRedisCache.php(143): call_user_func_array(Array, Array)
+#7 /var/www/yii2/protected/commands/TestCommand.php(35): CRedisCache->__call('hmset', Array)
+#8 /var/www/yii2/protected/commands/TestCommand.php(35): CRedisCache->hmset('150301202010102...', 's:68:"['TCPCODE...')
+#9 [internal function]: TestCommand->actionIndex()
+#10 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs(Object(TestCommand), Array)
+#11 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): CConsoleCommand->run(Array)
+#12 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run(Array)
+#13 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#14 /home/user/yii/framework/yiic.php(33): CApplication->run()
+#15 /var/www/yii2/protected/yiic.php(7): require_once('/home/user/yii/...')
+#16 /var/www/yii2/protected/yiic(4): require_once('/var/www/yii2/p...')
+#17 {main}
+---
+2015/12/30 04:59:09 [error] [exception.Predis_ServerException] exception 'Predis_ServerException' with message 'wrong number of arguments for 'hmset' command' in /var/www/yii2/protected/extensions/redis/Predis.php:573
+Stack trace:
+#0 /var/www/yii2/protected/extensions/redis/Predis.php(711): Predis_ResponseErrorHandler->handle(Object(Predis_Connection), 'ERR wrong numbe...')
+#1 /var/www/yii2/protected/extensions/redis/Predis.php(1312): Predis_ResponseReader->read(Object(Predis_Connection))
+#2 /var/www/yii2/protected/extensions/redis/Predis.php(1469): Predis_Connection->readResponse(Object(Predis_Commands_HashSetMultiple))
+#3 /var/www/yii2/protected/extensions/redis/Predis.php(207): Predis_ConnectionCluster->executeCommand(Object(Predis_Commands_HashSetMultiple))
+#4 [internal function]: Predis_Client->__call('hmset', Array)
+#5 [internal function]: Predis_Client->hmset('150301202010102...', '['TCPCODE'=>150...')
+#6 /var/www/yii2/protected/extensions/redis/CRedisCache.php(143): call_user_func_array(Array, Array)
+#7 /var/www/yii2/protected/commands/TestCommand.php(35): CRedisCache->__call('hmset', Array)
+#8 /var/www/yii2/protected/commands/TestCommand.php(35): CRedisCache->hmset('150301202010102...', '['TCPCODE'=>150...')
+#9 [internal function]: TestCommand->actionIndex()
+#10 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs(Object(TestCommand), Array)
+#11 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): CConsoleCommand->run(Array)
+#12 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run(Array)
+#13 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#14 /home/user/yii/framework/yiic.php(33): CApplication->run()
+#15 /var/www/yii2/protected/yiic.php(7): require_once('/home/user/yii/...')
+#16 /var/www/yii2/protected/yiic(4): require_once('/var/www/yii2/p...')
+#17 {main}
+---
+2016/01/15 01:39:50 [error] [exception.CException] exception 'CException' with message 'Object configuration must be an array containing a "class" element.' in /home/user/yii/framework/YiiBase.php:193
+Stack trace:
+#0 /home/user/yii/framework/base/CModule.php(393): YiiBase::createComponent(Array)
+#1 /home/user/yii/framework/base/CModule.php(103): CModule->getComponent('db113')
+#2 /var/www/yii2/protected/commands/TestCommand.php(62): CModule->__get('db113')
+#3 [internal function]: TestCommand->actionUpdateScoreState()
+#4 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs(Object(TestCommand), Array)
+#5 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): CConsoleCommand->run(Array)
+#6 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run(Array)
+#7 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#8 /home/user/yii/framework/yiic.php(33): CApplication->run()
+#9 /var/www/yii2/protected/yiic.php(7): require_once('/home/user/yii/...')
+#10 /var/www/yii2/protected/yiic(4): require_once('/var/www/yii2/p...')
+#11 {main}
+---
+2016/01/15 01:47:21 [error] [exception.CException] exception 'CException' with message 'Object configuration must be an array containing a "class" element.' in /home/user/yii/framework/YiiBase.php:193
+Stack trace:
+#0 /home/user/yii/framework/base/CModule.php(393): YiiBase::createComponent(Array)
+#1 /home/user/yii/framework/base/CModule.php(103): CModule->getComponent('db113')
+#2 /var/www/yii2/protected/commands/TestCommand.php(62): CModule->__get('db113')
+#3 [internal function]: TestCommand->actionUpdateScoreState()
+#4 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs(Object(TestCommand), Array)
+#5 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): CConsoleCommand->run(Array)
+#6 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run(Array)
+#7 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#8 /home/user/yii/framework/yiic.php(33): CApplication->run()
+#9 /var/www/yii2/protected/yiic.php(7): require_once('/home/user/yii/...')
+#10 /var/www/yii2/protected/yiic(4): require_once('/var/www/yii2/p...')
+#11 {main}
+---
+2016/01/15 02:15:53 [error] [exception.CException] exception 'CException' with message 'Object configuration must be an array containing a "class" element.' in /home/user/yii/framework/YiiBase.php:193
+Stack trace:
+#0 /home/user/yii/framework/base/CModule.php(393): YiiBase::createComponent(Array)
+#1 /home/user/yii/framework/base/CModule.php(103): CModule->getComponent('db112')
+#2 /var/www/yii2/protected/models/EAS_EXMM_COMPOSESCORE.php(188): CModule->__get('db112')
+#3 /var/www/yii2/protected/commands/TestCommand.php(63): EAS_EXMM_COMPOSESCORE->getDbConnection()
+#4 [internal function]: TestCommand->actionUpdateScoreState()
+#5 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs(Object(TestCommand), Array)
+#6 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): CConsoleCommand->run(Array)
+#7 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run(Array)
+#8 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#9 /home/user/yii/framework/yiic.php(33): CApplication->run()
+#10 /var/www/yii2/protected/yiic.php(7): require_once('/home/user/yii/...')
+#11 /var/www/yii2/protected/yiic(4): require_once('/var/www/yii2/p...')
+#12 {main}
+---
+2016/01/15 02:27:43 [error] [system.db.CDbCommand] CDbCommand::fetch() failed: SQLSTATE[HY000]: General error: 1722 OCIStmtExecute: ORA-01722: 无效数字
+ (/home/user/soft/php-5.5.10/ext/pdo_oci/oci_statement.c:148). The SQL statement executed was: WITH USER_SQL AS (SELECT * FROM "EAS_EXMM_COMPOSESCORE" "t" WHERE SN=:SN),
+	PAGINATION AS (SELECT USER_SQL.*, rownum as rowNumId FROM USER_SQL)
+SELECT *
+FROM PAGINATION
+ WHERE rownum <= 1.
+2016/01/15 02:27:43 [error] [exception.CDbException] exception 'CDbException' with message 'CDbCommand failed to execute the SQL statement: SQLSTATE[HY000]: General error: 1722 OCIStmtExecute: ORA-01722: 无效数字
+ (/home/user/soft/php-5.5.10/ext/pdo_oci/oci_statement.c:148). The SQL statement executed was: WITH USER_SQL AS (SELECT * FROM "EAS_EXMM_COMPOSESCORE" "t" WHERE SN=:SN),
+	PAGINATION AS (SELECT USER_SQL.*, rownum as rowNumId FROM USER_SQL)
+SELECT *
+FROM PAGINATION
+ WHERE rownum <= 1' in /home/user/yii/framework/db/CDbCommand.php:543
+Stack trace:
+#0 /home/user/yii/framework/db/CDbCommand.php(415): CDbCommand->queryInternal('fetch', Array, Array)
+#1 /home/user/yii/framework/db/ar/CActiveRecord.php(1356): CDbCommand->queryRow()
+#2 /home/user/yii/framework/db/ar/CActiveRecord.php(1461): CActiveRecord->query(Object(CDbCriteria))
+#3 /var/www/yii2/protected/commands/TestCommand.php(64): CActiveRecord->find('SN=:SN', Array)
+#4 [internal function]: TestCommand->actionUpdateScoreState()
+#5 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs(Object(TestCommand), Array)
+#6 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): CConsoleCommand->run(Array)
+#7 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run(Array)
+#8 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#9 /home/user/yii/framework/yiic.php(33): CApplication->run()
+#10 /var/www/yii2/protected/yiic.php(7): require_once('/home/user/yii/...')
+#11 /var/www/yii2/protected/yiic(4): require_once('/var/www/yii2/p...')
+#12 {main}
+---
+2016/01/15 02:31:00 [error] [php] Undefined variable: compose (/var/www/yii2/protected/commands/TestCommand.php:65)
+Stack trace:
+#0 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): TestCommand->run()
+#1 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#2 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#3 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#4 /var/www/yii2/protected/yiic.php(7): require_once()
+#5 /var/www/yii2/protected/yiic(4): require_once()
+
+2016/01/15 02:36:12 [error] [php] Undefined variable: compose (/var/www/yii2/protected/commands/TestCommand.php:65)
+Stack trace:
+#0 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): TestCommand->run()
+#1 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#2 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#3 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#4 /var/www/yii2/protected/yiic.php(7): require_once()
+#5 /var/www/yii2/protected/yiic(4): require_once()
+
+2016/01/15 02:36:31 [error] [php] Trying to get property of non-object (/var/www/yii2/protected/commands/TestCommand.php:65)
+Stack trace:
+#0 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): TestCommand->run()
+#1 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#2 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#3 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#4 /var/www/yii2/protected/yiic.php(7): require_once()
+#5 /var/www/yii2/protected/yiic(4): require_once()
+
+2016/01/15 02:44:07 [error] [exception.CDbException] exception 'CDbException' with message 'The table "EAS_EXMM_COMPOSESCORE" for active record class "EAS_EXMM_COMPOSESCORE" cannot be found in the database.' in /home/user/yii/framework/db/ar/CActiveRecord.php:2387
+Stack trace:
+#0 /home/user/yii/framework/db/ar/CActiveRecord.php(411): CActiveRecordMetaData->__construct(Object(EAS_EXMM_COMPOSESCORE))
+#1 /home/user/yii/framework/db/ar/CActiveRecord.php(661): CActiveRecord->getMetaData()
+#2 /home/user/yii/framework/db/ar/CActiveRecord.php(1490): CActiveRecord->getTableSchema()
+#3 /var/www/yii2/protected/commands/TestCommand.php(64): CActiveRecord->findByPk(1804319)
+#4 [internal function]: TestCommand->actionUpdateScoreState()
+#5 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs(Object(TestCommand), Array)
+#6 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): CConsoleCommand->run(Array)
+#7 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run(Array)
+#8 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#9 /home/user/yii/framework/yiic.php(33): CApplication->run()
+#10 /var/www/yii2/protected/yiic.php(7): require_once('/home/user/yii/...')
+#11 /var/www/yii2/protected/yiic(4): require_once('/var/www/yii2/p...')
+#12 {main}
+---
+2016/01/15 02:47:35 [error] [exception.CDbException] exception 'CDbException' with message 'The table "EAS_EXMM_COMPOSESCORE" for active record class "EAS_EXMM_COMPOSESCORE" cannot be found in the database.' in /home/user/yii/framework/db/ar/CActiveRecord.php:2387
+Stack trace:
+#0 /home/user/yii/framework/db/ar/CActiveRecord.php(411): CActiveRecordMetaData->__construct(Object(EAS_EXMM_COMPOSESCORE))
+#1 /home/user/yii/framework/db/ar/CActiveRecord.php(661): CActiveRecord->getMetaData()
+#2 /home/user/yii/framework/db/ar/CActiveRecord.php(1490): CActiveRecord->getTableSchema()
+#3 /var/www/yii2/protected/commands/TestCommand.php(64): CActiveRecord->findByPk(1804319)
+#4 [internal function]: TestCommand->actionUpdateScoreState()
+#5 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs(Object(TestCommand), Array)
+#6 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): CConsoleCommand->run(Array)
+#7 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run(Array)
+#8 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#9 /home/user/yii/framework/yiic.php(33): CApplication->run()
+#10 /var/www/yii2/protected/yiic.php(7): require_once('/home/user/yii/...')
+#11 /var/www/yii2/protected/yiic(4): require_once('/var/www/yii2/p...')
+#12 {main}
+---
