@@ -410,3 +410,344 @@ Stack trace:
 #11 /var/www/yii2/protected/yiic(4): require_once('/var/www/yii2/p...')
 #12 {main}
 ---
+2016/01/15 14:58:44 [error] [php] include(EasScoreClientCommand.php): failed to open stream: No such file or directory (/home/user/yii/framework/YiiBase.php:432)
+Stack trace:
+#0 /home/user/yii/framework/console/CConsoleCommandRunner.php(170): spl_autoload_call()
+#1 /home/user/yii/framework/console/CConsoleCommandRunner.php(67): CConsoleCommandRunner->createCommand()
+#2 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#3 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#4 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#5 /var/www/yii2/protected/yiic.php(7): require_once()
+#6 /var/www/yii2/protected/yiic(4): require_once()
+
+2016/01/15 06:59:29 [error] [php] include(EasScoreClientCommand.php): failed to open stream: No such file or directory (/home/user/yii/framework/YiiBase.php:432)
+Stack trace:
+#0 /home/user/yii/framework/console/CConsoleCommandRunner.php(170): spl_autoload_call()
+#1 /home/user/yii/framework/console/CConsoleCommandRunner.php(67): CConsoleCommandRunner->createCommand()
+#2 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#3 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#4 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#5 /var/www/yii2/protected/yiic.php(7): require_once()
+#6 /var/www/yii2/protected/yiic(4): require_once()
+
+2016/01/15 07:02:18 [error] [php] include(GearmandClient.php): failed to open stream: No such file or directory (/home/user/yii/framework/YiiBase.php:432)
+Stack trace:
+#0 /var/www/yii2/protected/commands/EasScoreClientCommand.php(5): spl_autoload_call()
+#1 unknown(0): EasScoreClientCommand->actionChangeScore()
+#2 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs()
+#3 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): EasScoreClientCommand->run()
+#4 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#5 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#6 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#7 /var/www/yii2/protected/yiic.php(7): require_once()
+#8 /var/www/yii2/protected/yiic(4): require_once()
+
+2016/01/18 01:23:19 [error] [php] include(GearmandClient.php): failed to open stream: No such file or directory (/home/user/yii/framework/YiiBase.php:432)
+Stack trace:
+#0 /var/www/yii2/protected/commands/EasScoreClientCommand.php(5): spl_autoload_call()
+#1 unknown(0): EasScoreClientCommand->actionChangeScore()
+#2 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs()
+#3 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): EasScoreClientCommand->run()
+#4 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#5 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#6 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#7 /var/www/yii2/protected/yiic.php(7): require_once()
+#8 /var/www/yii2/protected/yiic(4): require_once()
+
+2016/01/18 01:23:24 [error] [php] include(GearmandClient.php): failed to open stream: No such file or directory (/home/user/yii/framework/YiiBase.php:432)
+Stack trace:
+#0 /var/www/yii2/protected/commands/EasScoreClientCommand.php(5): spl_autoload_call()
+#1 unknown(0): EasScoreClientCommand->actionChangeScore()
+#2 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs()
+#3 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): EasScoreClientCommand->run()
+#4 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#5 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#6 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#7 /var/www/yii2/protected/yiic.php(7): require_once()
+#8 /var/www/yii2/protected/yiic(4): require_once()
+
+2016/01/18 02:38:38 [error] [php] include(GearmandClient.php): failed to open stream: No such file or directory (/home/user/yii/framework/YiiBase.php:432)
+Stack trace:
+#0 /var/www/yii2/protected/commands/EasScoreClientCommand.php(5): spl_autoload_call()
+#1 unknown(0): EasScoreClientCommand->actionChangeScore()
+#2 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs()
+#3 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): EasScoreClientCommand->run()
+#4 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#5 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#6 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#7 /var/www/yii2/protected/yiic.php(7): require_once()
+#8 /var/www/yii2/protected/yiic(4): require_once()
+
+2016/01/18 02:44:00 [error] [php] include(cJSON.php): failed to open stream: No such file or directory (/home/user/yii/framework/YiiBase.php:432)
+Stack trace:
+#0 /var/www/yii2/protected/workers/JobComposeWorker.php(12): spl_autoload_call()
+#1 unknown(0): JobComposeWorker->ChangeCompose()
+#2 /var/www/yii2/protected/commands/EasScoreCommand.php(11): JobComposeWorker->work()
+#3 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): EasScoreCommand->run()
+#4 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#5 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#6 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#7 /var/www/yii2/protected/yiic.php(7): require_once()
+#8 /var/www/yii2/protected/yiic(4): require_once()
+
+2016/01/18 05:50:10 [error] [php] include(EAS_ELC_STUDNETELCINFO.php): failed to open stream: No such file or directory (/home/user/yii/framework/YiiBase.php:432)
+Stack trace:
+#0 /var/www/yii2/protected/commands/TestCommand.php(71): spl_autoload_call()
+#1 unknown(0): TestCommand->actionUpdateScoreState()
+#2 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs()
+#3 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): TestCommand->run()
+#4 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#5 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#6 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#7 /var/www/yii2/protected/yiic.php(7): require_once()
+#8 /var/www/yii2/protected/yiic(4): require_once()
+
+2016/01/18 05:54:35 [error] [system.db.CDbCommand] CDbCommand::fetchColumn() failed: SQLSTATE[HY000]: General error: 1008 OCIStmtExecute: ORA-01008: 并非所有变量都已绑定
+ (/home/user/soft/php-5.5.10/ext/pdo_oci/oci_statement.c:148). The SQL statement executed was: SELECT COUNT(*) FROM "EAS_ELC_STUDENTELCINFO" "t" WHERE STUDENTCODE=:STUDNETCODE.
+2016/01/18 05:54:35 [error] [exception.CDbException] exception 'CDbException' with message 'CDbCommand failed to execute the SQL statement: SQLSTATE[HY000]: General error: 1008 OCIStmtExecute: ORA-01008: 并非所有变量都已绑定
+ (/home/user/soft/php-5.5.10/ext/pdo_oci/oci_statement.c:148). The SQL statement executed was: SELECT COUNT(*) FROM "EAS_ELC_STUDENTELCINFO" "t" WHERE STUDENTCODE=:STUDNETCODE' in /home/user/yii/framework/db/CDbCommand.php:543
+Stack trace:
+#0 /home/user/yii/framework/db/CDbCommand.php(433): CDbCommand->queryInternal('fetchColumn', 0, Array)
+#1 /home/user/yii/framework/db/ar/CActiveRecord.php(1606): CDbCommand->queryScalar()
+#2 /var/www/yii2/protected/commands/TestCommand.php(73): CActiveRecord->count('STUDENTCODE=:ST...', Array)
+#3 [internal function]: TestCommand->actionUpdateScoreState()
+#4 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs(Object(TestCommand), Array)
+#5 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): CConsoleCommand->run(Array)
+#6 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run(Array)
+#7 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#8 /home/user/yii/framework/yiic.php(33): CApplication->run()
+#9 /var/www/yii2/protected/yiic.php(7): require_once('/home/user/yii/...')
+#10 /var/www/yii2/protected/yiic(4): require_once('/var/www/yii2/p...')
+#11 {main}
+---
+2016/01/18 06:28:40 [error] [exception.CException] exception 'CException' with message 'Property "EAS_ELC_STUDENTSTUDYSTATUS.studentcode" is not defined.' in /home/user/yii/framework/base/CComponent.php:130
+Stack trace:
+#0 /home/user/yii/framework/db/ar/CActiveRecord.php(145): CComponent->__get('studentcode')
+#1 /var/www/yii2/protected/commands/TestCommand.php(80): CActiveRecord->__get('studentcode')
+#2 [internal function]: TestCommand->actionUpdateScoreState()
+#3 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs(Object(TestCommand), Array)
+#4 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): CConsoleCommand->run(Array)
+#5 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run(Array)
+#6 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#7 /home/user/yii/framework/yiic.php(33): CApplication->run()
+#8 /var/www/yii2/protected/yiic.php(7): require_once('/home/user/yii/...')
+#9 /var/www/yii2/protected/yiic(4): require_once('/var/www/yii2/p...')
+#10 {main}
+---
+2016/01/18 06:30:52 [error] [system.db.CDbCommand] CDbCommand::fetchAll() failed: SQLSTATE[HY000]: General error: 933 OCIStmtExecute: ORA-00933: SQL 命令未正确结束
+ (/home/user/soft/php-5.5.10/ext/pdo_oci/oci_statement.c:148). The SQL statement executed was: with t1 as (
+           select studentcode, courseid, max(composescore) maxscore from eas_exmm_composescore where          studentcode=:studentcode  and courseid=:courseid group by studentcode,courseid)
+           select t2.* from eas_exmm_composescore t2 inner join t1 on t2.studentcode=t1.studentcode an        d t2.courseid=t1.courseid and T2.COMPOSESCORE =t1.maxscore
+           where t2.studentcode=:studentcode  and t2.courseid=:courseid and rownum<2.
+2016/01/18 06:30:52 [error] [exception.CDbException] exception 'CDbException' with message 'CDbCommand failed to execute the SQL statement: SQLSTATE[HY000]: General error: 933 OCIStmtExecute: ORA-00933: SQL 命令未正确结束
+ (/home/user/soft/php-5.5.10/ext/pdo_oci/oci_statement.c:148). The SQL statement executed was: with t1 as (
+           select studentcode, courseid, max(composescore) maxscore from eas_exmm_composescore where          studentcode=:studentcode  and courseid=:courseid group by studentcode,courseid)
+           select t2.* from eas_exmm_composescore t2 inner join t1 on t2.studentcode=t1.studentcode an        d t2.courseid=t1.courseid and T2.COMPOSESCORE =t1.maxscore
+           where t2.studentcode=:studentcode  and t2.courseid=:courseid and rownum<2' in /home/user/yii/framework/db/CDbCommand.php:543
+Stack trace:
+#0 /home/user/yii/framework/db/CDbCommand.php(396): CDbCommand->queryInternal('fetchAll', Array, Array)
+#1 /home/user/yii/framework/db/ar/CActiveRecord.php(1586): CDbCommand->queryAll()
+#2 /var/www/yii2/protected/commands/TestCommand.php(80): CActiveRecord->findAllBySql('with t1 as (?  ...', Array)
+#3 [internal function]: TestCommand->actionUpdateScoreState()
+#4 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs(Object(TestCommand), Array)
+#5 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): CConsoleCommand->run(Array)
+#6 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run(Array)
+#7 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#8 /home/user/yii/framework/yiic.php(33): CApplication->run()
+#9 /var/www/yii2/protected/yiic.php(7): require_once('/home/user/yii/...')
+#10 /var/www/yii2/protected/yiic(4): require_once('/var/www/yii2/p...')
+#11 {main}
+---
+2016/01/18 06:46:34 [error] [php] Use of undefined constant composes - assumed 'composes' (/var/www/yii2/protected/commands/TestCommand.php:82)
+Stack trace:
+#0 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): TestCommand->run()
+#1 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#2 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#3 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#4 /var/www/yii2/protected/yiic.php(7): require_once()
+#5 /var/www/yii2/protected/yiic(4): require_once()
+
+2016/01/18 06:56:48 [error] [php] Use of undefined constant composes - assumed 'composes' (/var/www/yii2/protected/commands/TestCommand.php:83)
+Stack trace:
+#0 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): TestCommand->run()
+#1 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#2 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#3 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#4 /var/www/yii2/protected/yiic.php(7): require_once()
+#5 /var/www/yii2/protected/yiic(4): require_once()
+
+2016/01/18 06:59:43 [error] [php] Use of undefined constant composes - assumed 'composes' (/var/www/yii2/protected/commands/TestCommand.php:82)
+Stack trace:
+#0 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): TestCommand->run()
+#1 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#2 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#3 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#4 /var/www/yii2/protected/yiic.php(7): require_once()
+#5 /var/www/yii2/protected/yiic(4): require_once()
+
+2016/01/18 07:07:35 [error] [exception.CException] exception 'CException' with message 'Property "CDbConnection.db112" is not defined.' in /home/user/yii/framework/base/CComponent.php:130
+Stack trace:
+#0 /var/www/yii2/protected/commands/TestCommand.php(81): CComponent->__get('db112')
+#1 [internal function]: TestCommand->actionUpdateScoreState()
+#2 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs(Object(TestCommand), Array)
+#3 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): CConsoleCommand->run(Array)
+#4 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run(Array)
+#5 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#6 /home/user/yii/framework/yiic.php(33): CApplication->run()
+#7 /var/www/yii2/protected/yiic.php(7): require_once('/home/user/yii/...')
+#8 /var/www/yii2/protected/yiic(4): require_once('/var/www/yii2/p...')
+#9 {main}
+---
+2016/01/18 07:10:53 [error] [php] Undefined index: STUDNETCODE (/var/www/yii2/protected/commands/TestCommand.php:84)
+Stack trace:
+#0 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): TestCommand->run()
+#1 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#2 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#3 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#4 /var/www/yii2/protected/yiic.php(7): require_once()
+#5 /var/www/yii2/protected/yiic(4): require_once()
+
+2016/01/18 07:13:11 [error] [php] Use of undefined constant COMPOSESCORE - assumed 'COMPOSESCORE' (/var/www/yii2/protected/commands/TestCommand.php:84)
+Stack trace:
+#0 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): TestCommand->run()
+#1 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#2 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#3 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#4 /var/www/yii2/protected/yiic.php(7): require_once()
+#5 /var/www/yii2/protected/yiic(4): require_once()
+
+2016/01/18 08:14:38 [error] [php] Undefined variable: sorerow (/var/www/yii2/protected/commands/TestCommand.php:86)
+Stack trace:
+#0 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): TestCommand->run()
+#1 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#2 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#3 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#4 /var/www/yii2/protected/yiic.php(7): require_once()
+#5 /var/www/yii2/protected/yiic(4): require_once()
+
+2016/01/18 09:30:28 [error] [exception.CException] exception 'CException' with message 'Property "EAS_SCHROLL_STUDENT.STUDNETCODE" is not defined.' in /home/user/yii/framework/base/CComponent.php:130
+Stack trace:
+#0 /home/user/yii/framework/db/ar/CActiveRecord.php(145): CComponent->__get('STUDNETCODE')
+#1 /var/www/yii2/protected/commands/TestCommand.php(55): CActiveRecord->__get('STUDNETCODE')
+#2 [internal function]: TestCommand->actionLoadData('2110000')
+#3 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs(Object(TestCommand), Array)
+#4 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): CConsoleCommand->run(Array)
+#5 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run(Array)
+#6 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#7 /home/user/yii/framework/yiic.php(33): CApplication->run()
+#8 /var/www/yii2/protected/yiic.php(7): require_once('/home/user/yii/...')
+#9 /var/www/yii2/protected/yiic(4): require_once('/var/www/yii2/p...')
+#10 {main}
+---
+2016/01/18 09:31:48 [error] [exception.Predis_ClientException] exception 'Predis_ClientException' with message ''lsize' is not a registered Redis command' in /var/www/yii2/protected/extensions/redis/Predis.php:1551
+Stack trace:
+#0 /var/www/yii2/protected/extensions/redis/Predis.php(206): Predis_RedisServerProfile->createCommand('lsize', Array)
+#1 [internal function]: Predis_Client->__call('lsize', Array)
+#2 [internal function]: Predis_Client->lsize('STUDENT.SCORE.S...')
+#3 /var/www/yii2/protected/extensions/redis/CRedisCache.php(143): call_user_func_array(Array, Array)
+#4 /var/www/yii2/protected/commands/TestCommand.php(57): CRedisCache->__call('lsize', Array)
+#5 /var/www/yii2/protected/commands/TestCommand.php(57): CRedisCache->lsize('STUDENT.SCORE.S...')
+#6 [internal function]: TestCommand->actionLoadData('2110000')
+#7 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs(Object(TestCommand), Array)
+#8 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): CConsoleCommand->run(Array)
+#9 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run(Array)
+#10 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#11 /home/user/yii/framework/yiic.php(33): CApplication->run()
+#12 /var/www/yii2/protected/yiic.php(7): require_once('/home/user/yii/...')
+#13 /var/www/yii2/protected/yiic(4): require_once('/var/www/yii2/p...')
+#14 {main}
+---
+2016/01/18 10:05:16 [error] [php] Argument 1 passed to Predis_Client::executeCommand() must be an instance of Predis_Command, string given (/var/www/yii2/protected/extensions/redis/Predis.php:214)
+Stack trace:
+#0 /var/www/yii2/protected/commands/TestCommand.php(54): CRedisCache->__call()
+#1 /var/www/yii2/protected/commands/TestCommand.php(54): CRedisCache->executeCommand()
+#2 unknown(0): TestCommand->actionLoadData()
+#3 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs()
+#4 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): TestCommand->run()
+#5 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#6 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#7 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#8 /var/www/yii2/protected/yiic.php(7): require_once()
+#9 /var/www/yii2/protected/yiic(4): require_once()
+
+2016/01/19 01:17:09 [error] [exception.Predis_ServerException] exception 'Predis_ServerException' with message 'wrong number of arguments for 'hset' command' in /var/www/yii2/protected/extensions/redis/Predis.php:573
+Stack trace:
+#0 /var/www/yii2/protected/extensions/redis/Predis.php(711): Predis_ResponseErrorHandler->handle(Object(Predis_Connection), 'ERR wrong numbe...')
+#1 /var/www/yii2/protected/extensions/redis/Predis.php(1312): Predis_ResponseReader->read(Object(Predis_Connection))
+#2 /var/www/yii2/protected/extensions/redis/Predis.php(1469): Predis_Connection->readResponse(Object(Predis_Commands_HashSet))
+#3 /var/www/yii2/protected/extensions/redis/Predis.php(207): Predis_ConnectionCluster->executeCommand(Object(Predis_Commands_HashSet))
+#4 [internal function]: Predis_Client->__call('hset', Array)
+#5 [internal function]: Predis_Client->hset('STUDENT.1044001...', '211')
+#6 /var/www/yii2/protected/extensions/redis/CRedisCache.php(143): call_user_func_array(Array, Array)
+#7 /var/www/yii2/protected/commands/TestCommand.php(54): CRedisCache->__call('hset', Array)
+#8 /var/www/yii2/protected/commands/TestCommand.php(54): CRedisCache->hset('STUDENT.1044001...', '211')
+#9 [internal function]: TestCommand->actionLoadData('2110000')
+#10 /home/user/yii/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs(Object(TestCommand), Array)
+#11 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): CConsoleCommand->run(Array)
+#12 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run(Array)
+#13 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#14 /home/user/yii/framework/yiic.php(33): CApplication->run()
+#15 /var/www/yii2/protected/yiic.php(7): require_once('/home/user/yii/...')
+#16 /var/www/yii2/protected/yiic(4): require_once('/var/www/yii2/p...')
+#17 {main}
+---
+2016/01/19 02:15:43 [error] [php] date(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected the timezone 'UTC' for now, but please set date.timezone to select your timezone. (/var/www/yii2/protected/workers/JobComposeWorker.php:18)
+Stack trace:
+#0 /var/www/yii2/protected/commands/EasScoreCommand.php(11): JobComposeWorker->work()
+#1 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): EasScoreCommand->run()
+#2 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#3 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#4 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#5 /var/www/yii2/protected/yiic.php(7): require_once()
+#6 /var/www/yii2/protected/yiic(4): require_once()
+
+2016/01/19 02:15:43 [error] [php] date(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected the timezone 'UTC' for now, but please set date.timezone to select your timezone. (/var/www/yii2/protected/workers/JobComposeWorker.php:18)
+Stack trace:
+#0 /var/www/yii2/protected/commands/EasScoreCommand.php(11): JobComposeWorker->work()
+#1 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): EasScoreCommand->run()
+#2 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#3 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#4 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#5 /var/www/yii2/protected/yiic.php(7): require_once()
+#6 /var/www/yii2/protected/yiic(4): require_once()
+
+2016/01/19 02:21:02 [error] [php] date(): It is not safe to rely on the system's timezone settings. You are *required* to use the date.timezone setting or the date_default_timezone_set() function. In case you used any of those methods and you are still getting this warning, you most likely misspelled the timezone identifier. We selected the timezone 'UTC' for now, but please set date.timezone to select your timezone. (/var/www/yii2/protected/workers/JobComposeWorker.php:18)
+Stack trace:
+#0 /var/www/yii2/protected/commands/EasScoreCommand.php(11): JobComposeWorker->work()
+#1 /home/user/yii/framework/console/CConsoleCommandRunner.php(71): EasScoreCommand->run()
+#2 /home/user/yii/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run()
+#3 /home/user/yii/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#4 /home/user/yii/framework/yiic.php(33): CConsoleApplication->run()
+#5 /var/www/yii2/protected/yiic.php(7): require_once()
+#6 /var/www/yii2/protected/yiic(4): require_once()
+
+2016/01/19 17:11:43 [error] [exception.CException] exception 'CException' with message 'CLogger and its behaviors do not have a method or closure named "info".' in /var/www/yii2/framework/base/CComponent.php:266
+Stack trace:
+#0 /var/www/yii2/protected/commands/EasScoreClientCommand.php(8): CComponent->__call('info', Array)
+#1 /var/www/yii2/protected/commands/EasScoreClientCommand.php(8): CLogger->info('begin work:Chan...', 'yii2-command-Ch...')
+#2 [internal function]: EasScoreClientCommand->actionChangeScore()
+#3 /var/www/yii2/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs(Object(EasScoreClientCommand), Array)
+#4 /var/www/yii2/framework/console/CConsoleCommandRunner.php(71): CConsoleCommand->run(Array)
+#5 /var/www/yii2/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run(Array)
+#6 /var/www/yii2/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#7 /var/www/yii2/framework/yiic.php(33): CApplication->run()
+#8 /var/www/yii2/protected/yiic.php(7): require_once('/var/www/yii2/f...')
+#9 /var/www/yii2/protected/yiic(4): require_once('/var/www/yii2/p...')
+#10 {main}
+---
+2016/01/19 17:22:03 [error] [exception.CException] exception 'CException' with message 'CLogger and its behaviors do not have a method or closure named "info".' in /var/www/yii2/framework/base/CComponent.php:266
+Stack trace:
+#0 /var/www/yii2/protected/commands/EasScoreClientCommand.php(8): CComponent->__call('info', Array)
+#1 /var/www/yii2/protected/commands/EasScoreClientCommand.php(8): CLogger->info('begin work:Chan...', 'yii2-command-Ch...')
+#2 [internal function]: EasScoreClientCommand->actionChangeScore()
+#3 /var/www/yii2/framework/console/CConsoleCommand.php(172): ReflectionMethod->invokeArgs(Object(EasScoreClientCommand), Array)
+#4 /var/www/yii2/framework/console/CConsoleCommandRunner.php(71): CConsoleCommand->run(Array)
+#5 /var/www/yii2/framework/console/CConsoleApplication.php(92): CConsoleCommandRunner->run(Array)
+#6 /var/www/yii2/framework/base/CApplication.php(184): CConsoleApplication->processRequest()
+#7 /var/www/yii2/framework/yiic.php(33): CApplication->run()
+#8 /var/www/yii2/protected/yiic.php(7): require_once('/var/www/yii2/f...')
+#9 /var/www/yii2/protected/yiic(4): require_once('/var/www/yii2/p...')
+#10 {main}
+---
+2016/01/19 17:23:39 [info] [yii2-command-ChangeScore] begin work:ChangeScore
+2016/01/19 17:23:39 [info] [yii2-command-changeScore] end work:ChangeScore

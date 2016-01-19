@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/yiisoft/yii/!svn/ver/6390/trunk/framework/db/schema/cubrid
+END
+CCubridColumnSchema.php
+K 25
+svn:wc:ra_dav:version-url
+V 83
+/yiisoft/yii/!svn/ver/6390/trunk/framework/db/schema/cubrid/CCubridColumnSchema.php
+END
+CCubridSchema.php
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/yiisoft/yii/!svn/ver/6390/trunk/framework/db/schema/cubrid/CCubridSchema.php
+END
+CCubridTableSchema.php
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/yiisoft/yii/!svn/ver/6390/trunk/framework/db/schema/cubrid/CCubridTableSchema.php
+END

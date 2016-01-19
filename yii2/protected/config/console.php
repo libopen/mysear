@@ -20,13 +20,12 @@ return array(
 
 		// database settings are configured in database.php
 		//'db'=>require(dirname(__FILE__).'/database.php'),
-
 		'log'=>array(
 			'class'=>'CLogRouter',
 			'routes'=>array(
 				array(
 					'class'=>'CFileLogRoute',
-					'levels'=>'error, warning',
+					'levels'=>'error, warning,info',
 				),
 			),
 		),
@@ -45,8 +44,8 @@ return array(
                           'class' => 'ext.redis.CRedisCache',
                            'servers' => array(
                                    array(
-                                       'host' => '10.96.142.109',
-                                        'port' => 6380,
+                                       'host' => '10.96.142.108',
+                                        'port' => 6379,
                                       ),
                                ),
                    ),
@@ -78,4 +77,6 @@ return array(
                  'tablePrefix' => '',
                 ),
              ),
+
+
 );

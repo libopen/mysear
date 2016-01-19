@@ -1,0 +1,95 @@
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/yiisoft/yii/!svn/ver/6489/trunk/framework/web/auth
+END
+CUserIdentity.php
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/yiisoft/yii/!svn/ver/6285/trunk/framework/web/auth/CUserIdentity.php
+END
+schema-pgsql.sql
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/yiisoft/yii/!svn/ver/6285/trunk/framework/web/auth/schema-pgsql.sql
+END
+CAuthAssignment.php
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/yiisoft/yii/!svn/ver/6285/trunk/framework/web/auth/CAuthAssignment.php
+END
+CAuthManager.php
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/yiisoft/yii/!svn/ver/6489/trunk/framework/web/auth/CAuthManager.php
+END
+schema-mssql.sql
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/yiisoft/yii/!svn/ver/6285/trunk/framework/web/auth/schema-mssql.sql
+END
+CDbAuthManager.php
+K 25
+svn:wc:ra_dav:version-url
+V 70
+/yiisoft/yii/!svn/ver/6390/trunk/framework/web/auth/CDbAuthManager.php
+END
+schema-sqlite.sql
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/yiisoft/yii/!svn/ver/6285/trunk/framework/web/auth/schema-sqlite.sql
+END
+CPhpAuthManager.php
+K 25
+svn:wc:ra_dav:version-url
+V 71
+/yiisoft/yii/!svn/ver/6390/trunk/framework/web/auth/CPhpAuthManager.php
+END
+schema-mysql.sql
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/yiisoft/yii/!svn/ver/6285/trunk/framework/web/auth/schema-mysql.sql
+END
+CAccessControlFilter.php
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/yiisoft/yii/!svn/ver/6285/trunk/framework/web/auth/CAccessControlFilter.php
+END
+schema-cubrid.sql
+K 25
+svn:wc:ra_dav:version-url
+V 69
+/yiisoft/yii/!svn/ver/6390/trunk/framework/web/auth/schema-cubrid.sql
+END
+CWebUser.php
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/yiisoft/yii/!svn/ver/6285/trunk/framework/web/auth/CWebUser.php
+END
+schema-oci.sql
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/yiisoft/yii/!svn/ver/6285/trunk/framework/web/auth/schema-oci.sql
+END
+CAuthItem.php
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/yiisoft/yii/!svn/ver/6285/trunk/framework/web/auth/CAuthItem.php
+END
+CBaseUserIdentity.php
+K 25
+svn:wc:ra_dav:version-url
+V 73
+/yiisoft/yii/!svn/ver/6285/trunk/framework/web/auth/CBaseUserIdentity.php
+END

@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/yiisoft/yii/!svn/ver/6390/trunk/framework/cli/views/webapp/protected/vendor
+END
+hg-hgkeep
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/yiisoft/yii/!svn/ver/6285/trunk/framework/cli/views/webapp/protected/vendor/hg-hgkeep
+END
+git-gitkeep
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/yiisoft/yii/!svn/ver/6285/trunk/framework/cli/views/webapp/protected/vendor/git-gitkeep
+END
