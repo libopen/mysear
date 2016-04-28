@@ -121,6 +121,25 @@ AddbatMessage('tcp_cooperation',1)
 #12 tcp_guidance/010
 AddbatMessage('tcp_guidance',1)
 
+#12 tcp_module/010
+AddbatMessage('tcp_module',1)
 
+#12 tcp_modulecourses/010
+AddbatMessage('tcp_modulecourses',1)
+
+#12 tcp_conversioncourse/010
+AddbatMessage('tcp_conversioncourse',1)
+
+#12 tcp_segmsemecourses/seg
+AddbatMessage('tcp_segmsemecourses',2)
+
+#12 tcp_learcentsemecour/seg
+AddbatMessage('tcp_learcentsemecour',2)
+
+#12 tcp_implementation/seg
+AddbatMessage('tcp_implementation',2)
+
+#12 tcp_implmodulecourse/seg
+AddbatMessage('tcp_implmodulecourse',2)
 
 mqconn.close()
