@@ -12,11 +12,11 @@ class doImpbatchWorker(Thread):
       def run(self):
           while True:
              # get the work from the queue and expand the tuple
-             ctlfile = self.queue.get()
-             print(' [x] process %s '% (ctlfile,))
-             impcmd = "sqlldr %s"%(ctlfile,)
+             csvfile = self.queue.get()
+             print(' [x] process convert %s '% (csvfile,))
+             impcmd = "dos2unix %s"%(ctlfile,)
              
-             print(impcmd)
+             os.system(impcmd)
              self.queue.task_done()
 
 
@@ -48,25 +48,19 @@ def main():
           pathlist = myredis.hgetall('ctlpath')
           for (key,val)  in ctllist.items():
               if db==str(val.decode('utf-8')):
-                  ctlpath = '%s%s/%s.ctl'%(rootpath,str(pathlist[key].decode('utf-8'))\
-                                                   ,str(key.decode('utf-8')))
                   csvpath = '%s%s/%s.csv'%(rootpath,str(pathlist[key].decode('utf-8'))\
                                                    ,str(key.decode('utf-8')))
                   
                   
-                  if os.path.isfile(ctlpath):
                      if  os.path.isfile(csvpath):
                          if 'composescore' in str(key.decode('utf-8')):
-                            ctlfile ="%s/%s control=%s "% (uid,pwd,ctlpath)
-                            queue.put((ctlfile))
+                            queue.put((csvfile))
                          else:
                             print(' not i want')
                      else:
                          print('%s\'s csv is not exist'%(csvpath,))
                    
                          
-                  else:
-                     print('%s\'s ctl is not exist'%(ctlpath,))
           queue.join()    
        else:
           print(' %s is not in config'%(db,))  

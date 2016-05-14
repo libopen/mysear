@@ -2,6 +2,7 @@ import redis
 class expParameter:
       batPath='g:/migeration/script/'
       expPath='g:/migeration/data/'
+        
       def __init__(self,batPath,expPath):
           self.batPath = batPath
           self.expPath = expPath
@@ -43,3 +44,39 @@ class expParameter:
                         expfile = "%s/%s%s.csv"%(expFilePath,expFileName,skey)
                         jobs.append(self.GetExpBatcmd(dbname,batFile,expfile,dbip,dbuser,dbpwd))
           return jobs
+      
+      def GetJobByName(self,batname):
+          jobs=[]
+          re = redis.Redis(host='10.96.142.109',port=6380,db=2)
+          expFilelist     = re.hgetall('batdo')
+          expFilePathlist = re.hgetall('expfilepath')
+          scopelist       = re.hgetall('batscope')
+          
+          bbatname = str.encode(batname) #conver to bytes string
+          if bbatname in expFilelist:
+             sBatFile = "%s.bat"%(batname,)
+             sExpFileName = bytes.decode(expFilelist[bbatname])
+             sExpFilePath = bytes.decode(expFilelist[bbatname])
+             scope =        bytes.decode(scopelist[bbatname])
+             if (scope=='010'):
+                 #get center db userid pwd
+                 dbname = bytes.decode(re.hget('dbname','10'))
+                 dbip =   bytes.decode(re.hget('dbip','10'))
+                 dbuser = bytes.decode(re.hget('dbuser','10'))
+                 dbpwd  = bytes.decode(re.hget('dbpwd','10'))
+                 expfile = "%s/%s.csv"%(sExpFilePath,sExpFileName)
+                 jobs.append(self.GetExpBatcmd(dbname,sBatFile,expfile,dbip,dbuser,dbpwd))
+             else :
+                 for key in re.hkeys('dbip'):
+                    if (key !=b'10'):# exclude 010 db
+                        skey   = bytes.decode(key)
+                        dbname = bytes.decode(re.hget('dbname',skey))
+                        dbip =   bytes.decode(re.hget('dbip',skey))
+                        dbuser=  bytes.decode(re.hget('dbuser',skey))
+                        dbpwd = bytes.decode(re.hget('dbpwd',skey))
+                        expfile = "%s/%s%s.csv"%(sExpFilePath,sExpFileName,skey)
+                        jobs.append(self.GetExpBatcmd(dbname,sBatFile,expfile,dbip,dbuser,dbpwd))
+          else:
+             print(' bat is not exists')
+          return jobs
+            
