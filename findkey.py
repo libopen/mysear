@@ -1,6 +1,19 @@
 import pandas as pd
 import sys,os
 import numpy as np
+
+def midpoint(x):
+   if x.c>(x.l+(x.h-x.l)/2):
+      return 'u'
+   else:
+      return 'd'
+def red(x):
+   if x.c>x.o :
+      return 1
+   else:
+      return 0
+   
+   
 def createdb(file):
    #file=sys.argv[1]
    db2=None
@@ -9,12 +22,15 @@ def createdb(file):
       sn=base[-6:]
       #print(sn)
       db=pd.read_csv(file,header=None,names=['date','o','h','l','c','v','m'])
+      
       db['sn']=sn
       db['min8']=db.l.rolling(8).min()
+      db['midp']=db.apply(midpoint,axis=1)
       db['cl']=(db.c/db.l-1)*100
       db['co']=(db.c/db.o-1)*100
-      db.loc[(db.c>db.o),'red']=1
-      db.loc[(db.c<=db.o),'red']=0
+      db['red']=db.apply(red,axis=1)
+      #db.loc[(db.c>db.o),'red']=1
+      #db.loc[(db.c<=db.o),'red']=0
       db['redcount']=db.red.rolling(8).sum()
       #db.loc[:,'EMA12']=pd.ewma(db.c,span=12)
       #db.loc[:,'EMA26']=pd.ewma(db.c,span=26)
