@@ -1,0 +1,2 @@
+|bar|foobar|baz|bang|bazbang
+baz|bang|bazbang|foo|bar|foobar

@@ -18,17 +18,17 @@ def is_number(s):
         pass
     return False
  
-def expElc(xlsfile,csvname):
+def expElc(xlsfile,csvname,sheetindex=0):
        #filename is format that is name such as elc90* or signup90* or score90* 
        #deal with numeric
     
-    batlist={"
+    
     rnNum =[0,11,12,13,14,15,16,17,19,22,23,24] # deal \n
     intnum=[11,12,13,14,15,16,17,23,24]
     blknum=[18,19,20,21,22]
     
     
-    with open(csvname,'w',newline='',encoding='gb2312') as csvfile:
+    with open(csvname,'w',newline='',encoding='utf-8') as csvfile:
          wr =  csv.writer(csvfile,quoting=csv.QUOTE_NONE,quotechar='',escapechar='\\')
          wb = xlrd.open_workbook(xlsfile)
          tmpCol2=""
@@ -48,12 +48,12 @@ def expElc(xlsfile,csvname):
                  #print("{},{}".format(rowlist[0],is_number(rowlist[0])))
                  if is_number(rowlist[0])==False:
                       continue
-                  if float(rowlist[0])==1.0 : # get first merge_cells
+                    if float(rowlist[0])==1.0 : # get first merge_cells
                       tmpCol2 = rowlist[1]
                       tmpCol3 = rowlist[2]
                       #tmpCol4 = rowlist[3]
                       tmpCol5 = rowlist[4]
-                   else :
+                    else :
                       #do  merge_cell 
                       if rowlist[1]=="" :#merge_cell
                          rowlist[1]=tmpCol2
@@ -75,17 +75,17 @@ def expElc(xlsfile,csvname):
                          tmpCol5=rowlist[4]
 
                       #change column 8,9
-                   if sheetname in chncol:
+                    if sheetname in chncol:
                         tmpval = rowlist[8]
                         rowlist[8]=rowlist[9]
                         rowlist[9]=tmpval
 
-                   iTotal+=1
-                   #ignore the temp 
-                   if len(rowlist)>25:
-                      if (rowlist[25].strip() in noimp)  or rowlist[9].strip()=="成人":
-                          continue
-                   for i in range(25):
+                    iTotal+=1
+                    #ignore the temp 
+                    if len(rowlist)>25:
+                        if (rowlist[25].strip() in noimp)  or rowlist[9].strip()=="成人":
+                            continue
+                    for i in range(25):
                       
                       if  i in rnNum:
                          rowlist[i]=rowlist[i].rstrip('0').rstrip('.')
@@ -98,9 +98,9 @@ def expElc(xlsfile,csvname):
                       #remove .0
                       if i in [2,3]:
                           rowlist[i]=rowlist[i].replace('.0','')
-                   iValid+=1
-                   rowlist.insert(0,orglist[sheetname])
-                   wr.writerow(rowlist[:26])
+                    iValid+=1
+                    rowlist.insert(0,orglist[sheetname])
+                    wr.writerow(rowlist[:26])
                print("{}:Totla{},valid{}".format(sheetname,iTotal,iValid))
          csvfile.close()
  
