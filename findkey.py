@@ -2,6 +2,7 @@ import pandas as pd
 import sys,os
 import numpy as np
 
+
 def midpoint(x):
    if x.c>(x.l+(x.h-x.l)/2):
       return 'u'
@@ -12,8 +13,7 @@ def red(x):
       return 1
    else:
       return 0
-   
-   
+
 def createdb(file):
    #file=sys.argv[1]
    db2=None
@@ -22,15 +22,12 @@ def createdb(file):
       sn=base[-6:]
       #print(sn)
       db=pd.read_csv(file,header=None,names=['date','o','h','l','c','v','m'])
-      
       db['sn']=sn
       db['min8']=db.l.rolling(8).min()
       db['midp']=db.apply(midpoint,axis=1)
       db['cl']=(db.c/db.l-1)*100
       db['co']=(db.c/db.o-1)*100
       db['red']=db.apply(red,axis=1)
-      #db.loc[(db.c>db.o),'red']=1
-      #db.loc[(db.c<=db.o),'red']=0
       db['redcount']=db.red.rolling(8).sum()
       #db.loc[:,'EMA12']=pd.ewma(db.c,span=12)
       #db.loc[:,'EMA26']=pd.ewma(db.c,span=26)
@@ -40,7 +37,7 @@ def createdb(file):
       #db.loc[:,'DEA']=pd.ewma(db.DIF,span=9)
       db.loc[:,'DEA'] =db.DIF.ewm(adjust=True,span=9,min_periods=0,ignore_na=False).mean()
       db.loc[:,'MACD']=(db.DIF-db.DEA)*2
-      
+      db['up5']=db.MACD.rolling(window=5,center=False).max()
       db2=db.sort_values(['date'],ascending=False)
       db2['id']=db2.index
       db2['max5cd']=db2.MACD.rolling(window=5,center=False).max()
@@ -54,13 +51,22 @@ def createdb(file):
 def find(file):
    db2=createdb(file)
    if db2 is not None:
+      #return db2[ (db2.redcount>4)
+       #          &(db2.min8==db2.l)
+       #          &(db2.cl>3) 
+       #          & (db2.MACD<0)
+       ##          & (db2.MACD==db2.up5)
+       #          &(np.abs(db2.co)<1)
+       #          &(db2.co>=0)                 
+       #          ][['sn','date','o','c','redcount','cl','co','MACD','max5cd']]
       return db2[ (db2.redcount>4)
                  &(db2.min8==db2.l)
-                 &(db2.cl>3) 
+                 #&(db2.cl>3) 
+                 &(db2.midp=='u')
                  & (db2.MACD<0)
-                 &(np.abs(db2.co)<1)
-                 &(db2.co>=0)                 
-                 ][['sn','date','o','c','redcount','cl','co','MACD','max5cd']]
+                 & (db2.MACD==db2.up5)
+                  &(np.abs(db2.co)<1)      
+                 ][['sn','date','o','c','h','l','redcount','cl','co','MACD','max5cd','min8']]
 
 def findall(rootpath):
    result=pd.DataFrame(columns=['sn','date','o','c','redcount','cl','co','MACD','max5cd'])
@@ -86,12 +92,13 @@ def analysis(df):
    print("success rate:{}".format(df[df.MACD<df.max5cd]['sn'].count()/df.sn.count()))
    find1=pd.DatetimeIndex(df.date).to_period("M")
    gp=df.sn.groupby(find1).count()
-   print(gp[gp.index>'2013-12-31'].to_csv(sep='\t'))
+   print(gp[gp.index>'2015-12-31'].to_csv(sep='\t'))
 
 def main():
    path=sys.argv[1]
    db=findall(path)
-   #db.to_csv('myfind.csv')
+   result=db.sort('date')
+   result.to_csv('myfind.csv')
    analysis(db)
    
 
