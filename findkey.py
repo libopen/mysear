@@ -4,11 +4,16 @@ import numpy as np
 import talib 
 
 
+ROOTPATH='/home/lib/mypython/export/'
+#GPTITLE=['sn','startdate','startc','maxc','rat','updown','aft1','pre1','pre2','pre3','absmacd1','absmacd2','absmacd3','minl1','minl2','minl3']
+
+GPTITLE=['sn','startdate','rat','updown','pre1','pre2','pre3','pos_dif1','pos_dif3']
+# db method
 def midpoint(x):
-   if x.c>(x.l+(x.h-x.l)/2):
-      return 'u'
-   else:
-      return 'd'
+      if x.c>(x.l+(x.h-x.l)/2):
+            return 'u'
+      else:
+            return 'd'
 def red(x):
    if x.c>x.o :
       return 1
@@ -34,134 +39,6 @@ def keyred(x):
       return 1
    else :
       return 0
-
-def getallfile(rootpath):
-   resultlist=[]
-   for lists in os.listdir(rootpath):
-      path=os.path.join(rootpath,lists)
-      if os.path.isdir(path):
-         pass
-      else:
-         if os.path.basename(path)[0]=='S' and os.stat(path).st_size!=0:
-            resultlist.append(path)
-   return resultlist
-   
-
-def Allfind(rootpath,findtype=1):
-   result=pd.DataFrame(columns=['sn','startdate','startc','maxc'])
-   snlist=getallfile(rootpath)
-   for path in snlist:
-      dbcurrent=result
-      sn,db=createdb1(path)
-            #print(path)
-      if db is not None:
-         gp=makegp(sn, db)
-         if findtype==1:
-            result=dbcurrent.append(keyredfind(gp))
-         elif findtype==2:
-            result=dbcurrent.append(keyredfind2(gp))
-   #result.to_csv('myfind.csv')   
-   return result
-
-
-
-def singlefind(file,findtype=1):
-   sn,db=createdb1(file)
-              #print(path)
-   result=None
-   if db is not None:
-      gp=makegp(sn, db)   
-      if findtype==1:
-         result=keyredfind(gp)
-      elif findtype==2:
-         result=keyredfind2(gp)
-         
-   return result
-   
-def keyredfind2(gp):
-   # pos1:pre1>0 and pre1<6 and dif<0 and dea<0 and updown*2 <pre2
-   # pos2:pre1*2<pre3 think about absmacd2 absmacd3
-   # pos3:entrance
-   return gp[ (gp.updown>0) & 
-              (gp.pre1>2) & 
-              (gp.pre1<10) &
-              (gp.pre3>gp.pre1)&
-              (gp.pos_dif1<0)&
-              (gp.pos_dif3<0)
-              ][['sn','startdate','startc','maxc','rat','updown','pre1','pre2','pre3','absmacd1','absmacd2','absmacd3','minl1','minl2','minl3']]
-             
-
-   
-def keyredfind(gp):
-   # pos1:current(+),pre1(-) ,pre2(+),pre3(-) 
-   # pos2:           pre1<10 pre2<=20 pre3>30
-   #                 absmacd1<absmacd2<absmacd3
-   # pos3:           minl1<minl3
-   return gp[ (gp.updown>0) &
-             (gp.pre2<3) ][['sn','startdate','startc','maxc','rat','updown','pre1','pre2','pre3','absmacd1','absmacd2','absmacd3','minl1','minl2','minl3']]
-             
-def keyredfind(gp)
-    # pos1   pre1 <0 
-    #        startl1=minl1
-    #        pre1<pre3
-def readgp(csvfile):
-    return pd.read_csv(csvfile,head=None,names=['sn','startdate','startc','maxc','rat','updown','pre1','pre2','pre3','absmacd1','absmacd2','absmacd3','minl1','minl2','minl3'])
-   
-   
-def makegp(sn,db):
-   # group by gpid get sum of md and gpred
-    gp1=db.groupby('gpid').sum()[['updown','pos_dif','keyred']]
-    gp2=db.groupby('gpid').max()[['h','c','absmacd']]
-    gp2.columns=['maxh','maxc','absmacd']
-    gp22=db.groupby('gpid').min()[['l']]
-    gp22.columns=['minl']
-    idx=db.groupby('gpid')['id'].transform(min)==db['id']
-    gp3=db[idx][['gpid','date','h','l','o','c','v']]
-    gp3.columns=['gpid','startdate','starth','startl','starto','startc','startv']
-    gp3.reset_index('gpid')
-    gp=pd.concat([gp1,gp2,gp22,gp3],axis=1,join='inner')
-    gp['pre1']=gp.updown.shift(1).abs()
-    gp['pre2']=gp.updown.shift(2).abs()
-    gp['pre3']=gp.updown.shift(3).abs()
-    gp['absmacd1']=gp.absmacd.shift(1).abs()
-    gp['absmacd2']=gp.absmacd.shift(2).abs()
-    gp['absmacd3']=gp.absmacd.shift(3).abs()
-    gp['pos_dif1']=gp.pos_dif.shift(1)
-    gp['pos_dif2']=gp.pos_dif.shift(2)
-    gp['pos_dif3']=gp.pos_dif.shift(3)
-    gp['minl1']=gp.minl.shift(1)
-    gp['minl2']=gp.minl.shift(2)
-    gp['minl3']=gp.minl.shift(3)
-    gp['startl1']=gp.startl.shift(1)
-    gp['sn']=sn
-    gp['rat']=(gp.maxc/gp.startc-1)*100
-    return gp
-    
-    
-    
-def createdb1(file):
-   #file=sys.argv[1]
-   db=None
-   try:
-      base=os.path.splitext(file)[0]
-      sn=base[-6:]
-      #print(sn)
-      db=pd.read_csv(file,header=None,names=['date','o','h','l','c','v','m'])
-      db['id']=db.index
-      db['dif'],db['dea'],db['macd']=talib.MACD(np.array(db.c),12,26,9)
-      db['absmacd']=db.macd.abs()
-      db['mt']=db.macd.shift(1)
-      db['trn']=db.apply(poschange,axis=1)
-      db['gpid']=0
-      db['keyred']=db.apply(keyred,axis=1)
-      db['updown']=db.apply(lambda x: 1 if x.macd>=0 else -1,axis=1)
-      db['pos_dif']=db.apply(lambda x: 1 if x.dif>=0 else -1,axis=1)
-      
-      regroup(db)
-      
-   finally:
-      return sn,db
-
 
 def createdb(file):
    #file=sys.argv[1]
@@ -198,7 +75,137 @@ def createdb(file):
    finally:
       return db2
    
-def find(file):
+
+def createdb1(file):
+   #file=sys.argv[1]
+   db=None
+   try:
+      base=os.path.splitext(file)[0]
+      sn=base[-6:]
+      #print(sn)
+      db=pd.read_csv(file,header=None,names=['date','o','h','l','c','v','m'])
+      db['id']=db.index
+      db['dif'],db['dea'],db['macd']=talib.MACD(np.array(db.c),12,26,9)
+      db['absmacd']=db.macd.abs()
+      db['mt']=db.macd.shift(1)
+      db['trn']=db.apply(poschange,axis=1)
+      db['gpid']=0
+      db['keyred']=db.apply(keyred,axis=1)
+      db['updown']=db.apply(lambda x: 1 if x.macd>=0 else -1,axis=1)
+      db['pos_dif']=db.apply(lambda x: 1 if x.dif>=0 else -1,axis=1)
+      db['laa'] = talib.LINEARREG_ANGLE(np.array(db.macd))
+      db['la']=db.laa
+      db['mv'] = talib.STDDEV(np.array(db.dif))
+      db['atr']= talib.ART(np.array(db.h),np.array(db.l),np.array(db.c))
+      regroup(db)
+      
+   finally:
+      return sn,db
+
+def makegp(sn,db):
+   # group by gpid get sum of md and gpred
+    gp1=db.groupby('gpid').sum()[['updown','pos_dif','keyred']]
+    gp2=db.groupby('gpid').max()[['h','c','absmacd','la']]
+    gp2.columns=['maxh','maxc','absmacd','la']
+    gp22=db.groupby('gpid').min()[['l']]
+    gp22.columns=['minl']
+    idx=db.groupby('gpid')['id'].transform(min)==db['id']
+    gp3=db[idx][['gpid','date','h','l','o','c','v']]
+    gp3.columns=['gpid','startdate','starth','startl','starto','startc','startv']
+    gp3.reset_index('gpid')
+    gp=pd.concat([gp1,gp2,gp22,gp3],axis=1,join='inner')
+    gp['aft1']=gp.updown.shift(-1)
+    gp['pre1']=gp.updown.shift(1)
+    gp['pre2']=gp.updown.shift(2)
+    gp['pre3']=gp.updown.shift(3)
+    gp['absmacd1']=gp.absmacd.shift(1).abs()
+    gp['absmacd2']=gp.absmacd.shift(2).abs()
+    gp['absmacd3']=gp.absmacd.shift(3).abs()
+    gp['pos_dif1']=gp.pos_dif.shift(1)
+    gp['pos_dif2']=gp.pos_dif.shift(2)
+    gp['pos_dif3']=gp.pos_dif.shift(3)
+    gp['minl1']=gp.minl.shift(1)
+    gp['minl2']=gp.minl.shift(2)
+    gp['minl3']=gp.minl.shift(3)
+    gp['la1']=gp.la.shift(1)
+    gp['la2']=gp.la.shift(2)
+    gp['la3']=gp.la.shift(3)
+    gp['startl1']=gp.startl.shift(1)
+    gp['sn']=sn
+    gp['rat']=(gp.maxc/gp.startc-1)*100
+    return gp
+    
+
+
+def getallfile(rootpath):
+   resultlist=[]
+   for lists in os.listdir(rootpath):
+      path=os.path.join(rootpath,lists)
+      if os.path.isdir(path):
+         pass
+      else:
+         if os.path.basename(path)[0:5]=='SH600' and os.stat(path).st_size!=0:
+          
+            resultlist.append(path)
+   return resultlist
+   
+
+
+# find 
+def Allfind(rootpath=ROOTPATH,findtype=4):
+   result=pd.DataFrame(columns=GPTITLE)
+   snlist=getallfile(rootpath)
+   
+   for path in snlist:
+         
+      dbcurrent=result
+      sn,db=createdb1(path)
+            #print(path)
+      if db is not None:
+            try:
+                  gp=makegp(sn, db)
+                  if findtype==1:
+                     result=dbcurrent.append(keyfind1(gp))
+                  elif findtype==2:
+                     result=dbcurrent.append(keyfind2(gp))
+                  elif findtype==3:
+                     result=dbcurrent.append(keyfind3(gp))
+                  elif findtype==4:
+                     result=dbcurrent.append(keyfind4(gp))
+                  elif findtype==5:
+                     result=dbcurrent.append(keyfind5(gp))
+            except:
+                  print(sn)
+                  continue
+   #result.to_csv('myfind.csv')   
+   return result
+
+
+
+def singlefind(sn,findtype=4):
+   sn,db=createdb1(ROOTPATH+sn+'.txt')
+              #print(path)
+   result=None
+   if db is not None:
+      gp=makegp(sn, db)   
+      if findtype==1:
+         result=keyfind1(gp)
+      elif findtype==2:
+         result=keyfind2(gp)
+      elif findtype==3:
+         result=keyfind3(gp)         
+      elif findtype==4:
+         result=keyfind4(gp)         
+      elif findtype==5:
+         result=keyfind5(gp)         
+      elif findtype==6:
+         result=keyfind6(gp)         
+
+   return result
+   
+#keyfind
+def keyfind0(file):
+# the oldest ver of keyfind
    db2=createdb(file)
    if db2 is not None:
       #return db2[ (db2.redcount>4)
@@ -219,19 +226,108 @@ def find(file):
                  ][['sn','date','o','c','h','l','redcount','cl','co','MACD','max5cd','min8']]
 
 
+def keyfind1(gp):
+   # pos1:current(+),pre1(-) ,pre2(+),pre3(-) 
+   # pos2:           pre1<10 pre2<=20 pre3>30
+   #                 absmacd1<absmacd2<absmacd3
+   # pos3:           minl1<minl3
+   return gp[ (gp.updown>0) &
+             (gp.pre2<3) ][GPTITLE]
 
+def keyfind2(gp):
+   # pos1:pre1>0 and pre1<6 and dif<0 and dea<0 and updown*2 <pre2
+   # pos2:pre1*2<pre3 think about absmacd2 absmacd3
+   # pos3:entrance
+   return gp[ (gp.pre1<0) & 
+              (gp.pre1.abs()>2) & 
+              (gp.pre1.abs()<10) &
+              (gp.pre3<gp.pre1)&
+              (gp.pos_dif1<0)&
+              (gp.pos_dif3<0)&
+              (gp.pre2<gp.pre3.abs())
+              ][GPTITLE]
+
+
+def keyfind3(gp):
+    # pos1   pre1 <0 
+    #        startl1=minl1
+    #        pre1<pre3
+   return gp[(gp.pre1<0)&
+            (gp.startl1==gp.minl1)&
+            (gp.pre1>gp.pre3) &
+            (gp.pre2<gp.pre3.abs()) &
+            (gp.pos_dif1<0)&
+            (gp.pos_dif3<0)
+             ][GPTITLE]
+             
+def keyfind4(gp):
+   # pos1:     important 
+   # pos2:     
+   # pos3:entrance
+   # rat >3 77% (gp.pre1<0)&(gp.pre1.abs()>20)&(gp.pos_dif1<0)&(gp.pos_dif3>0) 
+   return gp[ (gp.pre1<0) &                                                                                                                                        
+              (gp.pre1.abs()>20) & 
+              (gp.pos_dif1<0)&
+              (gp.pos_dif3>0)
+              
+              ][GPTITLE]
+
+def keyfind5(gp):
+   # pos1:     pre1<0 and pre1<30 posdif >0 
+   # pos2:   
+   # pos3:entrance
+   return gp[ (gp.pre2>0) & 
+              (gp.pre2<=30) & 
+              (gp.pos_dif2<gp.pre2)&
+	      (gp.pos_dif2>0)&
+              (gp.minl1<gp.minl2)            
+              ][GPTITLE]
+   
+def keyfind6(gp):
+   # pos1:     pre1<0 and pre1<30 posdif >0 
+   # pos2:   
+   # pos3:entrance
+   return gp[ (gp.pre2>0) & 
+              (gp.pre2<=15) & 
+              (gp.la1>gp.la2)&
+              (gp.pre2.abs()>gp.pre1.abs())&
+	      
+              (gp.minl1<gp.minl2)            
+              ][GPTITLE]
+             
+def readgp(csvfile):
+    return pd.read_csv(csvfile,header=None,skiprows=1,names=GPTITLE)
+   
 def analysis(df):
-   print("success rate:{}".format(df[df.rat>=5]['sn'].count()/df.sn.count()))
-   find1=pd.DatetimeIndex(df.startdate).to_period("M")
-   gp=df.sn.groupby(find1).count()
-   print(gp[gp.index>'2015-12-31'].to_csv(sep='\t'))
+      df['startdate']=pd.to_datetime(df['startdate'],format='%Y-%m-%d')
+      
+      print ("total:")
+      print("success 3 rate:{}".format(df[(df.rat>=3)]['sn'].count()/df.sn.count()))
+      print("success 5 rate:{}".format(df[df.rat>=5]['sn'].count()/df.sn.count()))
+      print("success 10 rate:{}".format(df[df.rat>=10]['sn'].count()/df.sn.count()))
+      print ("15:")
+      print("success 3 rate:{}".format(df[(df.rat>=3)&(df.startdate>'2015/01/01/')&(df.startdate<'2015/12/31')]['sn'].count()/df[(df.startdate>'2015/01/01/')&(df.startdate<'2015/12/31')].sn.count()))
+      print("success 5 rate:{}".format(df[(df.rat>=5)&(df.startdate>'2015/01/01/')&(df.startdate<'2015/12/31')]['sn'].count()/df[(df.startdate>'2015/01/01/')&(df.startdate<'2015/12/31')].sn.count()))
+      print("success 10 rate:{}".format(df[(df.rat>=10)&(df.startdate>'2015/01/01/')&(df.startdate<'2015/12/31')]['sn'].count()/df[(df.startdate>'2015/01/01/')&(df.startdate<'2015/12/31')].sn.count()))
+      print ("16:")
+      print("success 3 rate:{}".format(df[(df.rat>=3)&(df.startdate>'2016/01/01/')&(df.startdate<'2016/12/31')]['sn'].count()/df[(df.startdate>'2016/01/01/')&(df.startdate<'2016/12/31')].sn.count()))
+      print("success 5 rate:{}".format(df[(df.rat>=5)&(df.startdate>'2016/01/01/')&(df.startdate<'2016/12/31')]['sn'].count()/df[(df.startdate>'2016/01/01/')&(df.startdate<'2016/12/31')].sn.count()))
+      print("success 10 rate:{}".format(df[(df.rat>=10)&(df.startdate>'2016/01/01/')&(df.startdate<'2016/12/31')]['sn'].count()/df[(df.startdate>'2016/01/01/')&(df.startdate<'2016/12/31')].sn.count()))
+   
+      find1=pd.DatetimeIndex(df.startdate).to_period("M")
+      gp=df.sn.groupby(find1).count()
+      print(gp[gp.index>'2015-12-31'].to_csv(sep='\t'))
 
 def main():
-   path=sys.argv[1]
-   db=keyredfindall(path)
-   result=db.sort('date')
-   result.to_csv('myfind.csv')
+   #path=sys.argv[1]
+   #db=keyfindall(path)
+   #result=db.sort('date')
+   #result.to_csv('myfind.csv')
    #analysis(db)
+    findtypeid=sys.argv[1]
+    gp= Allfind( findtype=findtypeid)
+    analysis(gp)
+     	
    
 
 
