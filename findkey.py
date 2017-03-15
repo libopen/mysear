@@ -7,7 +7,7 @@ import talib
 ROOTPATH='/home/lib/mypython/export/'
 #GPTITLE=['sn','startdate','startc','maxc','rat','updown','aft1','pre1','pre2','pre3','absmacd1','absmacd2','absmacd3','minl1','minl2','minl3']
 
-GPTITLE=['sn','startdate','rat','updown','pre1','pre2','pre3','pos_dif1','pos_dif3']
+GPTITLE=['sn','startdate','rat','updown','pre1','pre2','fur1','furmaxh1','minl','startl','minl2']
 # db method
 def midpoint(x):
       if x.c>(x.l+(x.h-x.l)/2):
@@ -18,7 +18,7 @@ def red(x):
    if x.c>x.o :
       return 1
    else:
-      return 0
+      return -1
    
 def poschange(x):
    if (x.mt>0 and x.macd<0 ) or (x.mt<0 and x.macd>0):
@@ -90,13 +90,10 @@ def createdb1(file):
       db['mt']=db.macd.shift(1)
       db['trn']=db.apply(poschange,axis=1)
       db['gpid']=0
-      db['keyred']=db.apply(keyred,axis=1)
+      db['red']=db.apply(red,axis=1)
       db['updown']=db.apply(lambda x: 1 if x.macd>=0 else -1,axis=1)
       db['pos_dif']=db.apply(lambda x: 1 if x.dif>=0 else -1,axis=1)
-      db['laa'] = talib.LINEARREG_ANGLE(np.array(db.macd))
-      db['la']=db.laa
-      db['mv'] = talib.STDDEV(np.array(db.dif))
-      db['atr']= talib.ART(np.array(db.h),np.array(db.l),np.array(db.c))
+      db['mom']= talib.MOM(np.array(db.c))
       regroup(db)
       
    finally:
@@ -104,33 +101,52 @@ def createdb1(file):
 
 def makegp(sn,db):
    # group by gpid get sum of md and gpred
-    gp1=db.groupby('gpid').sum()[['updown','pos_dif','keyred']]
-    gp2=db.groupby('gpid').max()[['h','c','absmacd','la']]
-    gp2.columns=['maxh','maxc','absmacd','la']
+    gp1=db.groupby('gpid').sum()[['updown','pos_dif','red','mom']]
+    gp2=db.groupby('gpid').max()[['h','c','absmacd']]
+    gp2.columns=['maxh','maxc','absmacd']
     gp22=db.groupby('gpid').min()[['l']]
     gp22.columns=['minl']
     idx=db.groupby('gpid')['id'].transform(min)==db['id']
     gp3=db[idx][['gpid','date','h','l','o','c','v']]
     gp3.columns=['gpid','startdate','starth','startl','starto','startc','startv']
-    gp3.reset_index('gpid')
-    gp=pd.concat([gp1,gp2,gp22,gp3],axis=1,join='inner')
-    gp['aft1']=gp.updown.shift(-1)
+    gp3=gp3.set_index('gpid')
+    idx2=db.groupby('gpid')['id'].transform(max)==db['id']
+    gp32=db[idx][['gpid','date','l','c']]
+    gp32.columns=['gpid','lastdate','lastl','lastc']
+    gp32=gp32.set_index('gpid')
+
+    idx1=db.groupby('gpid')['dif'].transform(min)==db['dif']
+    gp33=db[idx1][['gpid','id']]
+    gp33.columns=['gpid','difid']
+    gp33=gp33.set_index('gpid')
+    
+    gp=pd.concat([gp1,gp2,gp22,gp3,gp32,gp33],axis=1,join="inner")
+    #gp=pd.concat([gp,gp33],axis=1,join="inner")
+    #return gp33,gp
+    gp['turnid']=gp.updown.abs()-(gp.difid-gp.index)
+    gp['fur1']=gp.updown.shift(-1)
+    gp['fur2']=gp.updown.shift(-2)
     gp['pre1']=gp.updown.shift(1)
     gp['pre2']=gp.updown.shift(2)
     gp['pre3']=gp.updown.shift(3)
-    gp['absmacd1']=gp.absmacd.shift(1).abs()
-    gp['absmacd2']=gp.absmacd.shift(2).abs()
-    gp['absmacd3']=gp.absmacd.shift(3).abs()
+    #gp['absmacd1']=gp.absmacd.shift(1).abs()
+    #gp['absmacd2']=gp.absmacd.shift(2).abs()
+    #gp['absmacd3']=gp.absmacd.shift(3).abs()
     gp['pos_dif1']=gp.pos_dif.shift(1)
     gp['pos_dif2']=gp.pos_dif.shift(2)
     gp['pos_dif3']=gp.pos_dif.shift(3)
     gp['minl1']=gp.minl.shift(1)
     gp['minl2']=gp.minl.shift(2)
     gp['minl3']=gp.minl.shift(3)
-    gp['la1']=gp.la.shift(1)
-    gp['la2']=gp.la.shift(2)
-    gp['la3']=gp.la.shift(3)
     gp['startl1']=gp.startl.shift(1)
+    #gp['prmom2']=gp.mom.shift(2)
+    #gp['prmom3']=gp.mom.shift(3)
+    #gp['prred1']=gp.red.shift(1)
+    #gp['prred2']=gp.red.shift(2)
+    #gp['prred3']=gp.red.shift(3)
+    #gp['prl1']=gp.startl.shift(1)
+    gp['furmaxh1']=gp.maxh.shift(-1) #this highest at next scope 
+    gp['furmaxh2']=gp.maxh.shift(-2) #this highest at next scope 
     gp['sn']=sn
     gp['rat']=(gp.maxc/gp.startc-1)*100
     return gp
@@ -144,15 +160,15 @@ def getallfile(rootpath):
       if os.path.isdir(path):
          pass
       else:
-         if os.path.basename(path)[0:5]=='SH600' and os.stat(path).st_size!=0:
-          
+         if os.path.basename(path)[0]=='S' and os.stat(path).st_size!=0:
+         #if os.path.basename(path)[0:5]=='SH600' and os.stat(path).st_size!=0: 
             resultlist.append(path)
    return resultlist
    
 
 
 # find 
-def Allfind(rootpath=ROOTPATH,findtype=4):
+def Allfind(rootpath=ROOTPATH,findtype='4'):
    result=pd.DataFrame(columns=GPTITLE)
    snlist=getallfile(rootpath)
    
@@ -164,16 +180,20 @@ def Allfind(rootpath=ROOTPATH,findtype=4):
       if db is not None:
             try:
                   gp=makegp(sn, db)
-                  if findtype==1:
+                  if findtype=='1':
                      result=dbcurrent.append(keyfind1(gp))
-                  elif findtype==2:
+                  elif findtype=='2':
                      result=dbcurrent.append(keyfind2(gp))
-                  elif findtype==3:
+                  elif findtype=='3':
                      result=dbcurrent.append(keyfind3(gp))
-                  elif findtype==4:
+                  elif findtype=='4':
                      result=dbcurrent.append(keyfind4(gp))
-                  elif findtype==5:
+                  elif findtype=='5':
                      result=dbcurrent.append(keyfind5(gp))
+                  elif findtype=='6':
+                     result=dbcurrent.append(keyfind6(gp))                     
+                  elif findtype=='7':
+                    result=dbcurrent.append(keyfind7(gp))
             except:
                   print(sn)
                   continue
@@ -182,25 +202,26 @@ def Allfind(rootpath=ROOTPATH,findtype=4):
 
 
 
-def singlefind(sn,findtype=4):
+def singlefind(sn,findtype='4'):
    sn,db=createdb1(ROOTPATH+sn+'.txt')
               #print(path)
    result=None
    if db is not None:
       gp=makegp(sn, db)   
-      if findtype==1:
+      if findtype=='1':
          result=keyfind1(gp)
-      elif findtype==2:
+      elif findtype=='2':
          result=keyfind2(gp)
-      elif findtype==3:
+      elif findtype=='3':
          result=keyfind3(gp)         
-      elif findtype==4:
+      elif findtype=='4':
          result=keyfind4(gp)         
-      elif findtype==5:
+      elif findtype=='5':
          result=keyfind5(gp)         
-      elif findtype==6:
+      elif findtype=='6':
          result=keyfind6(gp)         
-
+      elif findtype=='7':
+         result=keyfind7(gp)  
    return result
    
 #keyfind
@@ -262,13 +283,14 @@ def keyfind3(gp):
              
 def keyfind4(gp):
    # pos1:     important 
-   # pos2:     
+   # pos2:      rat>3 时，pre1.abs()>pre3.abs() 占90%
    # pos3:entrance
    # rat >3 77% (gp.pre1<0)&(gp.pre1.abs()>20)&(gp.pos_dif1<0)&(gp.pos_dif3>0) 
    return gp[ (gp.pre1<0) &                                                                                                                                        
               (gp.pre1.abs()>20) & 
               (gp.pos_dif1<0)&
-              (gp.pos_dif3>0)
+              (gp.pos_dif3>0)&
+              (gp.pre1.abs()>gp.pre3.abs())
               
               ][GPTITLE]
 
@@ -284,16 +306,31 @@ def keyfind5(gp):
               ][GPTITLE]
    
 def keyfind6(gp):
-   # pos1:     pre1<0 and pre1<30 posdif >0 
+   # pos1:     pre1<0 and pre1.abs()>30 posdif >0 
    # pos2:   
    # pos3:entrance
-   return gp[ (gp.pre2>0) & 
-              (gp.pre2<=15) & 
-              (gp.la1>gp.la2)&
-              (gp.pre2.abs()>gp.pre1.abs())&
-	      
-              (gp.minl1<gp.minl2)            
+   return gp[ (gp.pre1<0) & 
+              (gp.pre1.abs()>30) & 
+              (gp.pos_dif1>3)
+             
               ][GPTITLE]
+
+def keyfind7(gp):
+   #pos : 
+   #return gp[(gp.updown<0)&(gp.updown>-10)&
+   #          (gp.startl==gp.minl)&
+   #          (abs(gp.minl-gp.minl2)<gp.minl*0.03)&
+   #          (gp.pre1>abs(gp.updown))&
+   #          (abs(gp.pre2)>gp.pre1)][GPTITLE]
+   return gp[(gp.pre1<0 )&(gp.pre1>-10)&
+             (gp.startl1==gp.minl1)&
+             (gp.minl1>=gp.minl3) &
+            #(abs(gp.minl1-gp.minl3)<gp.minl1*0.03)&
+              (gp.pre2>abs(gp.pre1))&
+              (abs(gp.pre3)>gp.pre2)
+               
+             ][GPTITLE]
+
              
 def readgp(csvfile):
     return pd.read_csv(csvfile,header=None,skiprows=1,names=GPTITLE)
