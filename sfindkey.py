@@ -7,30 +7,56 @@ from threading import Thread
 from multiprocessing import process
 import threading
 from time import ctime,sleep
+import time
+#result = pd.DataFrame()
+def startTime():
+      return time.time()
+def ticT(startTime):
+      useTime=time.time()-startTime
+      return round(useTime,3)
 
 
-class doanalysis(Thread):
-      def __init__(self,queue):
+class threadPoolManager:
+      def __init__(self,tasks,worknum=3,threadNum=3):
+            self.workQueue=Queue()
+            self.threadPool=[]
+            self.__initWorkQueue(tasks)
+            self.__initThreadPool(threadNum)
+            
+      def __initWorkQueue(self,tasks):
+            for i in tasks:
+                  self.workQueue.put((dofind,i))
+                  
+      def __initThreadPool(self,threadNum):
+            for i in range(threadNum):
+                  self.threadPool.append(work(self.workQueue))
+                  
+      def waitAllComplete(self):
+            for i in self.threadPool:
+                  if i.isAlive():
+                        i.join()
+
+class work(Thread):
+      def __init__(self,workQueue):
             Thread.__init__(self)
-            self.queue=queue
+            self.workQueue=workQueue
+            self.start()
       def run(self):
             while True:
-                  if self.queue.empty():
+                  if self.workQueue.qsize():
+                        do,args=self.workQueue.get(block=False)
+                        do(args[0],args[1])
+                        self.workQueue.task_done()
+                  else:
                         break
-                  pattern,findtype=self.queue.get()
-                  dofind(pattern,findtype)
-                  self.queue.task_done()
-            return 
-#multiprocess
-
-
-
+                        
+                  
+            
 
 ROOTPATH='/home/lib/mypython/export/'
-#GPTITLE=['sn','startdate','startc','maxc','rat','updown','aft1','pre1','pre2','pre3','absmacd1','absmacd2','absmacd3','minl1','minl2','minl3']
+GPTITLE=['sn','startdate','rat','updown','minl','maxh','furmaxh1','furminl1','furrat1','fur2','furmaxh2','furminl2','furrat2','nflat']
+GPTITLE2=['sn','startdate','rat','updown','mupdown','minl','pre1','mpre1','pre2','mpre2','pre3','minl1','minl2','minl3']
 
-GPTITLE=['sn','startdate','rat','updown','minl','pre1','minl1','maxh1','pre2','minl2','maxh2','pre3','minl3','maxh3','fur1','furmaxh1']
-GPTITLE2=['sn','startdate','rat','updown','mupdown','minl','pre1','mpre1']
 # db method
 def midpoint(x):
       if x.c>(x.l+(x.h-x.l)/2):
@@ -42,18 +68,6 @@ def red(x):
             return 1
       else:
             return -1
-
-def poschange2(x):
-      if (x.mt>0 and x.lina<0 ) or (x.mt<0 and x.lina>0):
-            return x.id
-      else:
-            return 0
-
-def poschange(x):
-      if (x.mt>0 and x.macd<0 ) or (x.mt<0 and x.macd>0):
-            return x.id
-      else:
-            return 0
 
 def regroup(db):
       curid=0
@@ -69,56 +83,27 @@ def keyred(x):
       else :
             return 0
 
-def createdb(file):
-      #file=sys.argv[1]
-      db2=None
-      try:
-            base=os.path.splitext(file)[0]
-            sn=base[-6:]
-            #print(sn)
-            db=pd.read_csv(file,header=None,names=['date','o','h','l','c','v','m'])
-            db['sn']=sn
-            db['min8']=db.l.rolling(8).min()
-            db['midp']=db.apply(midpoint,axis=1)
-            db['cl']=(db.c/db.l-1)*100
-            db['co']=(db.c/db.o-1)*100
-            db['red']=db.apply(red,axis=1)
-            db['redcount']=db.red.rolling(8).sum()
-            #db.loc[:,'EMA12']=pd.ewma(db.c,span=12)
-            #db.loc[:,'EMA26']=pd.ewma(db.c,span=26)
-            db.loc[:,'EMA12']=db.c.ewm(adjust=True,span=12,min_periods=0,ignore_na=False).mean()
-            db.loc[:,'EMA26']=db.c.ewm(adjust=True,span=26,min_periods=0,ignore_na=False).mean()
-            db.loc[:,'DIF']=db.EMA12-db.EMA26
-            #db.loc[:,'DEA']=pd.ewma(db.DIF,span=9)
-            db.loc[:,'DEA'] =db.DIF.ewm(adjust=True,span=9,min_periods=0,ignore_na=False).mean()
-            db.loc[:,'MACD']=(db.DIF-db.DEA)*2
-            db['up5']=db.MACD.rolling(window=5,center=False).max()
-
-            db2=db.sort_values(['date'],ascending=False)
-            db2['id']=db2.index
-            db2['max5cd']=db2.MACD.rolling(window=5,center=False).max()
-            #db2['max5cd']=pd.rolling_max(db2.MACD,5)
-            #db2['max3']=pd.rolling_max(db2.h,3)
-            #db2['max5']=pd.rolling_max(db2.h,5)
-            #db3=db2[(db2.redcount>4)&(db2.min8==db2.l)&(db2.cl>3)][['sn','date','o','c','redcount','cl','MACD','max5cd']]
-      finally:
-            return db2
 
 
-def createdb2(file):
-      #file=sys.argv[1]
+def poschange_a(x):
+      if (x.mt>0 and x.lina<0 ) or (x.mt<0 and x.lina>0):
+            return x.id
+      else:
+            return 0
+
+
+
+def createdb_a(file):
       db=None
       try:
             base=os.path.splitext(file)[0]
             sn=base[-6:]
-            #print(sn)
             db=pd.read_csv(file,header=None,names=['date','o','h','l','c','v','m'])
-            db['dif'],db['dea'],db['macd']=talib.MACD(np.array(db.c),12,26,9)
+            db['dif'],db['dea'],db['macd']=talib.MACD(np.array(db.c),10,20,6) # change
             db['id']=db.index
-            #db['trix']= talib.TRIX(np.array(db.c),9)
-            db['lina']= talib.LINEARREG_ANGLE(np.array(db.macd),9)
+            db['lina']= talib.LINEARREG_ANGLE(np.array(db.dea),3)     #change
             db['mt']=db.lina.shift(1)
-            db['trn']=db.apply(poschange2,axis=1)
+            db['trn']=db.apply(poschange_a,axis=1)
             db['gpid']=0
             db['updown']=db.apply(lambda x: 1 if x.lina>=0 else -1,axis=1)
             db['mupdown']=db.apply(lambda x: 1 if x.macd>=0 else -1,axis=1)
@@ -129,7 +114,86 @@ def createdb2(file):
             return sn,db
 
 
-def makegp2(sn,db):
+def makegp_a(sn,db):
+      # group by gpid get sum of md and gpred
+      gp1=db.groupby('gpid').max()[['maxang','h','c']]  # compare power？ angle或stddev
+      gp1.columns=['maxlina','maxh','maxc']
+      gp12=db.groupby('gpid').std()[['lina']]
+      gp2=db.groupby('gpid').min()[['l']]
+      gp2.columns=['minl']
+      gp22=db.groupby('gpid').sum()[['updown','mupdown']]
+
+      #gp23=db.groupby('gpid')
+      idx=db.groupby('gpid')['id'].transform(min)==db['id']
+      gp3=db[idx][['gpid','date','h','l','o','c','v']]
+      gp3.columns=['gpid','startdate','starth','startl','starto','startc','startv']
+      gp3=gp3.set_index('gpid')
+      idx2=db.groupby('gpid')['id'].transform(max)==db['id']
+      gp32=db[idx][['gpid','date','l','c']]
+      gp32.columns=['gpid','lastdate','lastl','lastc']
+      gp32=gp32.set_index('gpid')
+
+
+      gp=pd.concat([gp1,gp12,gp2,gp22,gp3,gp32],axis=1,join="inner")
+      #gp=pd.concat([gp,gp33],axis=1,join="inner")
+      #return gp33,gp
+      gp['fur1']=gp.updown.shift(-1)
+      gp['fur2']=gp.updown.shift(-2)
+      gp['pre1']=gp.updown.shift(1)
+      gp['pre2']=gp.updown.shift(2)
+      gp['pre3']=gp.updown.shift(3)
+      gp['maxh1']=gp.maxh.shift(1).abs()
+      gp['maxh2']=gp.maxh.shift(2).abs()
+      gp['maxh3']=gp.maxh.shift(3).abs()
+      gp['minl1']=gp.minl.shift(1)
+      gp['minl2']=gp.minl.shift(2)
+      gp['minl3']=gp.minl.shift(3)
+      gp['mpre1']=gp.mupdown.shift(1)
+      gp['mpre2']=gp.mupdown.shift(2)
+      gp['lina1']=gp.lina.shift(1)
+      gp['lina2']=gp.lina.shift(2)
+      gp['maxlina1']=gp.maxlina.shift(1)
+      gp['maxlina2']=gp.maxlina.shift(2)
+      gp['mupdown1']=gp.mupdown.shift(1)
+      gp['mupdown2']=gp.mupdown.shift(2)
+      #gp['prred3']=gp.red.shift(3)
+      gp['startl1']=gp.startl.shift(1)
+      gp['sn']=sn
+
+      gp['rat']=(gp.maxc/gp.startc-1)*100
+      return gp
+
+
+
+def wcreatedb_a(file):
+      db=None
+      try:
+            base=os.path.splitext(file)[0]
+            sn=base[-6:]
+            db=pd.read_csv(file,header=None,names=['date','o','h','l','c','v','m'])
+            db.date=pd.to_datetime(db.date)
+            db=db.set_index('date')
+            wdb=db.resample('w').last()
+            wdb.h=db.h.resample('w').max()
+            wdb.o=db.o.resample('w').first()
+            wdb.c=db.c.resample('w').min()
+            wdb.v=db.v.resample('w').sum()
+            wdb=wdb[wdb.o.notnull()]
+            wdb['id']=pd.Series(range(len(wdb)),index=wdb.index)
+            wdb['dif'],wdb['dea'],wdb['macd']=talib.MACD(np.array(wdb.c),10,20,6)
+            wdb['lina']= talib.LINEARREG_ANGLE(np.array(wdb.dif),3)     #change
+            wdb['mt']=wdb.lina.shift(1)
+            wdb['trn']=wdb.apply(poschange_a,axis=1)
+            wdb['gpid']=0
+            wdb['updown']=wdb.apply(lambda x: 1 if x.lina>=0 else -1,axis=1)
+            wdb['mupdown']=wdb.apply(lambda x: 1 if x.macd>=0 else -1,axis=1)
+            wdb['maxang']=abs(wdb.lina)
+            wdb['date']=wdb.index
+            regroup(wdb)          
+      finally:
+            return sn,wdb
+
+def wmakegp_a(sn,db):
       # group by gpid get sum of md and gpred
       gp1=db.groupby('gpid').max()[['maxang','h','c']]  # compare power？ angle或stddev
       gp1.columns=['maxlina','maxh','maxc']
@@ -163,23 +227,105 @@ def makegp2(sn,db):
       gp['minl2']=gp.minl.shift(2)
       gp['minl3']=gp.minl.shift(3)
       gp['mpre1']=gp.mupdown.shift(1)
-      #gp['prmom2']=gp.mom.shift(2)
-      #gp['prmom3']=gp.mom.shift(3)
-      #gp['prred1']=gp.red.shift(1)
-      #gp['prred2']=gp.red.shift(2)
-      #gp['prred3']=gp.red.shift(3)
+      gp['mpre2']=gp.mupdown.shift(2)
+      gp['maxlina1']=gp.maxlina.shift(1)
+      gp['maxlina2']=gp.maxlina.shift(2)
+      gp['mupdown1']=gp.mupdown.shift(1)
+      gp['mupdown2']=gp.mupdown.shift(2)      
       gp['startl1']=gp.startl.shift(1)
-      gp['furmaxh1']=gp.maxh.shift(-1) #this highest at next scope 
-      gp['furmaxh2']=gp.maxh.shift(-2) #this highest at next scope 
       gp['sn']=sn
 
       gp['rat']=(gp.maxc/gp.startc-1)*100
       return gp
 
 
+def poschange_m(x):
+      if (x.mt>0 and x.macd<0 ) or (x.mt<0 and x.macd>0):
+            return x.id
+      else:
+            return 0
 
+def wcreatedb_m(file):
+    db=None
+    try:
+          base=os.path.splitext(file)[0]
+          sn=base[-6:]
+          #print(sn)
+          db=pd.read_csv(file,header=None,names=['date','o','h','l','c','v','m'])
+          db.date=pd.to_datetime(db.date)
+          db=db.set_index('date')
+          wdb=db.resample('w').last()
+          wdb.h=db.h.resample('w').max()
+          wdb.o=db.o.resample('w').first()
+          wdb.c=db.c.resample('w').min()
+          wdb.v=db.v.resample('w').sum()
+          wdb=wdb[wdb.o.notnull()]
+          wdb['id']=pd.Series(range(len(wdb)),index=wdb.index)
+          wdb['dif'],wdb['dea'],wdb['macd']=talib.MACD(np.array(wdb.c),10,20,6)
+          wdb['mt']=wdb.macd.shift(1)
+          wdb['trn']=wdb.apply(poschange_m,axis=1)
+          wdb['gpid']=0 
+          wdb['updown']=wdb.apply(lambda x: 1 if x.macd>=0 else -1,axis=1)
+          wdb['lina']=talib.LINEARREG_ANGLE(np.array(wdb.dif),3)
+          wdb['nflat']=wdb.apply(lambda x: 1 if abs(x.lina)<=0.3 else 0,axis=1)
+          wdb['date']=wdb.index
+          regroup(wdb)          
+    finally:
+          return sn,wdb
 
-def createdb1(file):
+def wmakegp_m(sn,db):
+      # group by gpid get sum of md and gpred
+      gp1=db.groupby('gpid').sum()[['updown','nflat']]
+      gp2=db.groupby('gpid').max()[['h','c',]]
+      gp2.columns=['maxh','maxc']
+      gp22=db.groupby('gpid').min()[['l']]
+      gp22.columns=['minl']
+      #gp23=db.groupby('gpid')
+      idx=db.groupby('gpid')['id'].transform(min)==db['id']
+      gp3=db[idx][['gpid','date','h','l','o','c','v']]
+      gp3.columns=['gpid','startdate','starth','startl','starto','startc','startv']
+      gp3=gp3.set_index('gpid')
+      idx2=db.groupby('gpid')['id'].transform(max)==db['id']
+      gp32=db[idx][['gpid','date','l','c']]
+      gp32.columns=['gpid','lastdate','lastl','lastc']
+      gp32=gp32.set_index('gpid')
+
+      idx1=db.groupby('gpid')['l'].transform(min)==db['l']
+      gp33=db[idx1][['gpid','id','macd']]
+      gp33.columns=['gpid','minlid','minlmacd']
+      gp33=gp33.set_index('gpid')
+
+      gp=pd.concat([gp1,gp2,gp22,gp3,gp32,gp33],axis=1,join="inner")
+      #gp=pd.concat([gp,gp33],axis=1,join="inner")
+      #return gp33,gp
+      gp['turnid']=gp.updown.abs()-(gp.minlid-gp.index)
+      gp['fur1']=gp.updown.shift(-1)
+      gp['fur2']=gp.updown.shift(-2)
+      gp['pre1']=gp.updown.shift(1)
+      gp['pre2']=gp.updown.shift(2)
+      gp['pre3']=gp.updown.shift(3)
+      gp['maxh1']=gp.maxh.shift(1).abs()
+      gp['maxh2']=gp.maxh.shift(2).abs()
+      gp['maxh3']=gp.maxh.shift(3).abs()
+      gp['minl1']=gp.minl.shift(1)
+      gp['minl2']=gp.minl.shift(2)
+      gp['minl3']=gp.minl.shift(3)
+  
+      gp['startl1']=gp.startl.shift(1)
+      gp['furmaxh1']=gp.maxh.shift(-1) #this highest at next scope 
+      gp['furmaxh2']=gp.maxh.shift(-2) #this highest at next scope 
+      gp['furminl1']=gp.minl.shift(-1)
+      gp['furminl2']=gp.minl.shift(-2)
+      
+      gp['sn']=sn
+
+      gp['rat']=(gp.maxc/gp.startc-1)*100
+      gp['furrat1']=gp.rat.shift(-1)
+      gp['furrat2']=gp.rat.shift(-2)
+      return gp
+
+          
+def createdb_m(file):
       #file=sys.argv[1]
       db=None
       try:
@@ -188,16 +334,16 @@ def createdb1(file):
             #print(sn)
             db=pd.read_csv(file,header=None,names=['date','o','h','l','c','v','m'])
             db['id']=db.index
-            db['dif'],db['dea'],db['macd']=talib.MACD(np.array(db.c),12,26,9)
+            db['dif'],db['dea'],db['macd']=talib.MACD(np.array(db.c),10,20,9)
             db['absmacd']=db.macd.abs()
             db['mt']=db.macd.shift(1)
-            db['trn']=db.apply(poschange,axis=1)
+            db['trn']=db.apply(poschange_m,axis=1)
             db['gpid']=0
             db['red']=db.apply(red,axis=1)
             db['updown']=db.apply(lambda x: 1 if x.macd>=0 else -1,axis=1)
             db['pos_dif']=db.apply(lambda x: 1 if x.dif>=0 else -1,axis=1)
-            db['trix']= talib.TRIX(np.array(db.c),12)
-            db['lina']=talib.LINEARREG_ANGLE(np.array(db.trix),12)
+            db['lina']=talib.LINEARREG_ANGLE(np.array(db.dif),3)
+            db['nflat']=db.apply(lambda x: 1 if abs(x.lina)<=0.3 else 0,axis=1)
             regroup(db)
 
       finally:
@@ -206,9 +352,10 @@ def createdb1(file):
 
 
 
-def makegp(sn,db):
+
+def makegp_m(sn,db):
       # group by gpid get sum of md and gpred
-      gp1=db.groupby('gpid').sum()[['updown','pos_dif','red']]
+      gp1=db.groupby('gpid').sum()[['updown','pos_dif','nflat']]
       gp2=db.groupby('gpid').max()[['h','c','absmacd']]
       gp2.columns=['maxh','maxc','absmacd']
       gp22=db.groupby('gpid').min()[['l']]
@@ -223,15 +370,15 @@ def makegp(sn,db):
       gp32.columns=['gpid','lastdate','lastl','lastc']
       gp32=gp32.set_index('gpid')
 
-      idx1=db.groupby('gpid')['dif'].transform(min)==db['dif']
-      gp33=db[idx1][['gpid','id']]
-      gp33.columns=['gpid','difid']
+      idx1=db.groupby('gpid')['l'].transform(min)==db['l']
+      gp33=db[idx1][['gpid','id','macd']]
+      gp33.columns=['gpid','minlid','minlmacd']
       gp33=gp33.set_index('gpid')
 
       gp=pd.concat([gp1,gp2,gp22,gp3,gp32,gp33],axis=1,join="inner")
       #gp=pd.concat([gp,gp33],axis=1,join="inner")
       #return gp33,gp
-      gp['turnid']=gp.updown.abs()-(gp.difid-gp.index)
+      gp['turnid']=gp.updown.abs()-(gp.minlid-gp.index)
       gp['fur1']=gp.updown.shift(-1)
       gp['fur2']=gp.updown.shift(-2)
       gp['pre1']=gp.updown.shift(1)
@@ -255,10 +402,18 @@ def makegp(sn,db):
       gp['startl1']=gp.startl.shift(1)
       gp['furmaxh1']=gp.maxh.shift(-1) #this highest at next scope 
       gp['furmaxh2']=gp.maxh.shift(-2) #this highest at next scope 
+      gp['furminl1']=gp.minl.shift(-1)
+      gp['furminl2']=gp.minl.shift(-2)
+      
       gp['sn']=sn
 
       gp['rat']=(gp.maxc/gp.startc-1)*100
+      gp['furrat1']=gp.rat.shift(-1)
+      gp['furrat2']=gp.rat.shift(-2)
       return gp
+
+
+
 
 
 
@@ -269,202 +424,197 @@ def getallfile(rootpath,pat):
             if os.path.isdir(path):
                   pass
             else:
-                  if os.path.basename(path)[0:3]==pat and os.stat(path).st_size!=0:
+                  # only get lines >60 
+                  if os.path.basename(path)[0:3]==pat and os.stat(path).st_size>4000:
                   #if os.path.basename(path)[0:5]=='SH600' and os.stat(path).st_size!=0: 
                         resultlist.append(path)
       return resultlist
 
 #the find in threading
-def dofinddetail(snlist,findtype='4'):
-      result=pd.DataFrame(columns=GPTITLE)
+def getgp(sn,db,gptype):
+      if db.empty==False and len(db)>60 and gptype=='a':
+            return makegp_a(sn,db)
+      elif db.empty==False and len(db)>60 and gptype=='m':
+            return makegp_m(sn,db)
+      
+def getdb(filepath,dbtype):
+      if dbtype=='a':
+            return createdb_a(filepath)
+      elif dbtype=='m':
+            return createdb_m(filepath)
+
+def wgetgp(sn,db,gptype):
+      if db.empty==False and len(db)>60 and gptype=='a':
+            return wmakegp_a(sn,db)
+      elif db.empty==False and len(db)>60 and gptype=='m':
+            return wmakegp_m(sn,db)
+
+
+def wgetdb(filepath,dbtype):
+      if dbtype=='a':
+            return wcreatedb_a(filepath)
+      elif dbtype=='m':
+            return wcreatedb_m(filepath)
+
+
+def dofinddetail(snlist,findtype='m4'):
+      result=pd.DataFrame()
       for path in snlist:
+            #print (path)
             dbcurrent=result
-            if (findtype=='1') or (findtype=='2') or (findtype=='3') or (findtype=='4') or (findtype=='5') or (findtype=='6'):
-                  sn,db=createdb1(path)
-                  if db.empty==False:
-                        gp=makegp(sn, db)   
-            else:
-                  sn,db=createdb2(path)
-                  if db.empty==False:
-                        gp=makegp2(sn, db)                     
-            try:
-                  if findtype=='1':
-                        result=dbcurrent.append(keyfind1(gp))
-                  elif findtype=='2':
-                        result=dbcurrent.append(keyfind2(gp))
-                  elif findtype=='3':
-                        result=dbcurrent.append(keyfind3(gp))
-                  elif findtype=='4':
-                        result=dbcurrent.append(keyfind4(gp))
-                  elif findtype=='5':
-                        result=dbcurrent.append(keyfind5(gp))
-                  elif findtype=='6':
-                        result=dbcurrent.append(keyfind6(gp))   
-                  elif findtype=='7':
-                        result=dbcurrent.append(keyfind7(gp))                                      
-            except:
-                  print(sn)
-                  continue
+            sn,db=getdb(path, findtype[0])
+            gp =  getgp(sn,db,findtype[0])
+            if gp is not None:
+                  try:
+                        if findtype=='a1':
+                              result=dbcurrent.append(keyfinda1(gp))
+                        elif findtype=='a2':
+                              result=dbcurrent.append(keyfinda2(gp))
+                        elif findtype=='m4':
+                              result=dbcurrent.append(keyfindm4(gp))  
+                        elif findtype=='m7':
+                              result=dbcurrent.append(keyfindm7(gp))  
+                  except:
+                        print(sn)
+                        continue                         
+                         
+                           
+    
 #result.to_csv('myfind.csv')   
       if result.empty==False:
             analysis(result)
+            result[result.rat<3].to_csv("{}3.csv".format(findtype))
+ 
+
+def batsavegp(pat,findtype="m4"):
+      snlist=getallfile(ROOTPATH,pat)
+      result=pd.DataFrame()
+      for path in snlist:
+            dbcurrent=result
+            sn,db=getdb(path,findtype[0])
+            gp = getgp(sn,db,findtype[0])
+            if gp is not None:
+                  try:
+                        result=dbcurrent.append(gp)
+                  except:
+                        print(sn)
+                        continue
+      if result.empty == False:
+            result.to_csv("gp{}{}.csv".format(pat,findtype[0])) 	   
+
+def wbatsavegp(pat,findtype="m4"):
+      snlist=getallfile(ROOTPATH,pat)
+      result=pd.DataFrame()
+      for path in snlist:
+            dbcurrent=result
+            sn,db=wgetdb(path,findtype[0])
+            gp = wgetgp(sn,db,findtype[0])
+            if gp is not None:
+                  try:
+                        result=dbcurrent.append(gp)
+                  except:
+                        print(sn)
+                        continue
+      if result.empty == False:
+            result.to_csv("wgp{}{}.csv".format(pat,findtype[0])) 	   
+
+				 
+def batfind(pat,findtype='m4'):
+      gp=pd.read_csv("gp{}{}.csv".format(pat,findtype[0]))
+      if findtype=='a1':
+            result=keyfinda1(gp)
+      elif findtype=='a2':
+            result=keyfinda2(gp)
+      elif findtype=='m4':
+            result=keyfindm4(gp)
+      if result.empty==False:
+            analysis(result)	
       
 
-def dofindsh6(findtype='4'):
+def wbatfind(pat,findtype='m4'):
+      gp=pd.read_csv("wgp{}{}.csv".format(pat,findtype[0]))
+      if findtype=='a1':
+            result=keyfinda1(gp)
+      elif findtype=='a2':
+            result=keyfinda2(gp)
+      elif findtype=='m4':
+            result=keyfindm4(gp)
+      if result.empty==False:
+            analysis(result)
+     
+
+
+def dofindsh6(findtype='m4',gp='1'):
             
       print('sh6{}'.format(threading.currentThread().getName()))
-      snlist=getallfile(ROOTPATH,'SH6')
-      dofinddetail(snlist,findtype)
+      if gp=='1':
+            snlist=getallfile(ROOTPATH,'SH6')
+            dofinddetail(snlist,findtype)
+      else:
+            batfind('SH6',findtype)
       
-def dofindsz0(findtype='4'):
+def dofindsz0(findtype='m4',gp='1'):
+      
       print('sz0'.format(threading.currentThread().getName()))
-      snlist=getallfile(ROOTPATH,'SZ0')
-      dofinddetail(snlist,findtype)
+      if gp=='1':
+            snlist=getallfile(ROOTPATH,'SZ0')
+            dofinddetail(snlist,findtype)
+      else:
+            batfind('SH0',findtype)
         
-def dofindsz3(findtype='4'):
+def dofindsz3(findtype='m4'):
       print('sz3'.format(threading.currentThread().getName()))
       snlist=getallfile(ROOTPATH,'SZ3')
       dofinddetail(snlist,findtype)
       
-# find 
-def dofind(pattern,findtype='4'):
-      print (pattern)
-      result=pd.DataFrame(columns=GPTITLE)
-      snlist=getallfile(ROOTPATH,pattern)
-
-      for path in snlist:
-
-            dbcurrent=result
-            sn,db=createdb1(path)
-                        #print(path)
-            if db is not None:
-                  gp=makegp(sn, db)   
-                  try:
-                        if findtype=='1':
-                              result=dbcurrent.append(keyfind1(gp))
-                        elif findtype=='2':
-                              result=dbcurrent.append(keyfind2(gp))
-                        elif findtype=='3':
-                              result=dbcurrent.append(keyfind3(gp))
-                        elif findtype=='4':
-                              result=dbcurrent.append(keyfind4(gp))
-                        elif findtype=='5':
-                              result=dbcurrent.append(keyfind5(gp))
-                        elif findtype=='6':
-                              result=dbcurrent.append(keyfind6(gp))   
-                        elif findtype=='7':
-                              result=dbcurrent.append(keyfind7(gp))                                      
-                  except:
-                        print(sn)
-                        continue
-      #result.to_csv('myfind.csv')   
-      if result.empty==False:
-            print(pattern[1:2])
-            analysis(result)
-
-
-def Allfind(rootpath=ROOTPATH,findtype='4'):
-      #queue=Queue()
-
-      ##snlist1=snlist[0:10]   
-      #mytask=[]
-      #mytask.append(('SH6',findtype))
-      #mytask.append(('SZ0',findtype))
-      #mytask.append(('SZ3',findtype))
-      #for item in mytask:
-            #queue.put(item)
-      #workers=[doanalysis(queue) for x in range(3)]
-      #for c in workers:
-            #c.start()
-      #queue.join()
-   
-      print ('finish')
-      return
 
 
 
-
-
-def singlefind(sn,findtype='4'):
-      sn,db=createdb1(ROOTPATH+sn+'.txt')
+def singlefind(sn,findtype='m4'):
+      if findtype[0]=='a':
+            sn,db=createdb_a(ROOTPATH+sn+'.txt')
+      elif findtype[0]=='m':
+            sn,db=createdb_m(ROOTPATH+sn+'.txt')
                   #print(path)
       result=None
-      if db is not None:
-            gp=makegp(sn, db)   
-            if findtype=='1':
-                  result=keyfind1(gp)
-            elif findtype=='2':
-                  result=keyfind2(gp)
-            elif findtype=='3':
-                  result=keyfind3(gp)         
-            elif findtype=='4':
-                  result=keyfind4(gp)         
-            elif findtype=='5':
-                  result=keyfind5(gp)         
-            elif findtype=='6':
-                  result=keyfind6(gp)         
-            elif findtype=='7':
-                  result=keyfind7(gp) 
+      if db.empty==False and len(db)>60:
+            if findtype[0]=='a':
+                  gp=makegp_a(sn, db)   
+                  if findtype=='a1':
+                        result=keyfinda1(gp)
+                  elif findtype=='a2':
+                        result=keyfinda2(gp)
+  
+            elif findtype[0]=='m':
+                  gp=makegp_m(sn, db)
+                  if findtype=='m4':
+                        result=keyfindm4(gp)
+                  elif findtype=='m7':
+                        result=keyfindm7(gp)
       return result
 
-#keyfind
-def keyfind0(file):
-# the oldest ver of keyfind
-      db2=createdb(file)
-      if db2 is not None:
-            #return db2[ (db2.redcount>4)
-                  #          &(db2.min8==db2.l)
-                  #          &(db2.cl>3) 
-                  #          & (db2.MACD<0)
-                  ##          & (db2.MACD==db2.up5)
-                  #          &(np.abs(db2.co)<1)
-                  #          &(db2.co>=0)                 
-                  #          ][['sn','date','o','c','redcount','cl','co','MACD','max5cd']]
-            return db2[ (db2.redcount>4)
-                        &(db2.min8==db2.l)
-                        #&(db2.cl>3) 
-                        &(db2.midp=='u')
-                        & (db2.MACD<0)
-                        & (db2.MACD==db2.up5)
-                        &(np.abs(db2.co)<1)      
-                        ][['sn','date','o','c','h','l','redcount','cl','co','MACD','max5cd','min8']]
 
+#class a
+def keyfinda1(gp):
+      return gp[(gp.pre1.abs()<gp.pre3.abs())&(gp.maxh2*1.2<gp.maxh3)&
+                (gp.pre1<0)&(gp.pre3<0)&
+                (gp.pre2>5)&(gp.pre2<20)&
+                (gp.minl2<gp.minl3)&
+                (gp.minl1<gp.minl2)
+                
+                
+               
+      ][GPTITLE2]
 
-def keyfind1(gp):
-      # pos1:current(+),pre1(-) ,pre2(+),pre3(-) 
-      # pos2:           pre1<10 pre2<=20 pre3>30
-      #                 absmacd1<absmacd2<absmacd3
-      # pos3:           minl1<minl3
-      return gp[ (gp.updown>0) &
-                 (gp.pre2<3) ][GPTITLE]
+def keyfinda2(gp):
+      return gp[(gp.pre1<0)&(gp.mupdown>0)&(gp.maxlina1>gp.maxlina2)
 
-def keyfind2(gp):
-      # pos1:pre1>0 and pre1<6 and dif<0 and dea<0 and updown*2 <pre2
-      # pos2:pre1*2<pre3 think about absmacd2 absmacd3
-      # pos3:entrance
-      return gp[ (gp.pre1<0) & 
-                 (gp.pre1.abs()>2) & 
-                 (gp.pre1.abs()<10) &
-                 (gp.pre3<gp.pre1)&
-                 (gp.pos_dif1<0)&
-                 (gp.pos_dif3<0)&
-                 (gp.pre2<gp.pre3.abs())
-                 ][GPTITLE]
+                
+                ][GPTITLE2]
 
-
-def keyfind3(gp):
-            # pos1   pre1 <0 
-            #        startl1=minl1
-            #        pre1<pre3
-      return gp[(gp.pre1<0)&
-                (gp.startl1==gp.minl1)&
-                (gp.pre1>gp.pre3) &
-                (gp.pre2<gp.pre3.abs()) &
-                (gp.pos_dif1<0)&
-                (gp.pos_dif3<0)
-                ][GPTITLE]
-
-def keyfind4(gp):
+#class m
+def keyfindm4(gp):
+      
       # pos1:     important 
       # pos2:      rat>3 时，pre1.abs()>pre3.abs() 占90%
       # pos3:entrance
@@ -473,38 +623,20 @@ def keyfind4(gp):
                  (gp.pre1.abs()>20) & 
                  (gp.pos_dif1<0)&
                  (gp.pos_dif3>0)&
-                 (gp.pre1.abs()>gp.pre3.abs())
-                 &(gp.maxh1<gp.maxh2)&(gp.maxh2<gp.maxh3)
+                 (gp.pre1.abs()>gp.pre3.abs())&
+                 (gp.maxh1<gp.maxh2)&(gp.maxh2<gp.maxh3)
                  ][GPTITLE]
 
-def keyfind5(gp):
-      # pos1:     pre1<0 and pre1<30 posdif >0 
-      # pos2:   
-      # pos3:entrance
-      return gp[ (gp.pre2>0) & 
-                 (gp.pre2<=30) & 
-                 (gp.pos_dif2<gp.pre2)&
-                 (gp.pos_dif2>0)&
-                 (gp.minl1<gp.minl2)            
-                 ][GPTITLE]
 
-def keyfind6(gp):
-      # pos1:     pre1<0 and pre1.abs()>30 posdif >0 
-      # pos2:   
-      # pos3:entrance
-      return gp[ (gp.pre1<0) & 
-                 (gp.pre1.abs()>30) & 
-                 (gp.pos_dif1>3)
 
-                 ][GPTITLE]
-
-def keyfind7(gp):
+def keyfindm7(gp):
       #pos : 
       return gp[(gp.pre1<-3)&(gp.pre1>-10)&
                 (gp.startl1==gp.minl1)&
                 (gp.minl1>gp.minl3)&(abs(gp.minl1-gp.minl3)<gp.minl1*0.02)&
                 (gp.pre2>abs(gp.pre1))&
                 (abs(gp.pre3)>gp.pre2)][GPTITLE]
+
 
 
 def readgp(csvfile):
@@ -517,6 +649,7 @@ def analysis(df):
       print("success 3 rate:{}".format(df[(df.rat>=3)]['sn'].count()/df.sn.count()))
       print("success 5 rate:{}".format(df[df.rat>=5]['sn'].count()/df.sn.count()))
       print("success 10 rate:{}".format(df[df.rat>=10]['sn'].count()/df.sn.count()))
+      #print("furture 10 rate:{}".format(df[(df.rat<3)&(df.furrat2>10)]['sn'].count()/df[(df.rat<3)]['sn'].count()))
       print ("15:")
       print("success 3 rate:{}".format(df[(df.rat>=3)&(df.startdate>'2015/01/01/')&(df.startdate<'2015/12/31')]['sn'].count()/df[(df.startdate>'2015/01/01/')&(df.startdate<'2015/12/31')].sn.count()))
       print("success 5 rate:{}".format(df[(df.rat>=5)&(df.startdate>'2015/01/01/')&(df.startdate<'2015/12/31')]['sn'].count()/df[(df.startdate>'2015/01/01/')&(df.startdate<'2015/12/31')].sn.count()))
@@ -528,41 +661,36 @@ def analysis(df):
 
       find1=pd.DatetimeIndex(df.startdate).to_period("M")
       gp=df.sn.groupby(find1).count()
-      print(gp[gp.index>'2015-12-31'].to_csv(sep='\t'))
+      print(gp[gp.index>'2015-1-31'].to_csv(sep='\t'))
 
 
+
+def main1():
+      threadpool=[]
+      tasks=[('SH6','m4'),('SZ0','m4'),('SZ3','m4')]
+      begintime=startTime()
+      pool=threadPoolManager(tasks,threadNum=3)
+      pool.waitAllComplete()
+      threadpool.append(ticT(begintime))
+      print("all finish{}".format(ctime(),))      
 def main():
-      #path=sys.argv[1]
-      #db=keyfindall(path)
-      #result=db.sort('date')
-      #result.to_csv('myfind.csv')
-      #analysis(db)
-      #findtypeid=sys.argv[1]
-      #Allfind(ROOTPATH, findtype=findtypeid)
-      # analysis(gp)
-      #dofind('/home/lib/mypython/export/SH601069.txt',4)  	
-   
-      print("all over {}".format(ctime(),))
-
-threads=[]
-#t1=threading.Thread(target=dofindsh6,args=('4',))
-#threads.append(t1)
-t2=threading.Thread(target=dofindsz0,args=('4',))
-threads.append(t2)
-t3=threading.Thread(target=dofindsz3,args=('4',))
-threads.append(t3)
+    #main1()
+      #dofindsh6(findtype='a1')
+      dofindsh6(findtype='m4')
+      
 
 if __name__=="__main__":
       #findall(sys.argv[1])
       #main()
       
-      for t in threads:
-            t.setDaemon(False)
-            t.start()
-      #t.join()
-      for t in threads:
-            t.join() 
+      #for t in threads:
+            #t.setDaemon(False)
+            #t.start()
+
+      #for t in threads:
+            #t.join() 
       dofindsh6()
-      print("all finish{}".format(ctime(),))
+      #main()
+ 
       
 
