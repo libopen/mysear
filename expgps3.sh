@@ -1,0 +1,1 @@
+python3 sfindkey2.py 'SZ3'
