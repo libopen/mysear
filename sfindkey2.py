@@ -100,8 +100,8 @@ class STDTB(object):
             
                   #gp23=db.groupby('gpid')
                   idx=db.groupby('gpid')['id'].transform(min)==db['id']
-                  gp3=db[idx][['gpid','date','h','l','o','c','v']]
-                  gp3.columns=['gpid','startdate','starth','startl','starto','startc','startv']
+                  gp3=db[idx][['gpid','date','h','l','o','c','v','trixl']]
+                  gp3.columns=['gpid','startdate','starth','startl','starto','startc','startv','starttrixl']
                   gp3=gp3.set_index('gpid')
                   idx2=db.groupby('gpid')['id'].transform(max)==db['id']
                   gp32=db[idx][['gpid','date','l','c']]
@@ -131,6 +131,9 @@ class STDTB(object):
                   gp['prlendif1']=gp.lendif.shift(1)
                   gp['prlendif2']=gp.lendif.shift(2)
                   gp['prlendif3']=gp.lendif.shift(3)
+                  gp['prstarttrixl1']=gp.starttrixl.shift(1)
+                  gp['prstarttrixl2']=gp.starttrixl.shift(2)
+                  gp['prstarttrixl3']=gp.starttrixl.shift(3)
                   gp['postrix1']=gp.postrix.shift(1)
                   gp['postrix2']=gp.postrix.shift(2)
                   #gp['prred3']=gp.red.shift(3)
@@ -308,7 +311,7 @@ class ANALYSIS:
                   #if i>3:
                         #break
             if result.empty == False:
-                  print("total:{}".format(i))
+                  print("{}{}{}total:{}".format(pat,angtype,cyctype,i))
                   result.to_csv("gp{}{}{}.csv".format(pat,angtype,cyctype)) 	   
  
       
@@ -325,6 +328,8 @@ class ANALYSIS:
                   result=self.keyfindm12(gp)
             elif findtype=='m2':
                   result=self.keyfindm2(gp)
+            elif findtype=='t1':
+                  result=self.keyfindt1(gp)
             if result.empty==False:
                   self.statics(result)	
             cur=datetime.datetime.now().strftime('%Y-%m-01')
@@ -367,12 +372,14 @@ class ANALYSIS:
                   return self.keyfindm12(gp)
             elif findtype=='m2':
                   return self.keyfindm2(gp)
+            elif findtype=='t1':
+                  return self.keyfindt1(gp)
         
             
       
       
-      #class a
-      CONa1=['startdate','len','len1','len3','maxh2','maxh3','len2','minl2','minl3','minl1','rat','sn','maxang1','maxang2','fulen1','fuminl1','fulen2','fumaxh2','fuminl2']
+      # angtype :a
+      CONa=['startdate','len','len1','len2','len3','maxh2','maxh3','minl2','minl3','minl1','rat','sn','maxang1','maxang2','fulen1','fuminl1','fulen2','fumaxh2','fuminl2']
       def keyfinda1(self,gp):
             return gp[(gp.len1.abs()<gp.len3.abs())&(gp.maxh2*1.2<gp.maxh3)&
                       (gp.len1<0)&(gp.len3<0)&
@@ -380,7 +387,7 @@ class ANALYSIS:
                       (gp.minl2<gp.minl3)&
                       (abs(gp.minl1-gp.minl2)<gp.minl2*0.1)&
                       (gp.maxang1>1)
-            ][self.CONa1]
+            ][self.CONa]
       # at current position use  a1 method to find key 
       def ckeyfinda1(self,gp):
                 return gp[(gp.len.abs()<gp.len2.abs())&(gp.maxh1*1.2<gp.maxh2)&
@@ -389,22 +396,22 @@ class ANALYSIS:
                           (gp.minl1<gp.minl2)&
                           (gp.maxang>1)&
                           (gp.minl12<0)
-                ][self.CONa1]      
+                ][self.CONa]      
                 
       
-      CONa2=['len1','len2','len3','prlendif1','prlendif2','postrix1','postrix2','minl1','minl2','minl3','prrat1','prrat2','startdate','rat','len','sn','maxang1','maxang2','maxh1','maxh2','maxh3','fuminl1','fulen1','fulen2','fumaxh2','fuminl2']
+      
       def keyfinda2(self,gp):
             return gp[(gp.len1<0)&(gp.len2>gp.len1.abs())&(gp.prlendif2<0)&(gp.len2>7)
                       &(gp.postrix1>0)&(gp.minl1*1.03<gp.minl2)&(gp.prrat2>7)
-                      ][self.CONa2]
+                      ][self.CONa]
  
       def ckeyfinda2(self,gp):
             return gp[(gp.len<0)&(gp.len1>gp.len.abs())&(gp.prlendif1<0)&(gp.len1>7)
                       &(gp.postrix>0)&(gp.minl*1.03<gp.minl1)&(gp.prrat1>7)
                       ][self.CONa2]
       
-      #class m
-      CONm1=['startdate','len','len1','len2','len3','maxh2','maxh3','minl2','minl3','minl1','rat','sn','postrix1','postrix2','prrat2','fulen1','fuminl1','fumaxh2','fuminl2','fulen2','prlendif1','prlendif2','prlendif3']
+      # angtype :m 
+      CONm=['startdate','len','len1','len2','len3','maxh2','maxh3','minl2','minl3','minl1','rat','sn','postrix1','postrix2','prrat2','fulen1','fuminl1','fumaxh2','fuminl2','fulen2','prlendif1','prlendif2','prlendif3']
       def keyfindm1(self,gp):
             
             # pos1:    turn by macd angtype f
@@ -419,7 +426,7 @@ class ANALYSIS:
                        (gp.prrat2>=10) #change this param 
                        
                        
-                       ][self.CONm1]
+                       ][self.CONm]
       def keyfindm12(self,gp):
             #keyfind1 's up only different is the line 3#
             # pos1:    turn by macd angtype f
@@ -434,7 +441,7 @@ class ANALYSIS:
                        (gp.prrat2>=10) #change this param 
                        
                        
-                       ][self.CONm1]
+                       ][self.CONm]
       
       
       
@@ -444,15 +451,18 @@ class ANALYSIS:
                        (gp.len2>=10)&(gp.len2<=15)&
                        (gp.len2<gp.len3.abs())&                                                                                                                                   
                        (gp.postrix1==gp.len1.abs())&(gp.postrix1>0)&
-                       (gp.postrix2>0)&
+                       #(gp.postrix2>0)&
                        (gp.minl1<gp.minl2)&(gp.minl1>gp.minl2*0.9)
-                       ][self.CONm1]                                #change this param 
+                       #(gp.minl1<gp.min23)
+                       ][self.CONm]                                #change this param 
                        
-                       
+      # angtype :t   
+      CONt=['startdate','len','len1','len2','len3','maxh2','maxh3','minl2','minl3','minl1','rat','sn','prstarttrixl1','prstarttrixl2','prstarttrixl3','fuminl1','fuminl2']
       def keyfindt1(self,gp):
-            return gp[(gp.len1<-20)&
-                      (gp.minl1<gp.minl2)&(gp.minl>gp.minl2)
-                    ][CONm1]       
+            return gp[(gp.len1>-10)&(gp.len1.abs()<gp.len2.abs())&(gp.len2.abs()<gp.len3.abs())&
+                      (gp.starttrixl<gp.prstarttrixl1)&(gp.prstarttrixl1>gp.prstarttrixl2)&(gp.prstarttrixl2<gp.prstarttrixl3)
+                      #(gp.minl1<gp.minl2)&(gp.minl>gp.minl2)
+                    ][self.CONt]       
 
       def fustatics(self,df):
             print("success fuminl1 below minl1  rate:{}".format(df[df.fuminl1>df.minl1*0.9]['sn'].count()/df.sn.count()))
@@ -466,16 +476,14 @@ class ANALYSIS:
             df['startdate']=pd.to_datetime(df['startdate'],format='%Y-%m-%d')
       
             print ("total:")
-            #print("success 3 rate:{}".format(df[(df.rat>=3)]['sn'].count()/df.sn.count()))
-            print("success 3 rate:{}".format(df[df.rat>3]['sn'].count()/df.sn.count()))
-            print("success 5 rate:{}".format(df[df.rat>=5]['sn'].count()/df.sn.count()))
-            print("success 10 rate:{}".format(df[df.rat>=10]['sn'].count()/df.sn.count()))
+            for i in [3,5,10]:
+                  print("success {} rate:{}".format(i,round(float(df[df.rat>i]['sn'].count()/df.sn.count()),3)))
+            
             #print("furture 10 rate:{}".format(df[(df.rat<3)&(df.furrat2>10)]['sn'].count()/df[(df.rat<3)]['sn'].count()))
             for myyear in [2014,2015,2016,2017]:
                   print ("{}:{}".format(myyear,df[(df.startdate.dt.year==myyear)].sn.count()))
-                  print("success 3 rate:{}".format(df[(df.rat>3)&(df.startdate.dt.year==myyear)]['sn'].count()/df[df.startdate.dt.year==myyear].sn.count()))
-                  print("success 5 rate:{}".format(df[(df.rat>=5)&(df.startdate.dt.year==myyear)]['sn'].count()/df[(df.startdate.dt.year==myyear)].sn.count()))
-                  print("success 10 rate:{}".format(df[(df.rat>=10)&(df.startdate.dt.year==myyear)]['sn'].count()/df[(df.startdate.dt.year==myyear)].sn.count()))
+                  for i in [3,5,10]:
+                        print("success {} rate:{}".format(i,round(float(df[(df.rat>=i)&(df.startdate.dt.year==myyear)]['sn'].count()/df[df.startdate.dt.year==myyear].sn.count()),3)))
                   
   
             find1=pd.DatetimeIndex(df.startdate).to_period("M")
@@ -498,9 +506,8 @@ def main():
       #dofindsh6(findtype='m4')
       
       a=ANALYSIS()
-      a.batsavegp(pat=sys.argv[1])
-      a.batsavegp(pat=sys.argv[1],angtype='m')
-      a.batsavegp(pat=sys.argv[1],angtype='t')
+      a.batsavegp(pat=sys.argv[1],angtype=sys.argv[2])
+      
 
 if __name__=="__main__":
       #findall(sys.argv[1])
