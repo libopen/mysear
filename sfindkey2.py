@@ -47,7 +47,8 @@ class STDTB(object):
                   exdb=self.db
                   exdb['dif'],exdb['dea'],exdb['macd']=talib.MACD(np.array(exdb.c),10,20,6) # change
                   exdb['trixl']=talib.TRIX(np.array(exdb.c),12) 
-                  exdb['trixs']=talib.SMA(np.array(exdb.trixl),9) 
+                  exdb['trixs']=talib.SMA(np.array(exdb.trixl),9)
+                  exdb['trixlang']=talib.LINEARREG_ANGLE(np.array(exdb.trixl),3) 
                   exdb['tmacd']=exdb.trixl-exdb.trixs
                   exdb['id']=exdb.index
                   #exdb['ang']= talib.LINEARREG_ANGLE(np.array(exdb.dea),3)     #change use macd so much little perords 
@@ -129,6 +130,7 @@ class STDTB(object):
                   gp['maxang2']=gp.maxang.shift(2)
                   gp['prlendif1']=gp.lendif.shift(1)
                   gp['prlendif2']=gp.lendif.shift(2)
+                  gp['prlendif3']=gp.lendif.shift(3)
                   gp['postrix1']=gp.postrix.shift(1)
                   gp['postrix2']=gp.postrix.shift(2)
                   #gp['prred3']=gp.red.shift(3)
@@ -144,6 +146,7 @@ class STDTB(object):
                   gp['fumaxh2']=gp.maxh.shift(-2)
                   gp['fulen2']=gp.len.shift(-2)
                   gp['fuminl2']=gp.minl.shift(-3)
+                  gp['min23']=gp.apply(lambda x :min(x.minl2,x.minl3),axis=1)
                   return gp        
       def getgp(self):
             try:
@@ -244,7 +247,7 @@ class ANALYSIS:
                         #result.to_csv("bp{}{}{}.csv".format(pat,angtype,cyctype)) 
                         df1=result.groupby('date').sum()[['up','do']]
                         df1['per']=df1.up/df1.do
-                        print(df1[df1.index.year==2016].to_csv(sep='\t'))
+                        print(df1[df1.index.year>=2016].to_csv(sep='\t'))
                         return result
       
       def bigperiodsn(self,sn,angtype='m'):
@@ -280,33 +283,6 @@ class ANALYSIS:
                               resultlist.append(path)
             return resultlist
       
-      def dofinddetail(self,snlist,findtype='m4'):
-            result=pd.DataFrame()
-            for path in snlist:
-                  #print (path)
-                  dbcurrent=result
-                  sn,db=getdb(path, findtype[0])
-                  gp =  getgp(sn,db,findtype[0])
-                  if gp is not None:
-                        try:
-                              if findtype=='a1':
-                                    result=dbcurrent.append(keyfinda1(gp))
-                              elif findtype=='a2':
-                                    result=dbcurrent.append(keyfinda2(gp))
-                              elif findtype=='m4':
-                                    result=dbcurrent.append(keyfindm4(gp))  
-                              elif findtype=='m7':
-                                    result=dbcurrent.append(keyfindm7(gp))  
-                        except:
-                              print(sn)
-                              continue                         
-                               
-                                 
-          
-      #result.to_csv('myfind.csv')   
-            if result.empty==False:
-                  analysis(result)
-                  result[result.rat<3].to_csv("{}3.csv".format(findtype))
        
       
       
@@ -345,6 +321,8 @@ class ANALYSIS:
                   result=self.keyfinda2(gp)
             elif findtype=='m1':
                   result=self.keyfindm1(gp)
+            elif findtype=='m12':
+                  result=self.keyfindm12(gp)
             elif findtype=='m2':
                   result=self.keyfindm2(gp)
             if result.empty==False:
@@ -371,27 +349,30 @@ class ANALYSIS:
             return result            
       
       
-      def zonefind(mark='SH6',findtype='m4'):
-            snlist=getallfile(ROOTPATH,mark)
-            dofinddetail(snlist,findtype)      
       
       
       
-      def singlefind(self,sn,findtype='a1',angtype='a'):
-            stobj=STDTB("{}{}.txt".format(ROOTPATH,sn),angtype)
+      def singlefind(self,sn,findtype='a1'):
+            stobj=STDTB("{}{}.txt".format(ROOTPATH,sn),findtype[0])
             #week obj?
             gp=stobj.getgp()
             
             if findtype=='a1':
-                  result=keyfinda1(gp)
+                  return self.keyfinda1(gp)
             elif findtype=='a2':
-                  result=keyfinda2(gp)
+                  return self.keyfinda2(gp)
+            elif findtype=='m1':
+                  return self.keyfindm1(gp)
+            elif findtype=='m12':
+                  return self.keyfindm12(gp)
+            elif findtype=='m2':
+                  return self.keyfindm2(gp)
         
-            return result
+            
       
       
       #class a
-      CONa1=['startdate','len','len1','len3','maxh2','maxh3','len2','minl2','minl3','minl1','rat','sn','refid','maxang1','maxang2','fulen1','fuminl1','fulen2','fumaxh2','fuminl2']
+      CONa1=['startdate','len','len1','len3','maxh2','maxh3','len2','minl2','minl3','minl1','rat','sn','maxang1','maxang2','fulen1','fuminl1','fulen2','fumaxh2','fuminl2']
       def keyfinda1(self,gp):
             return gp[(gp.len1.abs()<gp.len3.abs())&(gp.maxh2*1.2<gp.maxh3)&
                       (gp.len1<0)&(gp.len3<0)&
@@ -400,7 +381,7 @@ class ANALYSIS:
                       (abs(gp.minl1-gp.minl2)<gp.minl2*0.1)&
                       (gp.maxang1>1)
             ][self.CONa1]
-
+      # at current position use  a1 method to find key 
       def ckeyfinda1(self,gp):
                 return gp[(gp.len.abs()<gp.len2.abs())&(gp.maxh1*1.2<gp.maxh2)&
                           (gp.len<0)&(gp.len2<0)&
@@ -411,7 +392,7 @@ class ANALYSIS:
                 ][self.CONa1]      
                 
       
-      CONa2=['len1','len2','len3','prlendif1','prlendif2','postrix1','postrix2','minl1','minl2','minl3','prrat1','prrat2','startdate','rat','len','sn','refid','maxang1','maxang2','maxh1','maxh2','maxh3','fuminl1','fulen1','fulen2','fumaxh2','fuminl2']
+      CONa2=['len1','len2','len3','prlendif1','prlendif2','postrix1','postrix2','minl1','minl2','minl3','prrat1','prrat2','startdate','rat','len','sn','maxang1','maxang2','maxh1','maxh2','maxh3','fuminl1','fulen1','fulen2','fumaxh2','fuminl2']
       def keyfinda2(self,gp):
             return gp[(gp.len1<0)&(gp.len2>gp.len1.abs())&(gp.prlendif2<0)&(gp.len2>7)
                       &(gp.postrix1>0)&(gp.minl1*1.03<gp.minl2)&(gp.prrat2>7)
@@ -423,18 +404,34 @@ class ANALYSIS:
                       ][self.CONa2]
       
       #class m
-      CONm1=['startdate','len','len1','len2','len3','maxh2','maxh3','minl2','minl3','minl1','rat','sn','refid','postrix1','postrix2','prrat2','fulen1','fuminl1','fumaxh2','fuminl2','fulen2']
+      CONm1=['startdate','len','len1','len2','len3','maxh2','maxh3','minl2','minl3','minl1','rat','sn','postrix1','postrix2','prrat2','fulen1','fuminl1','fumaxh2','fuminl2','fulen2','prlendif1','prlendif2','prlendif3']
       def keyfindm1(self,gp):
             
             # pos1:    turn by macd angtype f
             # pos2:   1. len1 in (3,4)  2.len2 in (8,13)
             # pos3:entrance
             # 
-            return gp[ (gp.len1>=-4)&(gp.len1<=-3) & 
+            return gp[ (gp.len1>=-4)&(gp.len1<=-2) & 
                        (gp.len2>=10)&(gp.len2<=15)&
                        (gp.len2<gp.len3.abs())&                                                                                                                                   
                        (gp.postrix1==gp.len1.abs())&
-                       (gp.prrat2>=10)&(gp.prrat2<15) #change this param 
+                       (gp.prlendif2<0)&
+                       (gp.prrat2>=10) #change this param 
+                       
+                       
+                       ][self.CONm1]
+      def keyfindm12(self,gp):
+            #keyfind1 's up only different is the line 3#
+            # pos1:    turn by macd angtype f
+            # pos2:   1. len1 in (3,4)  2.len2 in (8,13)
+            # pos3:entrance
+            # 
+            return gp[ (gp.len1>=-4)&(gp.len1<=-2) & 
+                       (gp.len2>=10)&(gp.len2<=15)&
+                       ((gp.minl1-gp.minl2).abs()<gp.minl2*0.05)&                                                                                                                                   
+                       (gp.postrix1==gp.len1.abs())&
+                       (gp.prlendif2<0)&
+                       (gp.prrat2>=10) #change this param 
                        
                        
                        ][self.CONm1]
@@ -453,7 +450,7 @@ class ANALYSIS:
                        
                        
       def keyfindt1(self,gp):
-            return gp[(gp.len2<-20)&(gp.len1>15)&
+            return gp[(gp.len1<-20)&
                       (gp.minl1<gp.minl2)&(gp.minl>gp.minl2)
                     ][CONm1]       
 
@@ -474,23 +471,13 @@ class ANALYSIS:
             print("success 5 rate:{}".format(df[df.rat>=5]['sn'].count()/df.sn.count()))
             print("success 10 rate:{}".format(df[df.rat>=10]['sn'].count()/df.sn.count()))
             #print("furture 10 rate:{}".format(df[(df.rat<3)&(df.furrat2>10)]['sn'].count()/df[(df.rat<3)]['sn'].count()))
-            print ("14:{}".format(df[(df.startdate>'2014/01/01/')&(df.startdate<'2014/12/31')].sn.count()))
-            print("success 3 rate:{}".format(df[(df.rat>3)&(df.startdate>'2014/01/01/')&(df.startdate<'2014/12/31')]['sn'].count()/df[(df.startdate>'2015/01/01/')&(df.startdate<'2015/12/31')].sn.count()))
-            print("success 5 rate:{}".format(df[(df.rat>=5)&(df.startdate>'2014/01/01/')&(df.startdate<'2014/12/31')]['sn'].count()/df[(df.startdate>'2014/01/01/')&(df.startdate<'2014/12/31')].sn.count()))
-            print("success 10 rate:{}".format(df[(df.rat>=10)&(df.startdate>'2014/01/01/')&(df.startdate<'2014/12/31')]['sn'].count()/df[(df.startdate>'2014/01/01/')&(df.startdate<'2014/12/31')].sn.count()))
-            print ("15:{}".format(df[(df.startdate>'2015/01/01/')&(df.startdate<'2015/12/31')].sn.count()))
-            print("success 3 rate:{}".format(df[(df.rat>3)&(df.startdate>'2015/01/01/')&(df.startdate<'2015/12/31')]['sn'].count()/df[(df.startdate>'2015/01/01/')&(df.startdate<'2015/12/31')].sn.count()))
-            print("success 5 rate:{}".format(df[(df.rat>=5)&(df.startdate>'2015/01/01/')&(df.startdate<'2015/12/31')]['sn'].count()/df[(df.startdate>'2014/01/01/')&(df.startdate<'2015/12/31')].sn.count()))
-            print("success 10 rate:{}".format(df[(df.rat>=10)&(df.startdate>'2015/01/01/')&(df.startdate<'2015/12/31')]['sn'].count()/df[(df.startdate>'2014/01/01/')&(df.startdate<'2015/12/31')].sn.count()))
-            print ("16:{}".format(df[(df.startdate>'2016/01/01/')&(df.startdate<'2016/12/31')].sn.count()))
-            print("success 3 rate:{}".format(df[(df.rat>3)&(df.startdate>'2016/01/01/')&(df.startdate<'2016/12/31')]['sn'].count()/df[(df.startdate>'2016/01/01/')&(df.startdate<'2016/12/31')].sn.count()))
-            print("success 5 rate:{}".format(df[(df.rat>=5)&(df.startdate>'2016/01/01/')&(df.startdate<'2016/12/31')]['sn'].count()/df[(df.startdate>'2016/01/01/')&(df.startdate<'2016/12/31')].sn.count()))
-            print("success 10 rate:{}".format(df[(df.rat>=10)&(df.startdate>'2016/01/01/')&(df.startdate<'2016/12/31')]['sn'].count()/df[(df.startdate>'2016/01/01/')&(df.startdate<'2016/12/31')].sn.count()))
-            print ("17:{}".format(df[(df.startdate>'2017/01/01/')&(df.startdate<'2017/12/31')].sn.count()))
-            print("success 3 rate:{}".format(df[(df.rat>3)&(df.startdate>'2017/01/01/')&(df.startdate<'2017/12/31')]['sn'].count()/df[(df.startdate>'2017/01/01/')&(df.startdate<'2017/12/31')].sn.count()))
-            print("success 5 rate:{}".format(df[(df.rat>=5)&(df.startdate>'2017/01/01/')&(df.startdate<'2017/12/31')]['sn'].count()/df[(df.startdate>'2017/01/01/')&(df.startdate<'2017/12/31')].sn.count()))
-            print("success 10 rate:{}".format(df[(df.rat>=10)&(df.startdate>'2017/01/01/')&(df.startdate<'2017/12/31')]['sn'].count()/df[(df.startdate>'2017/01/01/')&(df.startdate<'2017/12/31')].sn.count()))
-      
+            for myyear in [2014,2015,2016,2017]:
+                  print ("{}:{}".format(myyear,df[(df.startdate.dt.year==myyear)].sn.count()))
+                  print("success 3 rate:{}".format(df[(df.rat>3)&(df.startdate.dt.year==myyear)]['sn'].count()/df[df.startdate.dt.year==myyear].sn.count()))
+                  print("success 5 rate:{}".format(df[(df.rat>=5)&(df.startdate.dt.year==myyear)]['sn'].count()/df[(df.startdate.dt.year==myyear)].sn.count()))
+                  print("success 10 rate:{}".format(df[(df.rat>=10)&(df.startdate.dt.year==myyear)]['sn'].count()/df[(df.startdate.dt.year==myyear)].sn.count()))
+                  
+  
             find1=pd.DatetimeIndex(df.startdate).to_period("M")
             gp=df.sn.groupby(find1).count()
             print(gp[gp.index>'2014-1-1'].to_csv(sep='\t'))
@@ -513,6 +500,7 @@ def main():
       a=ANALYSIS()
       a.batsavegp(pat=sys.argv[1])
       a.batsavegp(pat=sys.argv[1],angtype='m')
+      a.batsavegp(pat=sys.argv[1],angtype='t')
 
 if __name__=="__main__":
       #findall(sys.argv[1])
