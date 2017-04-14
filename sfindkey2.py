@@ -57,6 +57,8 @@ class STDTB(object):
                   elif self.angtype=='m':
                         #exdb['ang']= talib.LINEARREG_ANGLE(np.array(exdb.macd),3)     #change
                         exdb['ang']= exdb.macd
+                  elif self.angtype=='ma':
+                        exdb['ang']= talib.LINEARREG_ANGLE(np.array(exdb.macd),3)     #change
                   elif self.angtype=='t':
                         #exdb['ang']= talib.LINEARREG_ANGLE(np.array(exdb.macd),3)     #change
                         exdb['ang']= exdb.tmacd
@@ -100,8 +102,8 @@ class STDTB(object):
             
                   #gp23=db.groupby('gpid')
                   idx=db.groupby('gpid')['id'].transform(min)==db['id']
-                  gp3=db[idx][['gpid','date','h','l','o','c','v','trixl']]
-                  gp3.columns=['gpid','startdate','starth','startl','starto','startc','startv','starttrixl']
+                  gp3=db[idx][['gpid','date','h','l','o','c','v','trixl','macd']]
+                  gp3.columns=['gpid','startdate','starth','startl','starto','startc','startv','starttrixl1','startmacd']
                   gp3=gp3.set_index('gpid')
                   idx2=db.groupby('gpid')['id'].transform(max)==db['id']
                   gp32=db[idx][['gpid','date','l','c']]
@@ -131,9 +133,9 @@ class STDTB(object):
                   gp['prlendif1']=gp.lendif.shift(1)
                   gp['prlendif2']=gp.lendif.shift(2)
                   gp['prlendif3']=gp.lendif.shift(3)
-                  gp['prstarttrixl1']=gp.starttrixl.shift(1)
-                  gp['prstarttrixl2']=gp.starttrixl.shift(2)
-                  gp['prstarttrixl3']=gp.starttrixl.shift(3)
+                  gp['prstarttrixl2']=gp.starttrixl1.shift(1)
+                  gp['prstarttrixl3']=gp.starttrixl1.shift(2)
+                  gp['prstarttrixl4']=gp.starttrixl1.shift(3)
                   gp['postrix1']=gp.postrix.shift(1)
                   gp['postrix2']=gp.postrix.shift(2)
                   #gp['prred3']=gp.red.shift(3)
@@ -333,7 +335,7 @@ class ANALYSIS:
             if result.empty==False:
                   self.statics(result)	
             cur=datetime.datetime.now().strftime('%Y-%m-01')
-            return result, result[result.startdate>cur]
+            return result, result[result.startdate>cur][['startdate','sn','len','len1']]
       
       # only find current 
       def cbatfind(self,pat,findtype,cyctype='D',timedelt=10):
@@ -379,7 +381,7 @@ class ANALYSIS:
       
       
       # angtype :a
-      CONa=['startdate','len','len1','len2','len3','maxh2','maxh3','minl2','minl3','minl1','rat','sn','maxang1','maxang2','fulen1','fuminl1','fulen2','fumaxh2','fuminl2']
+      CONa=['startdate','len','len1','minl1','prrat1','len2','minl2','maxh2','prrat2','len3','maxh3','minl3','rat','sn','maxang1','maxang2','fulen1','fuminl1','fulen2','fumaxh2','fuminl2']
       def keyfinda1(self,gp):
             return gp[(gp.len1.abs()<gp.len3.abs())&(gp.maxh2*1.2<gp.maxh3)&
                       (gp.len1<0)&(gp.len3<0)&
@@ -457,11 +459,19 @@ class ANALYSIS:
                        ][self.CONm]                                #change this param 
                        
       # angtype :t   
-      CONt=['startdate','len','len1','len2','len3','maxh2','maxh3','minl2','minl3','minl1','rat','sn','prstarttrixl1','prstarttrixl2','prstarttrixl3','fuminl1','fuminl2']
+      CONt=['startdate','rat','len','starttrixl1','prstarttrixl2','prstarttrixl3','prstarttrixl4','minl1','minl2','minl3','min23','len1','len2','len3','maxh2','maxh3','sn','fuminl1','fuminl2']
       def keyfindt1(self,gp):
-            return gp[(gp.len1>-10)&(gp.len1.abs()<gp.len2.abs())&(gp.len2.abs()<gp.len3.abs())&
-                      (gp.starttrixl<gp.prstarttrixl1)&(gp.prstarttrixl1>gp.prstarttrixl2)&(gp.prstarttrixl2<gp.prstarttrixl3)
-                      #(gp.minl1<gp.minl2)&(gp.minl>gp.minl2)
+            # starttrixl1  pos1
+            # starttrixl2 pos2
+            # starttrixl3 pos3
+            # starttrixl4 pos4   1 between 2,3 and 23<34
+            return gp[#(gp.len1>-10)&(gp.len1.abs()<gp.len2.abs())&(gp.len2.abs()<gp.len3.abs())&
+                      (gp.starttrixl1<gp.prstarttrixl2)&(gp.starttrixl1>gp.prstarttrixl3)&  # 1<2 and 1>3 
+                      (gp.prstarttrixl2>gp.prstarttrixl3)&#(gp.prstarttrixl2>gp.prstarttrixl4)&   # 2>3 and 2<4                             # 2>3 2<4
+                      (gp.prstarttrixl3<gp.prstarttrixl4)                                 # 3<4 
+                      &(gp.minl2<=gp.min23)
+                      &(gp.starttrixl1<0)
+                      
                     ][self.CONt]       
 
       def fustatics(self,df):
