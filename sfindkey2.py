@@ -75,6 +75,7 @@ class STDTB(object):
                   exdb['maxang']=abs(exdb.ang) 
                   exdb['postrix']=exdb.apply(lambda x: 1 if x.trixl>x.trixs else -1,axis=1)
                   exdb['wdate']=(exdb.date+timedelta(days=1)).dt.to_period('W').apply(lambda r:r.start_time)-timedelta(days=1)
+                  exdb['doji5']=exdb.apply(lambda x: 1 if (x.h>=x.l*1.05) and x.c>=(x.l+((x.h-x.l)/3.0)) and  x.c<(x.l+((x.h-x.l)*2.0/3.0)) and x.o>=(x.l+((x.h-x.l)/3.0)) and x.o<(x.l+((x.h-x.l)*2.0/3.0))  else 0,axis=1)
                   
                   #exdb['wdate']=(exdb['date']+timedelta(days=1)).dt.to_period('W').apply(lambda r:r astype(str)
                   #exdb['wdate']=exdb.wdate.str.split('/').apply(lambda l:pd.Series({'wbdate':l[0]}))
@@ -106,8 +107,8 @@ class STDTB(object):
                   gp3.columns=['gpid','startdate','starth','startl','starto','startc','startv','starttrixl1','startmacd']
                   gp3=gp3.set_index('gpid')
                   idx2=db.groupby('gpid')['id'].transform(max)==db['id']
-                  gp32=db[idx][['gpid','date','l','c']]
-                  gp32.columns=['gpid','lastdate','lastl','lastc']
+                  gp32=db[idx2][['gpid','date','l','c','trixl']]
+                  gp32.columns=['gpid','lastdate','lastl','lastc','lasttrixl']
                   gp32=gp32.set_index('gpid')
             
             
@@ -120,9 +121,11 @@ class STDTB(object):
                   gp['maxh1']=gp.maxh.shift(1).abs()
                   gp['maxh2']=gp.maxh.shift(2).abs()
                   gp['maxh3']=gp.maxh.shift(3).abs()
+                  gp['maxh4']=gp.maxh.shift(4).abs()
                   gp['minl1']=gp.minl.shift(1)
                   gp['minl2']=gp.minl.shift(2)
                   gp['minl3']=gp.minl.shift(3)
+                  gp['minl4']=gp.minl.shift(4)
                   gp['prlenmcd1']=gp.lenmcd.shift(1)
                   gp['prlenmcd2']=gp.lenmcd.shift(2)
                   gp['prlenmcd3']=gp.lenmcd.shift(3)
@@ -152,13 +155,18 @@ class STDTB(object):
                   gp['fulen2']=gp.len.shift(-2)
                   gp['fuminl2']=gp.minl.shift(-3)
                   gp['min23']=gp.apply(lambda x :min(x.minl2,x.minl3),axis=1)
+                  gp['lentrix']=gp.apply(lambda x :x.starttrixl1-x.lasttrixl if x.starttrixl1>x.lasttrixl else x.lasttrixl-x.starttrixl1,axis=1)
+                  gp['lentrix1']=gp.lentrix.shift(1)
+                  gp['lentrix2']=gp.lentrix.shift(2)
+                  gp['lentrix3']=gp.lentrix.shift(3)
+                  gp['lentrix4']=gp.lentrix.shift(4)
                   return gp        
       def getgp(self):
             try:
                   db=self.getexdb()
                   return self.creatgp(db)
             except:
-                  print('get gp failure')
+                  #print('get gp failure')
                   return None
       def getgpbyno(self,refid):
             db=self.getexdb()
@@ -295,6 +303,7 @@ class ANALYSIS:
             snlist=self.getallfile(ROOTPATH,pat)
             result=pd.DataFrame()
             i=0
+            j=0
             for path in snlist:
                   dbcurrent=result
                   if cyctype=='D':
@@ -309,11 +318,13 @@ class ANALYSIS:
                               except:
                                     print(a.sn)
                                     continue
-                  
+                  else:
+                        j=j+1
+                        
                   #if i>3:
                         #break
             if result.empty == False:
-                  print("{}{}{}total:{}".format(pat,angtype,cyctype,i))
+                  print("{}{}{}total:{} ,failure:{}".format(pat,angtype,cyctype,i,j))
                   result.to_csv("gp{}{}{}.csv".format(pat,angtype,cyctype)) 	   
  
       
@@ -332,6 +343,8 @@ class ANALYSIS:
                   result=self.keyfindm2(gp)
             elif findtype=='t1':
                   result=self.keyfindt1(gp)
+            elif findtype=='t2':
+                  result=self.keyfindt2(gp)
             if result.empty==False:
                   self.statics(result)	
             cur=datetime.datetime.now().strftime('%Y-%m-01')
@@ -376,6 +389,8 @@ class ANALYSIS:
                   return self.keyfindm2(gp)
             elif findtype=='t1':
                   return self.keyfindt1(gp)
+            elif findtype=='t2':
+                  return self.keyfindt2(gp)
         
             
       
@@ -472,7 +487,18 @@ class ANALYSIS:
                       &(gp.minl2<=gp.min23)
                       &(gp.starttrixl1<0)
                       
-                    ][self.CONt]       
+                    ][self.CONt]      
+      def keyfindt2(self,gp):
+              # starttrixl1  pos1
+              # starttrixl2 pos2
+              # starttrixl3 pos3
+              # starttrixl4 pos4   1 between 2,3 and 23<34
+              return gp[(gp.len1<0)&(gp.len1.abs()>gp.len2)&(gp.len2.abs()<gp.len3.abs())&
+                        (gp.lentrix1>gp.lentrix2)&(gp.lentrix1<gp.lentrix3)&(gp.lentrix2<gp.lentrix3)&
+                        (gp.maxh3>gp.maxh2)&(gp.maxh2>gp.maxh1)&  # 2>3 and 2<4                             # 2>3 2<4
+                        (gp.minl1<gp.minl3)&(gp.minl1<gp.minl2)&(gp.minl2<gp.minl3)
+                        
+                      ][self.CONt]            
 
       def fustatics(self,df):
             print("success fuminl1 below minl1  rate:{}".format(df[df.fuminl1>df.minl1*0.9]['sn'].count()/df.sn.count()))
