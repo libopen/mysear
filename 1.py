@@ -49,22 +49,8 @@ class STDTB(object):
                   exdb['trixl']=talib.TRIX(np.array(exdb.c),12) 
                   exdb['trixs']=talib.SMA(np.array(exdb.trixl),9)
                   exdb['trixlang']=talib.LINEARREG_ANGLE(np.array(exdb.trixl),3) 
-                  exdb['difang']  =talib.LINEARREG_ANGLE(np.array(exdb.dif),3) 
                   exdb['tmacd']=exdb.trixl-exdb.trixs
                   exdb['id']=exdb.index
-                  exdb['ang10']= talib.LINEARREG_ANGLE(np.array(exdb.dif),3)
-                  exdb['sma20']=talib.SMA(np.array(exdb.c),20)
-                  exdb['up20']=exdb.apply(lambda x: 1 if (x.c>=x.sma20) else 0 ,axis=1)
-                  exdb['ang20']= talib.LINEARREG_ANGLE(np.array(exdb.sma20),3)     #change
-                  exdb['sma30']=talib.SMA(np.array(exdb.c),30)
-                  exdb['ang30']= talib.LINEARREG_ANGLE(np.array(exdb.sma30),3)
-                  exdb['sma58']=talib.SMA(np.array(exdb.c),58)
-                  exdb['sma89']=talib.SMA(np.array(exdb.c),89)
-                  exdb['sma120']=talib.SMA(np.array(exdb.c),120)
-                  exdb['ang58']=talib.LINEARREG_ANGLE(np.array(exdb.sma58),3)
-                  exdb['ang89']=talib.LINEARREG_ANGLE(np.array(exdb.sma89),3)
-                  exdb['ang120']=talib.LINEARREG_ANGLE(np.array(exdb.sma120),3)
-                  exdb['uphelf']=exdb.apply(lambda x: 1 if (x.sma89>=x.sma120)&(x.ang120>0) else 0 ,axis=1)
                   #exdb['ang']= talib.LINEARREG_ANGLE(np.array(exdb.dea),3)     #change use macd so much little perords 
                   if self.angtype=='a':
                         exdb['ang']= talib.LINEARREG_ANGLE(np.array(exdb.dea),3)     #change
@@ -76,10 +62,6 @@ class STDTB(object):
                   elif self.angtype=='t':
                         #exdb['ang']= talib.LINEARREG_ANGLE(np.array(exdb.macd),3)     #change
                         exdb['ang']= exdb.tmacd
-                  elif self.angtype=='2':
-                        exdb['ang']= exdb['ang20']     #change
-                  elif self.angtype=='5':
-                        exdb['ang']= exdb.ang55     #change						
                   else: #default dif
                         exdb['ang']= talib.LINEARREG_ANGLE(np.array(exdb.dif),3)
                   exdb['nextang1']=exdb.ang.shift(1)
@@ -93,8 +75,10 @@ class STDTB(object):
                   exdb['maxang']=abs(exdb.ang) 
                   exdb['postrix']=exdb.apply(lambda x: 1 if x.trixl>x.trixs else -1,axis=1)
                   exdb['wdate']=(exdb.date+timedelta(days=1)).dt.to_period('W').apply(lambda r:r.start_time)-timedelta(days=1)
-                  #exdb['doji5']=exdb.apply(lambda x: 1 if (x.h>=x.l*1.05) and x.c>=(x.l+((x.h-x.l)/3.0)) and  x.c<(x.l+((x.h-x.l)*2.0/3.0)) and x.o>=(x.l+((x.h-x.l)/3.0)) and x.o<(x.l+((x.h-x.l)*2.0/3.0))  else 0,axis=1)
+                  exdb['doji5']=exdb.apply(lambda x: 1 if (x.h>=x.l*1.05) and x.c>=(x.l+((x.h-x.l)/3.0)) and  x.c<(x.l+((x.h-x.l)*2.0/3.0)) and x.o>=(x.l+((x.h-x.l)/3.0)) and x.o<(x.l+((x.h-x.l)*2.0/3.0))  else 0,axis=1)
                   
+                  #exdb['wdate']=(exdb['date']+timedelta(days=1)).dt.to_period('W').apply(lambda r:r astype(str)
+                  #exdb['wdate']=exdb.wdate.str.split('/').apply(lambda l:pd.Series({'wbdate':l[0]}))
                   
             # drop Nan rows
             #db=exdb.dropna(axis=0)
@@ -115,16 +99,16 @@ class STDTB(object):
                   #gp12.columns=['ang']
                   gp2=db.groupby('gpid').min()[['l']]
                   gp2.columns=['minl']
-                  gp22=db.groupby('gpid').sum()[['len','lenmcd','lendif','postrix','up20','uphelf']]
+                  gp22=db.groupby('gpid').sum()[['len','lenmcd','lendif','postrix']]
             
                   #gp23=db.groupby('gpid')
                   idx=db.groupby('gpid')['id'].transform(min)==db['id']
-                  gp3=db[idx][['gpid','date','h','l','o','c','v','trixl','macd','postrix','sma20','ang20','sma30','sma58','ang58','sma89','sma120','ang89','ang120','trixlang']]
-                  gp3.columns=['gpid','startdate','starth','startl','starto','startc','startv','starttrixl1','startmacd','startpostrix','start20','startang20','sma30','sma58','ang58','sma89','sma120','ang89','ang120','trixlang']
+                  gp3=db[idx][['gpid','date','h','l','o','c','v','trixl','macd']]
+                  gp3.columns=['gpid','startdate','starth','startl','starto','startc','startv','starttrixl1','startmacd']
                   gp3=gp3.set_index('gpid')
                   idx2=db.groupby('gpid')['id'].transform(max)==db['id']
-                  gp32=db[idx2][['gpid','date','l','c','trixl','postrix']]
-                  gp32.columns=['gpid','lastdate','lastl','lastc','lasttrixl','lastpostrix']
+                  gp32=db[idx2][['gpid','date','l','c','trixl']]
+                  gp32.columns=['gpid','lastdate','lastl','lastc','lasttrixl']
                   gp32=gp32.set_index('gpid')
             
             
@@ -176,23 +160,6 @@ class STDTB(object):
                   gp['lentrix2']=gp.lentrix.shift(2)
                   gp['lentrix3']=gp.lentrix.shift(3)
                   gp['lentrix4']=gp.lentrix.shift(4)
-                  gp['startc1']=gp.startc.shift(1)
-                  gp['startc2']=gp.startc.shift(2)
-                  gp['startc3']=gp.startc.shift(3)
-                  gp['lastc1']=gp.lastc.shift(1)
-                  gp['lastc2']=gp.lastc.shift(2)
-                  gp['lastc3']=gp.lastc.shift(3)
-                  gp['startpostrix1']=gp.startpostrix.shift(1)
-                  gp['startpostrix2']=gp.startpostrix.shift(2)
-                  gp['lastpostrix1']=gp.lastpostrix.shift(1)
-                  gp['lastpostrix2']=gp.lastpostrix.shift(2)
-                  gp['lasttrixl1']=gp.lasttrixl.shift(1)
-                  gp['starttrixl2']=gp.starttrixl1.shift(2)
-                  gp['ifup20']=gp.apply(lambda x :1 if x.startc>x.start20 else 0,axis=1)
-                  gp['startang20_1']=gp.startang20.shift(1)
-                  gp['startang20_2']=gp.startang20.shift(2)
-                  gp['prup201']=gp.up20.shift(1)
-                  gp['prup202']=gp.up20.shift(2)
                   return gp        
       def getgp(self):
             try:
@@ -265,7 +232,7 @@ class STWTB(STDTB):
 
 
 class ANALYSIS:
-              
+  	        
 
       def bigperiod(self,pat,cyctype='W',angtype='m'):
                   snlist=self.getallfile(ROOTPATH,pat)
@@ -335,12 +302,10 @@ class ANALYSIS:
       def batsavegp(self,pat,cyctype='D',angtype='a'):
             snlist=self.getallfile(ROOTPATH,pat)
             result=pd.DataFrame()
-            result1=pd.DataFrame()
             i=0
             j=0
             for path in snlist:
                   dbcurrent=result
-                  db1=result1
                   if cyctype=='D':
                         stobj=STDTB(path,angtype)
                   else:
@@ -349,7 +314,6 @@ class ANALYSIS:
                   if gp is not None:
                               try:
                                     result=dbcurrent.append(gp)
-                                    result1=db1.append(gp.tail(1)[['sn','startdate','len','len1','len2','len3']])
                                     i=i+1
                               except:
                                     print(a.sn)
@@ -362,8 +326,6 @@ class ANALYSIS:
             if result.empty == False:
                   print("{}{}{}total:{} ,failure:{}".format(pat,angtype,cyctype,i,j))
                   result.to_csv("gp{}{}{}.csv".format(pat,angtype,cyctype)) 	   
-                  return result1
-            
  
       
                                        
@@ -377,8 +339,6 @@ class ANALYSIS:
                   result=self.keyfindm1(gp)
             elif findtype=='m12':
                   result=self.keyfindm12(gp)
-            elif findtype=='m22':
-                  result=self.keyfindm22(gp)
             elif findtype=='m2':
                   result=self.keyfindm2(gp)
             elif findtype=='t1':
@@ -425,9 +385,6 @@ class ANALYSIS:
                   return self.keyfindm1(gp)
             elif findtype=='m12':
                   return self.keyfindm12(gp)
-            elif findtype=='m22':
-                  return self.keyfindm22(gp)
-            
             elif findtype=='m2':
                   return self.keyfindm2(gp)
             elif findtype=='t1':
@@ -488,27 +445,21 @@ class ANALYSIS:
                        
                        ][self.CONm]
       def keyfindm12(self,gp):
-            #entrance: len1,len2 is engative and len1<len2
+            #keyfind1 's up only different is the line 3#
+            # pos1:    turn by macd angtype f
+            # pos2:   1. len1 in (3,4)  2.len2 in (8,13)
+            # pos3:entrance
             # 
-            # 
-            # 
-            # 
-            return gp[ (gp.len1<0)&(gp.len2>0) & (gp.len1<-6)&
-                       (gp.len1.abs()<gp.len2.abs())&(gp.len2>20)&
-                       (gp.prlendif1>0)&(gp.prlendif1==gp.len1.abs())                                   
+            return gp[ (gp.len1>=-7)&(gp.len1<=-2) & 
+                       (gp.len2>=10)&(gp.len2<=20)&
+                       (gp.len2<gp.len3.abs())&                                                                                                                                  
+                       (gp.postrix1==gp.len1.abs())
+                       
+                       #change this param 
+                       
                        
                        ][self.CONm]
-      def keyfindm22(self,gp):
-            #test
-            # 
-            # 
-            # 
-            # 
-            return gp[ (gp.len1<0)&(gp.len1>-10)&(gp.len2>0)&(gp.len2<20)&(gp.len3<0)&(gp.len3<-20)&
-                       (gp.ifup20==1)&(gp.minl2<=gp.min23)&(gp.startang20_1>0)&(gp.startang20_2>0)&
-                       (gp.prstarttrixl2>gp.prstarttrixl3)
-                                                          
-                       ][self.CONm]      
+      
       
       
       def keyfindm2(self,gp):
@@ -542,10 +493,10 @@ class ANALYSIS:
               # starttrixl2 pos2
               # starttrixl3 pos3
               # starttrixl4 pos4   1 between 2,3 and 23<34
-              return gp[(gp.len1<0)&(gp.len1.abs()>gp.len2)&(gp.len2.abs()<gp.len3.abs())&
-                        (gp.lentrix1>gp.lentrix2)&(gp.lentrix1<gp.lentrix3)&(gp.lentrix2<gp.lentrix3)&
-                        (gp.maxh3>gp.maxh2)&(gp.maxh2>gp.maxh1)&   # 2>3 and 2<4                             # 2>3 2<4
-                        (gp.minl1<gp.minl3)&(gp.minl1<gp.minl2)
+              return gp[(gp.len1.abs()<10)&(gp.len1<0)&(gp.len2<20)&(gp.len2>10)&(gp.len3.abs()>20)&
+                        (gp.lentrix1>gp.lentrix2)&(gp.lentrix2<gp.lentrix3)&
+                        (gp.maxl1>gp.maxl3)   # 2>3 and 2<4                             # 2>3 2<4
+                        
                         
                       ][self.CONt]            
 
@@ -574,10 +525,8 @@ class ANALYSIS:
             find1=pd.DatetimeIndex(df.startdate).to_period("M")
             gp=df.sn.groupby(find1).count()
             print(gp[gp.index>'2014-1-1'].to_csv(sep='\t'))
-            
-     
 
-      
+
 
 def main1():
       threadpool=[]
@@ -594,10 +543,6 @@ def main():
       
       a=ANALYSIS()
       a.batsavegp(pat=sys.argv[1],angtype=sys.argv[2])
-      if (sys.argv[2]=='t'):
-            a.batsavegp(pat=sys.argv[1],angtype=sys.argv[2],cyctype='W')
-      if (sys.argv[2]=='2'):
-            a.batsavegp(pat=sys.argv[1],angtype=sys.argv[2],cyctype='W')
       
 
 if __name__=="__main__":
