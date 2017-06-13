@@ -113,8 +113,8 @@ class STDTB(object):
                   gp1.columns=['maxang','maxh','maxc']
                   gp12=db.groupby('gpid').std()[['ang']]
                   #gp12.columns=['ang']
-                  gp2=db.groupby('gpid').min()[['l']]
-                  gp2.columns=['minl']
+                  gp2=db.groupby('gpid').min()[['l','c']]
+                  gp2.columns=['minl','minc']
                   gp22=db.groupby('gpid').sum()[['len','lenmcd','lendif','postrix','up20','uphelf']]
             
                   #gp23=db.groupby('gpid')
@@ -147,6 +147,7 @@ class STDTB(object):
                   gp['prlenmcd3']=gp.lenmcd.shift(3)
                   gp['prang1']=gp.ang.shift(1)
                   gp['prang2']=gp.ang.shift(2)
+                  gp['ang581']=gp.ang58.shift(1)
                   gp['maxang1']=gp.maxang.shift(1)
                   gp['maxang2']=gp.maxang.shift(2)
                   gp['prlendif1']=gp.lendif.shift(1)
@@ -161,7 +162,7 @@ class STDTB(object):
                   gp['startl1']=gp.startl.shift(1)
                   gp['sn']=self.sn
                   gp['gpid']=gp.index
-                  gp['rat']=(gp.maxc/gp.startc-1)*100
+                  gp['rat']=gp.apply(lambda x: (x.maxh/x.startc-1)*100 if x.len>0 else  -(x.maxh1/x.minl-1)*100,axis=1)
                   gp['prrat1']=gp.rat.shift(1)
                   gp['prrat2']=gp.rat.shift(2)
                   #future 
@@ -523,7 +524,7 @@ class ANALYSIS:
                        ][self.CONm]                                #change this param 
                        
       # angtype :t   
-      CONt=['startdate','rat','len','starttrixl1','prstarttrixl2','prstarttrixl3','prstarttrixl4','minl1','minl2','minl3','min23','len1','len2','len3','maxh2','maxh3','sn','fuminl1','fuminl2']
+      CONt=['sn','startdate','rat','len','len1','start20','sma58','minc','minl','minl1','ang58']
       def keyfindt1(self,gp):
             # starttrixl1  pos1
             # starttrixl2 pos2
@@ -542,11 +543,11 @@ class ANALYSIS:
               # starttrixl2 pos2
               # starttrixl3 pos3
               # starttrixl4 pos4   1 between 2,3 and 23<34
-              return gp[(gp.len1<0)&(gp.len1.abs()>gp.len2)&(gp.len2.abs()<gp.len3.abs())&
-                        (gp.lentrix1>gp.lentrix2)&(gp.lentrix1<gp.lentrix3)&(gp.lentrix2<gp.lentrix3)&
-                        (gp.maxh3>gp.maxh2)&(gp.maxh2>gp.maxh1)&   # 2>3 and 2<4                             # 2>3 2<4
-                        (gp.minl1<gp.minl3)&(gp.minl1<gp.minl2)
-                        
+              #return gp[(gp.len1<0)&(gp.len1.abs()>gp.len2)&(gp.len2.abs()<gp.len3.abs())&
+              #          (gp.lentrix1>gp.lentrix2)&(gp.lentrix1<gp.lentrix3)&(gp.lentrix2<gp.lentrix3)&
+              #          (gp.maxh3>gp.maxh2)&(gp.maxh2>gp.maxh1)&   # 2>3 and 2<4                             # 2>3 2<4
+              #          (gp.minl1<gp.minl3)&(gp.minl1<gp.minl2)
+              return gp[(gp.len1<0)&(gp.ang581<0)&(gp.ang58>0)&(gp.startc>gp.start20)&(gp.startc>gp.sma58)          
                       ][self.CONt]            
 
       def fustatics(self,df):
