@@ -6,6 +6,9 @@ from time import ctime,sleep
 import time
 import datetime
 from datetime import timedelta
+from talib import MA_Type
+
+
 def startTime():
       return time.time()
 def ticT(startTime):
@@ -34,7 +37,17 @@ class STDTB(object):
             if (x.nextang1>0 and x.nextang2>0 and x.ang<0 ) or (x.nextang1<0 and x.nextang2<0 and x.ang>0):
                   return x.id
             else:
-                  return 0     
+                  return 0 
+            
+      def setpos(self,x):
+            if (x.c<x.middle and x.c>x.lower):
+                  return -1
+            elif (x.c<x.lower):
+                  return -2
+            elif(x.c>=x.middle and x.c<x.upper):
+                  return 1
+            else:
+                  return 2
       def regroup(self,db):
             curid=0
             for index,row in db.iterrows():
@@ -46,10 +59,16 @@ class STDTB(object):
             try:
                   exdb=self.db
                   exdb['dif'],exdb['dea'],exdb['macd']=talib.MACD(np.array(exdb.c),10,20,6) # change
+                  exdb['upper'], exdb['middle'], exdb['lower'] = talib.BBANDS(np.array(exdb.c), 20)
+                  exdb['posb']=exdb.apply(self.setpos ,axis=1)
+                  #exdb['posb-1']=exdb.posb.shift(-1)
+                  #exdb['posb+1']=exdb.posb.shift(1)
                   exdb['trixl']=talib.TRIX(np.array(exdb.c),12) 
                   exdb['trixs']=talib.SMA(np.array(exdb.trixl),9)
                   exdb['trixlang']=talib.LINEARREG_ANGLE(np.array(exdb.trixl),3) 
                   exdb['tmacd']=exdb.trixl-exdb.trixs
+                  exdb['posbang']=exdb.apply(lambda x:1 if x.posb==-1 else -1 ,axis=1)
+                  
                   exdb['id']=exdb.index
                   exdb['ang10']= talib.LINEARREG_ANGLE(np.array(exdb.dif),3)
                   exdb['sma20']=talib.SMA(np.array(exdb.c),20)
@@ -71,6 +90,8 @@ class STDTB(object):
                   #exdb['ang']= talib.LINEARREG_ANGLE(np.array(exdb.dea),3)     #change use macd so much little perords 
                   if self.angtype=='t':
                         exdb['ang']= exdb.tmacd
+                  elif self.angtype=='b':
+                        exdb['ang']=exdb.posb
                   else: #default dif
                         exdb['ang']= talib.LINEARREG_ANGLE(np.array(exdb.dif),3)
                   exdb['nextang1']=exdb.ang.shift(1)
@@ -82,7 +103,8 @@ class STDTB(object):
                   exdb['maxang']=abs(exdb.ang) 
                   exdb['postrix']=exdb.apply(lambda x: 1 if x.trixl>x.trixs else -1,axis=1)
                   exdb['wdate']=(exdb.date+timedelta(days=1)).dt.to_period('W').apply(lambda r:r.start_time)-timedelta(days=1)
-                  #exdb['doji5']=exdb.apply(lambda x: 1 if (x.h>=x.l*1.05) and x.c>=(x.l+((x.h-x.l)/3.0)) and  x.c<(x.l+((x.h-x.l)*2.0/3.0)) and x.o>=(x.l+((x.h-x.l)/3.0)) and x.o<(x.l+((x.h-x.l)*2.0/3.0))  else 0,axis=1)
+                  exdb['posbu']=exdb.apply(lambda x: 1 if (x.posb==1)   else 0,axis=1)
+                  exdb['posbd']=exdb.apply(lambda x: 1 if (x.posb==-2)   else 0,axis=1)
                   
                   
             # drop Nan rows
@@ -102,7 +124,7 @@ class STDTB(object):
                   gp1.columns=['maxh','maxc']
                   gp2=db.groupby('gpid').min()[['l','c']]
                   gp2.columns=['minl','minc']
-                  gp22=db.groupby('gpid').sum()[['len']]
+                  gp22=db.groupby('gpid').sum()[['len','posbu','posbd']]
             
                   #gp23=db.groupby('gpid')
                   idx=db.groupby('gpid')['id'].transform(min)==db['id']
@@ -319,9 +341,9 @@ class ANALYSIS:
       # angtype :a
                        
       # angtype :t   
-      CONt=['gpid','sn','startdate','istop','rat','len','len1','len2','sma20','sma58','startc','lastc','minc','minl','minl1','ang58']
+      CONt=['gpid','sn','startdate','rat','len','len1','len2','ang20','ang58','startc','lastc','minc','minl','minl1']
       def keyfindt(self,gp):
-            return gp[(gp.len1<0)&(gp.ang581<0)&(gp.ang58>0)&(gp.startc>gp.sma20)&(gp.startc>gp.sma58)          
+            return gp[(gp.len1<-10)&(gp.posbu>0)       
                       ][self.CONt]            
 
       def fustatics(self,df):
