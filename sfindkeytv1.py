@@ -6,6 +6,13 @@ from time import ctime,sleep
 import time
 import datetime
 from datetime import timedelta
+from talib import MA_Type
+#goodkey hope to slove 
+#1 the minl always lower startc
+#2 the maxh is not the starth
+#3 the minlc is the lastc
+#4 the minl is provious show at maxh
+
 def startTime():
       return time.time()
 def ticT(startTime):
@@ -34,7 +41,9 @@ class STDTB(object):
             if (x.nextang1>0 and x.nextang2>0 and x.ang<0 ) or (x.nextang1<0 and x.nextang2<0 and x.ang>0):
                   return x.id
             else:
-                  return 0     
+                  return 0 
+            
+ 
       def regroup(self,db):
             curid=0
             for index,row in db.iterrows():
@@ -46,12 +55,18 @@ class STDTB(object):
             try:
                   exdb=self.db
                   exdb['dif'],exdb['dea'],exdb['macd']=talib.MACD(np.array(exdb.c),10,20,6) # change
+                 
                   exdb['trixl']=talib.TRIX(np.array(exdb.c),12) 
                   exdb['trixs']=talib.SMA(np.array(exdb.trixl),9)
                   exdb['trixlang']=talib.LINEARREG_ANGLE(np.array(exdb.trixl),3) 
                   exdb['tmacd']=exdb.trixl-exdb.trixs
+                  exdb['posbang']=exdb.apply(lambda x:1 if x.c>x.o else -1 ,axis=1)
+                  exdb['posbang1']=exdb.posbang.shift(1)
+                  exdb['posbang2']=exdb.posbang.shift(2)
+                  exdb['posbang3']=exdb.posbang.shift(3)
                   exdb['id']=exdb.index
-                  exdb['ang10']= talib.LINEARREG_ANGLE(np.array(exdb.dif),3)
+                  exdb['sma5']= talib.SMA(np.array(exdb.c),5)
+                  exdb['sma10']= talib.SMA(np.array(exdb.c),10)
                   exdb['sma20']=talib.SMA(np.array(exdb.c),20)
                   exdb['up20']=exdb.apply(lambda x: 1 if (x.c>=x.sma20) else 0 ,axis=1)
                   exdb['ang20']= talib.LINEARREG_ANGLE(np.array(exdb.sma20),3)     #change
@@ -59,15 +74,8 @@ class STDTB(object):
                   exdb['ang30']= talib.LINEARREG_ANGLE(np.array(exdb.sma30),3)
                   exdb['sma58']=talib.SMA(np.array(exdb.c),58)
                   exdb['sma89']=talib.SMA(np.array(exdb.c),89)
-                  exdb['sma120']=talib.SMA(np.array(exdb.c),120)
                   exdb['ang58']=talib.LINEARREG_ANGLE(np.array(exdb.sma58),3)
                   exdb['ang89']=talib.LINEARREG_ANGLE(np.array(exdb.sma89),3)
-                  exdb['ang120']=talib.LINEARREG_ANGLE(np.array(exdb.sma120),3)
-                  exdb['uphelf']=exdb.apply(lambda x: 1 if (x.sma89>=x.sma120)&(x.ang120>0) else 0 ,axis=1)
-                  exdb['cstdv']  =talib.STDDEV(np.array(exdb.c),12,1)
-                  exdb['cdv']  =talib.VAR(np.array(exdb.c),12,1)
-                  exdb['stdang']=talib.LINEARREG_ANGLE(np.array(exdb.cstdv),3)
-                  exdb['dvang']=talib.LINEARREG_ANGLE(np.array(exdb.cdv),3)
                   #exdb['ang']= talib.LINEARREG_ANGLE(np.array(exdb.dea),3)     #change use macd so much little perords 
                   if self.angtype=='t':
                         exdb['ang']= exdb.tmacd
@@ -79,20 +87,15 @@ class STDTB(object):
                   exdb['trn']=exdb.apply(self.poschange,axis=1)
                   exdb['gpid']=0
                   exdb['len']=exdb.apply(lambda x: 1 if x.ang>=0 else -1,axis=1)
-                  exdb['maxang']=abs(exdb.ang) 
-                  exdb['postrix']=exdb.apply(lambda x: 1 if x.trixl>x.trixs else -1,axis=1)
                   exdb['wdate']=(exdb.date+timedelta(days=1)).dt.to_period('W').apply(lambda r:r.start_time)-timedelta(days=1)
-                  #exdb['doji5']=exdb.apply(lambda x: 1 if (x.h>=x.l*1.05) and x.c>=(x.l+((x.h-x.l)/3.0)) and  x.c<(x.l+((x.h-x.l)*2.0/3.0)) and x.o>=(x.l+((x.h-x.l)/3.0)) and x.o<(x.l+((x.h-x.l)*2.0/3.0))  else 0,axis=1)
-                  
-                  
-            # drop Nan rows
-            #db=exdb.dropna(axis=0)
+                  exdb=self.regroup(exdb)
+                  exdb['gpno']=exdb.apply(lambda x: x.id-x.gpid+1,axis=1)
            
-                  return self.regroup(exdb)
+                  #return self.regroup(exdb)
+                  return exdb
             except:
                   pass
                   #print (self.sn)
-                  
                   
       
       def creatgp(self,db):
@@ -103,22 +106,27 @@ class STDTB(object):
                   gp2=db.groupby('gpid').min()[['l','c']]
                   gp2.columns=['minl','minc']
                   gp22=db.groupby('gpid').sum()[['len']]
-            
+                  gp22.columns=['lenang']
+                  gp23=db.groupby('gpid').mean()[['trixlang']]
+                  gp24=db.groupby('gpid').count()[['len']]
+                  gp24.columns=['lennum']
                   #gp23=db.groupby('gpid')
                   idx=db.groupby('gpid')['id'].transform(min)==db['id']
-                  gp3=db[idx][['gpid','date','h','l','o','c','v'                              ,'sma20','sma30','sma58','sma89','sma120','ang20','ang58','ang89','ang120','trixlang']]
-                  gp3.columns=['gpid','startdate','starth','startl','starto','startc','startv','sma20','sma30','sma58','sma89','sma120','ang20','ang58','ang89','ang120','trixlang']
+                  gp3=db[idx][['gpid','date','h','l','o','c','v'                              ,'gpno']]
+                  gp3.columns=['gpid','startdate','starth','startl','starto','startc','startv','startgpno']
                   gp3=gp3.set_index('gpid')
                   idx2=db.groupby('gpid')['id'].transform(max)==db['id']
-                  gp32=db[idx2][['gpid','date','l','c','sma20']]
-                  gp32.columns=['gpid','lastdate','lastl','lastc','lastsma20']
+                  gp32=db[idx2][['gpid','date','l','c']]
+                  gp32.columns=['gpid','lastdate','lastl','lastc']
                   gp32=gp32.set_index('gpid')
-                  idx4 = db.groupby('gpid')['l'].transform(min)==db['l']
-                  gp4 = db[idx4][['gpid','id']]
-                  gp4=gp4.set_index('gpid')
-                  gp=pd.concat([gp1,gp2,gp22,gp3,gp32],axis=1,join="inner")
+                  
+                  #idx5=db.groupby('gpid')['h'].transform(max)==db['h']
+                  #gp51=db[idx5][['gpid','date','gpno']]
+                  #gp51.columns=['gpid','maxdate','maxgpno']
+                  gp=pd.concat([gp1,gp2,gp22,gp23,gp24,gp3,gp32],axis=1,join="inner")
                   #gp=pd.concat([gp,gp33],axis=1,join="inner")
                   #return gp33,gp
+                  gp['len']=gp.apply(lambda x:x.lennum if x.lenang>0 else -x.lennum,axis=1)
                   gp['len1']=gp.len.shift(1)
                   gp['len2']=gp.len.shift(2)
                   gp['len3']=gp.len.shift(3)
@@ -128,14 +136,16 @@ class STDTB(object):
                   gp['minl1']=gp.minl.shift(1)
                   gp['minl2']=gp.minl.shift(2)
                   gp['minc1']=gp.minc.shift(1)
-                  gp['ang581']=gp.ang58.shift(1)
+                  gp['trixlang1']=gp.trixlang.shift(1)
+                  gp['trixlang2']=gp.trixlang.shift(2)
                   gp['startl1']=gp.startl.shift(1)
                   gp['sn']=self.sn
                   gp['gpid']=gp.index
                   gp['rat']=gp.apply(lambda x: (x.maxh/x.startc-1)*100 if x.len>0 else  -(x.maxh1/x.minl-1)*100,axis=1)
                   gp['prrat1']=gp.rat.shift(1)
                   gp['prrat2']=gp.rat.shift(2)
-                  gp['istop']=gp.apply(lambda x: 1 if x.starth==x.maxh else 0 ,axis=1)
+                  gp['goodkey']=gp.apply(lambda x: 1 if (x.len<0)&(x.len1>0)&(-x.len>x.len1)&(-x.trixlang>x.trixlang1) else 0,axis=1 )
+                  gp['goodkey1']=gp.goodkey.shift(1)
                   #future 
                   gp['fuminl1']=gp.minl.shift(-1)
                   gp['fulen1']=gp.len.shift(-1)
@@ -148,6 +158,7 @@ class STDTB(object):
                   gp['lastc1']=gp.lastc.shift(1)
                   gp['lastc2']=gp.lastc.shift(2)
                   gp['lastc3']=gp.lastc.shift(3)
+                  
                   return gp        
       def getgp(self):
             try:
@@ -156,10 +167,14 @@ class STDTB(object):
             except:
                   #print('get gp failure')
                   return None
+            
+      
+            
+            
       def getgpbyno(self,refid):
             db=self.getexdb()
             gp=self.creatgp(db)
-            return gp[gp.index>=refid][['len','minl','maxh','maxang','lendif']].head()
+            return gp[gp.index>=refid][['len','minl','maxh','len1']].head()
       def mainstream(self):
             try:
                   db=self.getexdb()[['date','gpid','h','c']]
@@ -293,6 +308,7 @@ class ANALYSIS:
                   result.to_csv("gp{}{}{}.csv".format(pat,angtype,cyctype)) 	   
                   return result1
             
+   
  
       
                                        
@@ -319,18 +335,19 @@ class ANALYSIS:
       # angtype :a
                        
       # angtype :t   
-      CONt=['gpid','sn','startdate','istop','rat','len','len1','len2','sma20','sma58','startc','lastc','minc','minl','minl1','ang58']
+      CONt=['gpid','sn','startdate','rat','len','len1','len2','startc','starto','minc','minl','minl1','trixlang1','trixlang2','lastc','maxh','maxc','fulen1','fuminl1','fulen2','fumaxh2']
       def keyfindt(self,gp):
-            return gp[(gp.len1<0)&(gp.ang581<0)&(gp.ang58>0)&(gp.startc>gp.sma20)&(gp.startc>gp.sma58)          
+            return gp[(gp.goodkey1==1)       
                       ][self.CONt]            
 
       def fustatics(self,df):
-            print("success fuminl1 below minl1  rate:{}".format(df[df.fuminl1>df.minl1*0.9]['sn'].count()/df.sn.count()))
-            print("success fuminl1 below minl2  rate:{}".format(df[df.fuminl1>df.minl2*0.9]['sn'].count()/df.sn.count()))
-            print("success fuminl1 below minl3  rate:{}".format(df[df.fuminl1>df.minl3*0.9]['sn'].count()/df.sn.count()))
-            print("success fuminl2 below minl1  rate:{}".format(df[df.fuminl2>df.minl1*0.9]['sn'].count()/df.sn.count()))
-            print("success fuminl2 below minl2  rate:{}".format(df[df.fuminl2>df.minl2*0.9]['sn'].count()/df.sn.count()))
-            print("success fuminl2 below minl3  rate:{}".format(df[df.fuminl2>df.minl3*0.9]['sn'].count()/df.sn.count()))
+            # begin the startc that is not the most lower point the lowest
+            print("success fumaxh2 below minl   rate:{}".format(df[df.fumaxh2<df.minl]['sn'].count()/df.sn.count()))
+            print("success fumaxh2 higher starto  rate:{}".format(df[df.fumaxh2>=df.starto]['sn'].count()/df.sn.count()))
+            print("success fumaxh2 higher fuminl1  rate:{}".format(df[df.fumaxh2>=df.minl]['sn'].count()/df.sn.count()))
+            #print("success fuminl2 below minl1  rate:{}".format(df[df.fuminl2>df.minl1*0.9]['sn'].count()/df.sn.count()))
+            #print("success fuminl2 below minl2  rate:{}".format(df[df.fuminl2>df.minl2*0.9]['sn'].count()/df.sn.count()))
+            #print("success fuminl2 below minl3  rate:{}".format(df[df.fuminl2>df.minl3*0.9]['sn'].count()/df.sn.count()))
 
       def statics(self,df):
             df['startdate']=pd.to_datetime(df['startdate'],format='%Y-%m-%d')
