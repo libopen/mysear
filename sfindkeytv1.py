@@ -90,24 +90,79 @@ class STDTB(object):
                   exdb['wdate']=(exdb.date+timedelta(days=1)).dt.to_period('W').apply(lambda r:r.start_time)-timedelta(days=1)
                   exdb=self.regroup(exdb)
                   exdb['gpno']=exdb.apply(lambda x: x.id-x.gpid+1,axis=1)
+                  exdb['scope']=exdb.apply(lambda x:(x.c/x.o-1)*100 if x.c>x.o else (x.o/x.c-1)*100 ,axis=1)
            
                   #return self.regroup(exdb)
                   return exdb
             except:
                   pass
                   #print (self.sn)
-                  
+      def getrat(self,x):
+                  if x.len>0:
+                        return (x.maxc/x.startc-1)*100
+                  elif x.len<0 and x.minc<x.minc1 :
+                        return -(x.minc1/x.minc-1)*100
+                  elif x.len<0 and x.minc>x.minc1 :
+                        return  (x.minc/x.minc1-1)*100
+
+      def getpromaxc(self,x):
+            if (x.len<0 and x.len1<0 and x.len2>0) :
+                  return x.maxc3
+            elif (x.len<0 and x.len1>0 and x.len2<0):
+                  return x.maxc2
+            elif (x.len<0 and x.len1>0 and x.len2>0):
+                  return x.maxc3
+            elif (x.len>0 and x.len1<0 and x.len2>0):
+                  return x.maxc2
+            elif (x.len>0 and x.len1>0 and x.len2<0):
+                  return x.maxc3
+            elif (x.len>0 and x.len1<0 and x.len2<0):
+                  return x.maxc3
       
+      def getprominc(self,x):
+            if (x.len>0 and x.len1<0 and x.len2>0) :
+                  return x.minc2
+            elif (x.len>0 and x.len1<0 and x.len2<0):
+                  return x.minc3
+            elif (x.len>0 and x.len1>0 and x.len2<0):
+                  return x.minc3
+            elif (x.len<0 and x.len1>0 and x.len2<0):
+                  return x.minc2
+            elif (x.len<0 and x.len1<0 and x.len2>0):
+                  return x.minc3
+            elif (x.len<0 and x.len1>0 and x.len2>0):
+                  return x.minc3
+            
+             
+      def getdowntype(self,x):
+                        
+             if (x.len>0) and (x.maxc<x.promaxc) and (x.minc<x.prominc):
+                 return 'd'
+             elif  (x.len<0 and x.maxc>x.promaxc and x.minc>x.prominc) :
+                 return 'u'
+      def ismiddle(self,x):
+             if (x.len<0 and x.maxc>x.maxc2 and x.minc<x.minc2):
+                 return 'm_out'
+             elif (x.len<0 and x.maxc<x.maxc2 and x.minc >x.minc2):
+                 return 'm_in'
+      def middlerat(self,x):
+             if (x.len<0 and x.len1>0 and x.minc>x.minc1):
+                 return (x.minc-x.minc1)/(x.maxc-x.minc1)
+
+      def middletoprat(self,x):                        # use to judge is middle
+             if (x.len<0 and x.len1>0 and x.minc>x.minc2):
+                return (x.maxc/x.minc-1)*100
+            
       def creatgp(self,db):
                   # group by gpid get sum of md and gpred
             if db.empty==False and len(db)>60:
                   gp1=db.groupby('gpid').max()[['h','c']]  # compare power？ angle或stddev
-                  gp1.columns=['maxh','maxc']
+                  gp1.columns=['smaxh','smaxc']
                   gp2=db.groupby('gpid').min()[['l','c']]
-                  gp2.columns=['minl','minc']
+                  gp2.columns=['sminl','sminc']
                   gp22=db.groupby('gpid').sum()[['len']]
                   gp22.columns=['lenang']
-                  gp23=db.groupby('gpid').mean()[['trixlang']]
+                  gp23=db.groupby('gpid').mean()[['trixlang','scope']]
                   gp24=db.groupby('gpid').count()[['len']]
                   gp24.columns=['lennum']
                   #gp23=db.groupby('gpid')
@@ -130,34 +185,54 @@ class STDTB(object):
                   gp['len1']=gp.len.shift(1)
                   gp['len2']=gp.len.shift(2)
                   gp['len3']=gp.len.shift(3)
-                  gp['maxh1']=gp.maxh.shift(1).abs()
-                  gp['maxh2']=gp.maxh.shift(2).abs()
-                  gp['maxh3']=gp.maxh.shift(3).abs()
-                  gp['minl1']=gp.minl.shift(1)
-                  gp['minl2']=gp.minl.shift(2)
+                  
+                  gp['smaxc1']=gp.smaxc.shift(1).abs()
+                  gp['maxc']=gp.apply(lambda x: x.smaxc1 if x.len<0 else x.smaxc ,axis=1)
+                  gp['maxc1']=gp.maxc.shift(1).abs()
+                  gp['maxc2']=gp.maxc.shift(2).abs()
+                  gp['maxc3']=gp.maxc.shift(3).abs()
+                 
+                  
+                  gp['sminc1']=gp.sminc.shift(1)
+                  gp['minc']=gp.apply(lambda x: x.sminc1 if x.len>0 else x.sminc ,axis=1) # if len>0 minc is the provious minc if len<0 minc is isself
                   gp['minc1']=gp.minc.shift(1)
+                  gp['minc2']=gp.minc.shift(2)
+                  gp['minc3']=gp.minc.shift(3)
+                            
+                  gp['prominc']=gp.apply(self.getprominc,axis=1)
+                  gp['promaxc']=gp.apply(self.getpromaxc,axis=1)
+                  
+                  
+                  gp['ismiddle']=gp.apply(self.ismiddle,axis=1)
+                  gp['middlerat']=gp.apply(self.middlerat,axis=1)
+                  gp['middletoprat']=gp.apply(self.middletoprat,axis=1)
+                  
+                  
                   gp['trixlang1']=gp.trixlang.shift(1)
                   gp['trixlang2']=gp.trixlang.shift(2)
                   gp['startl1']=gp.startl.shift(1)
+                  gp['lastc1']=gp.lastc.shift(1)
                   gp['sn']=self.sn
                   gp['gpid']=gp.index
-                  gp['rat']=gp.apply(lambda x: (x.maxh/x.startc-1)*100 if x.len>0 else  -(x.maxh1/x.minl-1)*100,axis=1)
+                  #gp['downtype']=gp.apply(lambda x: 1 if (x.len>0)&(x.maxc<x.promaxc)&(x.minc<x.prominc) else 0,axis=1)
+                  gp['downtype']=gp.apply(self.getdowntype,axis=1)
+                  gp['rat']=gp.apply(self.getrat,axis=1)
                   gp['prrat1']=gp.rat.shift(1)
                   gp['prrat2']=gp.rat.shift(2)
                   gp['goodkey']=gp.apply(lambda x: 1 if (x.len<0)&(x.len1>0)&(-x.len>x.len1)&(-x.trixlang>x.trixlang1) else 0,axis=1 )
                   gp['goodkey1']=gp.goodkey.shift(1)
                   #future 
-                  gp['fuminl1']=gp.minl.shift(-1)
+                  gp['fuminc1']=gp.minc.shift(-1)
                   gp['fulen1']=gp.len.shift(-1)
-                  gp['fumaxh2']=gp.maxh.shift(-2)
+                  gp['fumaxc2']=gp.maxc.shift(-2)
                   gp['fulen2']=gp.len.shift(-2)
-                  gp['fuminl2']=gp.minl.shift(-3)
+                  gp['fuminc2']=gp.minc.shift(-3)
                   gp['startc1']=gp.startc.shift(1)
                   gp['startc2']=gp.startc.shift(2)
                   gp['startc3']=gp.startc.shift(3)
-                  gp['lastc1']=gp.lastc.shift(1)
-                  gp['lastc2']=gp.lastc.shift(2)
-                  gp['lastc3']=gp.lastc.shift(3)
+                  gp['scope1']=gp.scope.shift(1)
+                  gp['scope2']=gp.scope.shift(2)
+                  gp['scope3']=gp.scope.shift(3)
                   
                   return gp        
       def getgp(self):
@@ -174,7 +249,7 @@ class STDTB(object):
       def getgpbyno(self,refid):
             db=self.getexdb()
             gp=self.creatgp(db)
-            return gp[gp.index>=refid][['len','minl','maxh','len1']].head()
+            return gp[gp.index>=refid][['len','minc','maxc','len1']].head()
       def mainstream(self):
             try:
                   db=self.getexdb()[['date','gpid','h','c']]
@@ -276,7 +351,7 @@ class ANALYSIS:
        
       
       
-      def batsavegp(self,pat,cyctype='D',angtype='a'):
+      def batsavegp(self,pat,cyctype='D',angtype='t'):
             snlist=self.getallfile(ROOTPATH,pat)
             result=pd.DataFrame()
             result1=pd.DataFrame()
@@ -335,19 +410,16 @@ class ANALYSIS:
       # angtype :a
                        
       # angtype :t   
-      CONt=['gpid','sn','startdate','rat','len','len1','len2','startc','starto','minc','minl','minl1','trixlang1','trixlang2','lastc','maxh','maxc','fulen1','fuminl1','fulen2','fumaxh2']
+      CONt=['gpid','sn','startdate','rat','len','len1','len2','startc','starto','minc','minc1','trixlang1','trixlang2','lastc','maxh','maxc','fulen1','fuminc1','fulen2','fumaxc2']
       def keyfindt(self,gp):
             return gp[(gp.goodkey1==1)       
-                      ][self.CONt]            
+                      ]           
 
       def fustatics(self,df):
             # begin the startc that is not the most lower point the lowest
-            print("success fumaxh2 below minl   rate:{}".format(df[df.fumaxh2<df.minl]['sn'].count()/df.sn.count()))
-            print("success fumaxh2 higher starto  rate:{}".format(df[df.fumaxh2>=df.starto]['sn'].count()/df.sn.count()))
-            print("success fumaxh2 higher fuminl1  rate:{}".format(df[df.fumaxh2>=df.minl]['sn'].count()/df.sn.count()))
-            #print("success fuminl2 below minl1  rate:{}".format(df[df.fuminl2>df.minl1*0.9]['sn'].count()/df.sn.count()))
-            #print("success fuminl2 below minl2  rate:{}".format(df[df.fuminl2>df.minl2*0.9]['sn'].count()/df.sn.count()))
-            #print("success fuminl2 below minl3  rate:{}".format(df[df.fuminl2>df.minl3*0.9]['sn'].count()/df.sn.count()))
+            print("success fumaxc2 below minc   rate:{}".format(df[df.fumaxc2<df.minc]['sn'].count()/df.sn.count()))
+            print("success fumaxc2 higher starto  rate:{}".format(df[df.fumaxc2>=df.starto]['sn'].count()/df.sn.count()))
+            print("success fumaxc2 higher fuminc1  rate:{}".format(df[df.fumaxc2>=df.minc]['sn'].count()/df.sn.count()))
 
       def statics(self,df):
             df['startdate']=pd.to_datetime(df['startdate'],format='%Y-%m-%d')

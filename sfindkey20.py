@@ -74,7 +74,7 @@ class STDTB(object):
                   exdb['nang']=exdb.apply(lambda x: 1 if (x.ang20>=0)&(x.trixf>x.trixs)&(x.c>x.sma20) else -1 ,axis=1)
                   #exdb['up235']  =exdb.apply(lambda x: x.id if (x.sma20>x.sma30)&(x.sma30>x.sma58)&(x.ang20>0)&(x.ang30>0)&(x.ang58>0)   else -x.id,axis=1)                 
                   #exdb['up1234']  =exdb.apply(lambda x: x.id if (x.sma10>x.sma20)&(x.sma20>x.sma30)&(x.ang20>0)   else -x.id,axis=1)                 
-                  if self.angtype=='2':
+                  if self.angtype=='20':
                         exdb['ang']= exdb['ang20']     #change
                   elif self.angtype=='58':
                         exdb['ang']= exdb['ang58']
@@ -139,6 +139,7 @@ class STDTB(object):
                   gp['rat']= gp.apply(lambda x: (x.maxh/x.startc-1)*100 if x.len>0 else  -(x.maxh1/x.minl-1)*100,axis=1)
                   gp['prrat1']=gp.rat.shift(1)
                   gp['prrat2']=gp.rat.shift(2)
+                  gp['ratstd']
                   gp['sma301']=gp.sma30.shift(1)
                   gp['sma581']=gp.sma58.shift(1)
                   gp['sang301']=gp.sang30.shift(1)
