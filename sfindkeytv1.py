@@ -136,22 +136,42 @@ class STDTB(object):
              
       def getdowntype(self,x):
                         
-             if (x.len>0) and (x.maxc<x.promaxc) and (x.minc<x.prominc):
-                 return 'd'
-             elif  (x.len<0 and x.maxc>x.promaxc and x.minc>x.prominc) :
-                 return 'u'
-      def ismiddle(self,x):
-             if (x.len<0 and x.maxc>x.maxc2 and x.minc<x.minc2):
-                 return 'm_out'
-             elif (x.len<0 and x.maxc<x.maxc2 and x.minc >x.minc2):
-                 return 'm_in'
+            if (x.len>0) and (x.maxc<x.promaxc) and (x.minc<x.prominc):
+                  return 'd'
+            elif (x.len>0 and x.maxc>x.promaxc and x.minc<x.prominc):
+                  return '+)'
+            elif (x.len>0 and x.maxc>x.promaxc and x.minc>x.prominc):
+                  return '+^'
+            elif (x.len>0 and x.maxc<x.promaxc and x.minc>x.prominc):
+                  return '+F'         #Flag model
+            elif  (x.len<0 and x.maxc>x.promaxc and x.minc>x.prominc) :
+                  return 'u'
+            elif (x.len<0 and x.maxc>x.promaxc and x.minc<x.prominc):
+                  return '-)'
+            elif (x.len<0 and x.maxc<x.promaxc and x.minc>x.prominc):
+                  return '-F'
+            elif (x.len<0 and x.maxc<x.promaxc and x.minc<x.prominc):
+                  return '-v'
+                  
+      def TopBotton(self,x):
+            if (x.len>0 and x.maxc<x.promaxc and x.downtype1=='u'):
+                  return 't'
+            elif (x.len<0 and x.minc>x.prominc and x.downtype1=='d'):
+                  return 'b'
+           
+           
       def middlerat(self,x):
-             if (x.len<0 and x.len1>0 and x.minc>x.minc1):
-                 return (x.minc-x.minc1)/(x.maxc-x.minc1)
+            if (x.len<0 and x.len1>0 and x.minc>x.minc1):
+                  return (x.minc-x.minc1)/(x.maxc-x.minc1)
 
       def middletoprat(self,x):                        # use to judge is middle
-             if (x.len<0 and x.len1>0 and x.minc>x.minc2):
-                return (x.maxc/x.minc-1)*100
+            if (x.len<0 and x.len1>0 and x.minc>x.minc2):
+                  return (x.maxc/x.minc-1)*100
+      
+      def middlekey(self,x):                        # use to judge is middle
+            if (x.len<0 and x.len1>0 and x.minc>x.minc1 and (x.minc-x.minc1)<(x.maxc-x.minc1)/2 and x.maxc>x.promaxc):
+                  return 'k'
+            
             
       def creatgp(self,db):
                   # group by gpid get sum of md and gpred
@@ -167,12 +187,12 @@ class STDTB(object):
                   gp24.columns=['lennum']
                   #gp23=db.groupby('gpid')
                   idx=db.groupby('gpid')['id'].transform(min)==db['id']
-                  gp3=db[idx][['gpid','date','h','l','o','c','v'                              ,'gpno']]
-                  gp3.columns=['gpid','startdate','starth','startl','starto','startc','startv','startgpno']
+                  gp3=db[idx][['gpid','date','h','l','o','c','v'                              ,'gpno','wdate']]
+                  gp3.columns=['gpid','startdate','starth','startl','starto','startc','startv','startgpno','startwdate']
                   gp3=gp3.set_index('gpid')
                   idx2=db.groupby('gpid')['id'].transform(max)==db['id']
-                  gp32=db[idx2][['gpid','date','l','c']]
-                  gp32.columns=['gpid','lastdate','lastl','lastc']
+                  gp32=db[idx2][['gpid','date','l','c','wdate']]
+                  gp32.columns=['gpid','lastdate','lastl','lastc','lastwdate']
                   gp32=gp32.set_index('gpid')
                   
                   #idx5=db.groupby('gpid')['h'].transform(max)==db['h']
@@ -203,10 +223,13 @@ class STDTB(object):
                   gp['promaxc']=gp.apply(self.getpromaxc,axis=1)
                   
                   
-                  gp['ismiddle']=gp.apply(self.ismiddle,axis=1)
+                  
                   gp['middlerat']=gp.apply(self.middlerat,axis=1)
                   gp['middletoprat']=gp.apply(self.middletoprat,axis=1)
-                  
+                  gp['downtype']=gp.apply(self.getdowntype,axis=1)
+                  gp['downtype1']=gp.downtype.shift(1)
+                  gp['topbotton']=gp.apply(self.TopBotton,axis=1)
+                  gp['mkey']=gp.apply(self.middlekey,axis=1)
                   
                   gp['trixlang1']=gp.trixlang.shift(1)
                   gp['trixlang2']=gp.trixlang.shift(2)
@@ -215,7 +238,7 @@ class STDTB(object):
                   gp['sn']=self.sn
                   gp['gpid']=gp.index
                   #gp['downtype']=gp.apply(lambda x: 1 if (x.len>0)&(x.maxc<x.promaxc)&(x.minc<x.prominc) else 0,axis=1)
-                  gp['downtype']=gp.apply(self.getdowntype,axis=1)
+                  
                   gp['rat']=gp.apply(self.getrat,axis=1)
                   gp['prrat1']=gp.rat.shift(1)
                   gp['prrat2']=gp.rat.shift(2)
@@ -399,21 +422,27 @@ class ANALYSIS:
       
       def singlefind(self,sn,findtype='t'):
             stobj=STDTB("{}{}.txt".format(ROOTPATH,sn),findtype[0])
+            stwobj=STWTB("{}{}.txt".format(ROOTPATH,sn),findtype[0])
             #week obj?
             gp=stobj.getgp()
+            wdb=stwobj.getexdb()
+            w=wdb[['date','tmacd']]
+            w.columns=[['wdate','wtmacd']]
             
-            if findtype=='t':
-                  return self.keyfindt(gp)
+            finddb=self.keyfindt(gp)
+            res=pd.merge(w,finddb,left_on='wdate',right_on='lastwdate')
             
+            return res
       
       
       # angtype :a
                        
       # angtype :t   
-      CONt=['gpid','sn','startdate','rat','len','len1','len2','startc','starto','minc','minc1','trixlang1','trixlang2','lastc','maxh','maxc','fulen1','fuminc1','fulen2','fumaxc2']
+      CONt=['sn','rat','startdate','len','len1','middlerat','downtype','downtype1','topbotton','mkey','middletoprat','startwdate','lastwdate','lastdate']
       def keyfindt(self,gp):
-            return gp[(gp.goodkey1==1)       
-                      ]           
+            return gp[(gp.mkey=='k')|(gp.topbotton=='b')
+                      ][self.CONt]
+            
 
       def fustatics(self,df):
             # begin the startc that is not the most lower point the lowest
