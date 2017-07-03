@@ -100,10 +100,28 @@ class STDTB(object):
       def getrat(self,x):
                   if x.len>0:
                         return (x.maxc/x.startc-1)*100
-                  elif x.len<0 and x.minc<x.minc1 :
+                  elif x.len<0 and x.len2<0  :
                         return -(x.minc1/x.minc-1)*100
                   elif x.len<0 and x.minc>x.minc1 :
                         return  (x.minc/x.minc1-1)*100
+      def downrat(self,x):
+            if (x.len<0 and x.len1>0 and x.minc>x.minc1):
+                  return -((x.maxc-x.minc)/(x.maxc-x.minc1))*100
+                  
+      def ProvPattern(self,x):
+            if x.len>0 and x.len1<0 and x.maxc<x.maxc1 and x.trendtype1=='u' :
+                  return '+f'
+      def compheight(self,x):
+            if x.len>0 and x.len1<0 and x.len2>0 :
+                  if x.height>x.proheight:
+                        return 'ub'
+                  else:
+                        return 'us'
+            elif x.len<0 and x.len1>0 and x.len2<0 :
+                  if x.height<x.proheight:
+                        return 'ds'
+                  else:
+                        return 'db'
 
       def getpromaxc(self,x):
             if (x.len<0 and x.len1<0 and x.len2>0) :
@@ -134,29 +152,34 @@ class STDTB(object):
                   return x.minc3
             
              
-      def getdowntype(self,x):
+      def gettrendtype(self,x):
                         
-            if (x.len>0) and (x.maxc<x.promaxc) and (x.minc<x.prominc):
+            if (x.len>0 and x.len1<0 and x.len2>0 and x.maxc<x.maxc2 and x.minc<x.minc2):
                   return 'd'
-            elif (x.len>0 and x.maxc>x.promaxc and x.minc<x.prominc):
-                  return '+)'
-            elif (x.len>0 and x.maxc>x.promaxc and x.minc>x.prominc):
-                  return '+^'
-            elif (x.len>0 and x.maxc<x.promaxc and x.minc>x.prominc):
-                  return '+F'         #Flag model
-            elif  (x.len<0 and x.maxc>x.promaxc and x.minc>x.prominc) :
+            #elif (x.len>0 and x.maxc>x.promaxc and x.minc<x.prominc):
+                  #return '+)'
+            #elif (x.len>0 and x.maxc>x.promaxc and x.minc>x.prominc):
+                  #return '+^'
+            #elif (x.len>0 and x.maxc<x.promaxc and x.minc>x.prominc):
+                  #return '+F'         #Flag model
+            elif  (x.len<0 and x.len1>0 and x.len2<0 and  x.maxc>x.maxc2 and x.minc>x.minc2) :
                   return 'u'
-            elif (x.len<0 and x.maxc>x.promaxc and x.minc<x.prominc):
-                  return '-)'
-            elif (x.len<0 and x.maxc<x.promaxc and x.minc>x.prominc):
-                  return '-F'
-            elif (x.len<0 and x.maxc<x.promaxc and x.minc<x.prominc):
-                  return '-v'
-                  
+            #elif (x.len<0 and x.maxc>x.promaxc and x.minc<x.prominc):
+                  #return '-)'
+            #elif (x.len<0 and x.maxc<x.promaxc and x.minc>x.prominc):
+                  #return '-F'
+            #elif (x.len<0 and x.maxc<x.promaxc and x.minc<x.prominc):
+                  #return '-v'
+            else:
+                  return 'm'
+
+      #def getturn(self,x):
+            #if (x.len<0 and x.len1>0 and x.trendtype1=='d' and x.minc>x.minc1 ):
+                  #return 'bt' 
       def TopBotton(self,x):
-            if (x.len>0 and x.maxc<x.promaxc and x.downtype1=='u'):
+            if (x.len>0 and x.len1<0 and x.maxc<x.maxc1 and x.trendtype1=='u'):
                   return 't'
-            elif (x.len<0 and x.minc>x.prominc and x.downtype1=='d'):
+            elif (x.len<0 and x.len1>0 and x.minc>x.minc1 and x.trendtype1=='d'):  #compare len2<0 and len2's 
                   return 'b'
            
            
@@ -169,7 +192,7 @@ class STDTB(object):
                   return (x.maxc/x.minc-1)*100
       
       def middlekey(self,x):                        # use to judge is middle
-            if (x.len<0 and x.len1>0 and x.minc>x.minc1 and (x.minc-x.minc1)<(x.maxc-x.minc1)/2 and x.maxc>x.promaxc):
+            if (x.len<0 and x.len1>0 and x.minc>x.minc1 and x.compheight=='ds'):
                   return 'k'
             
             
@@ -219,16 +242,21 @@ class STDTB(object):
                   gp['minc2']=gp.minc.shift(2)
                   gp['minc3']=gp.minc.shift(3)
                             
+                  gp['height']=gp.apply(lambda x: x.maxc-x.minc if x.len>0 else -(x.maxc-x.minc),axis=1)
+                  gp['height1']=gp.height.shift(1)
+                  gp['proheight']=gp.height.shift(2)
                   gp['prominc']=gp.apply(self.getprominc,axis=1)
                   gp['promaxc']=gp.apply(self.getpromaxc,axis=1)
-                  
+                  gp['compheight']=gp.apply(self.compheight,axis=1)
+                  gp['compheight1']=gp.compheight.shift(1)
+                  gp['compheight2']=gp.compheight.shift(2)
                   
                   
                   gp['middlerat']=gp.apply(self.middlerat,axis=1)
                   gp['middletoprat']=gp.apply(self.middletoprat,axis=1)
-                  gp['downtype']=gp.apply(self.getdowntype,axis=1)
-                  gp['downtype1']=gp.downtype.shift(1)
-                  gp['topbotton']=gp.apply(self.TopBotton,axis=1)
+                  gp['trendtype']    =gp.apply(self.gettrendtype,axis=1)
+                  #gp['trendtype1']=gp.trendtype.shift(1)
+                  #gp['topbotton']=gp.apply(self.TopBotton,axis=1)
                   gp['mkey']=gp.apply(self.middlekey,axis=1)
                   
                   gp['trixlang1']=gp.trixlang.shift(1)
@@ -380,18 +408,35 @@ class ANALYSIS:
             result1=pd.DataFrame()
             i=0
             j=0
+            gp=pd.DataFrame()
             for path in snlist:
                   dbcurrent=result
                   db1=result1
                   if cyctype=='D':
                         stobj=STDTB(path,angtype)
+                        stwobj=STWTB(path,angtype)
+                        gpd=stobj.getgp()
+                        wdb=stwobj.getexdb()
+                        if wdb is None:
+                              continue
+                        w=wdb[['date','tmacd']]
+                        w.columns=[['wdate','wtmacd']] 
+                        try:
+                              gp=pd.merge(w,gpd ,left_on='wdate',right_on='lastwdate')
+                        except:
+                              continue
                   else:
                         stobj=STWTB(path,angtype)
-                  gp = stobj.getgp()
+                        gp = stobj.getgp()
+                  
                   if gp is not None:
                               try:
+                                    
                                     result=dbcurrent.append(gp)
-                                    result1=db1.append(gp.tail(1)[['sn','startdate','len','len1','len2','len3']])
+                                    if cyctype=='D':
+                                          result1=db1.append(gp.tail(1)[['sn','startdate','len','len1','topbotton','trendtype','trendtype1','wtmacd']])
+                                    else:
+                                          result1=db1.append(gp.tail(1)[['sn','startdate','len','len1','topbotton','trendtype','trendtype1']])
                                     i=i+1
                               except:
                                     print(a.sn)
@@ -438,7 +483,7 @@ class ANALYSIS:
       # angtype :a
                        
       # angtype :t   
-      CONt=['sn','rat','startdate','len','len1','middlerat','downtype','downtype1','topbotton','mkey','middletoprat','startwdate','lastwdate','lastdate']
+      CONt=['sn','rat','startdate','len','len1','middlerat','trendtype','trendtype1','topbotton','mkey','middletoprat','startwdate','lastwdate','lastdate']
       def keyfindt(self,gp):
             return gp[(gp.mkey=='k')|(gp.topbotton=='b')
                       ][self.CONt]
