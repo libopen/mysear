@@ -7,6 +7,7 @@ import time
 import datetime
 from datetime import timedelta
 from talib import MA_Type
+from zigzag import *
 #goodkey hope to slove 
 #1 the minl always lower startc
 #2 the maxh is not the starth
@@ -24,7 +25,7 @@ ROOTPATH='/home/lib/mypython/export/'
       
 class STDTB(object):
       
-      def __init__(self,file,angtype='f'):
+      def __init__(self,file,angtype='z'):
             self.name='STDTB'
             if len(file)==8:
                   self.sn=file[-6:]
@@ -40,70 +41,45 @@ class STDTB(object):
             self.db=pd.read_csv(self.snpath,header=None,names=['date','o','h','l','c','v','m'])
             self.db.date=pd.to_datetime(self.db.date)
             
-      def poschange(self,x):
-            if (x.nextang1>0 and x.nextang2>0 and x.ang<0 ) or (x.nextang1<0 and x.nextang2<0 and x.ang>0):
+      def gettrn(self,x):
+            if (x.prez13mode==-1 and x.z13mode==1) or (x.prez13mode==1 and x.z13mode==-1):
                   return x.id
             else:
                   return 0 
             
  
-      def regroup(self,db):
+      def regroup13(self,db):
             curid=0
             for index,row in db.iterrows():
-                  if row['trn']!=0:
-                        curid=row['trn']
+                  if row['prez13mode']!=row['z13mode']:
+                        curid=index
+                  
                   db.loc[index,'gpid']=curid
             return db 
       def getexdb(self):
             try:
                   exdb=self.db
-                  exdb['dif'],exdb['dea'],exdb['macd']=talib.MACD(np.array(exdb.c),10,20,6) # change
-                 
-                  exdb['trixl']=talib.TRIX(np.array(exdb.c),12) 
-                  exdb['trixs']=talib.SMA(np.array(exdb.trixl),9)
-                  exdb['trixlang']=talib.LINEARREG_ANGLE(np.array(exdb.trixl),3) 
-                  exdb['tmacd']=exdb.trixl-exdb.trixs
-                  exdb['c1']=exdb.c.shift(1)
-                   
-                  exdb['posbang']=exdb.apply(lambda x:1 if x.c>x.o else -1 ,axis=1)
-                  exdb['posbang1']=exdb.posbang.shift(1)
-                  exdb['posbang2']=exdb.posbang.shift(2)
-                  exdb['posbang3']=exdb.posbang.shift(3)
-                  exdb['braveman']=exdb.apply(lambda x: 1 if (x.o<x.c1)&(x.posbang1==-1)&(x.posbang==1) else 0,axis=1 )
-                  exdb['realbuy']=exdb.apply(lambda x :1 if x.posbang==1 else 0,axis=1)
-                  exdb['realsal']=exdb.apply(lambda x :1 if x.posbang==-1 else 0,axis=1)
-                  exdb['id']=exdb.index
-                  exdb['sma5']= talib.SMA(np.array(exdb.c),5)
-                  exdb['sma10']= talib.SMA(np.array(exdb.c),10)
-                  exdb['sma20']=talib.SMA(np.array(exdb.c),20)
-                  exdb['up20']=exdb.apply(lambda x: 1 if (x.c>=x.sma20) else 0 ,axis=1)
-                  exdb['ang20']= talib.LINEARREG_ANGLE(np.array(exdb.sma20),3)     #change
-                  exdb['sma30']=talib.SMA(np.array(exdb.c),30)
-                  exdb['ang30']= talib.LINEARREG_ANGLE(np.array(exdb.sma30),3)
-                  exdb['sma58']=talib.SMA(np.array(exdb.c),58)
-                  exdb['sma89']=talib.SMA(np.array(exdb.c),89)
-                  exdb['ang58']=talib.LINEARREG_ANGLE(np.array(exdb.sma58),3)
-                  exdb['ang89']=talib.LINEARREG_ANGLE(np.array(exdb.sma89),3)
-                  #exdb['ang']= talib.LINEARREG_ANGLE(np.array(exdb.dea),3)     #change use macd so much little perords 
-                  if self.angtype=='t':
-                        exdb['ang']= exdb.tmacd
-                  else: #default dif
-                        exdb['ang']= talib.LINEARREG_ANGLE(np.array(exdb.dif),3)
-                  exdb['nextang1']=exdb.ang.shift(1)
-                  exdb['nextang2']=exdb.ang.shift(2)
                   
-                  exdb['trn']=exdb.apply(self.poschange,axis=1)
+                  z6=peak_valley_pivots(np.array(exdb.c),0.06,-0.06)
+                  z13=peak_valley_pivots(np.array(exdb.c),0.13,-0.13)
+                  z6mode=pivots_to_modes(z6)
+                  z13mode=pivots_to_modes(z13)
+                  
+                  exdb['z6']=pd.Series(z6,index=exdb.index)
+                  exdb['z13']=pd.Series(z13,index=exdb.index)
+                  exdb['z6mode']=pd.Series(z6mode,index=exdb.index)
+                  exdb['z13mode']=pd.Series(z13mode,index=exdb.index)
+                  exdb['prez13mode']=exdb.z13mode.shift(1).fillna(0).astype(int)
                   exdb['gpid']=0
-                  exdb['len']=exdb.apply(lambda x: 1 if x.ang>=0 else -1,axis=1)
-           
-                  exdb['wdate']=(exdb.date+timedelta(days=1)).dt.to_period('W').apply(lambda r:r.start_time)-timedelta(days=1)
-                  exdb=self.regroup(exdb)
-                  exdb['gpno']=exdb.apply(lambda x: x.id-x.gpid+1,axis=1)
-                  exdb['scope']=exdb.apply(lambda x:(x.c/x.o-1)*100 if x.c>x.o else (x.o/x.c-1)*100 ,axis=1)
-                  
+                  #exdb=exdb[1:]  #drop the first rows that is not realy segment
+                  #exdb['prez13mode']=exdb['prez13mode'].astype(int)
+                  exdb['id']=exdb.index
+                  #exdb['trn']=exdb.apply(self.gettrn,axis=1)
+                  exdb['segment6']=exdb.apply(lambda x:1 if ((x.z6==-1 )&(x.z13mode==1))|((x.z6==1)&(x.z13==-1)) else 0 ,axis=1)
+
      
-                  #return self.regroup(exdb)
-                  return exdb
+                  return self.regroup13(exdb)
+                  #return exdb
             except:
                   pass
                   #print (self.sn)
@@ -209,95 +185,37 @@ class STDTB(object):
       def creatgp(self,db):
                   # group by gpid get sum of md and gpred
             if db.empty==False and len(db)>60:
-                  gp1=db.groupby('gpid').max()[['h','c']]  # compare power？ angle或stddev
-                  gp1.columns=['smaxh','smaxc']
-                  gp2=db.groupby('gpid').min()[['l','c']]
-                  gp2.columns=['sminl','sminc']
-                  gp22=db.groupby('gpid').sum()[['len','realbuy','realsal','braveman']]
-                  gp22.columns=['lenang','realbuy','realsal','braveman']
-                  gp23=db.groupby('gpid').mean()[['trixlang','scope']]
-                  gp24=db.groupby('gpid').count()[['len']]
-                  gp24.columns=['lennum']
+                  gp22=db.groupby('gpid').sum()[['z13mode','segment6']]
+                  gp22.columns=['len','segment6']
                   #gp23=db.groupby('gpid')
                   idx=db.groupby('gpid')['id'].transform(min)==db['id']
-                  gp3=db[idx][['gpid','date','h','l','o','c','v'                              ,'gpno','wdate','ang58']]
-                  gp3.columns=['gpid','startdate','starth','startl','starto','startc','startv','startgpno','startwdate','startang58']
+                  gp3=db[idx][['gpid','date','h','l','o','c','v'                              ]]
+                  gp3.columns=['gpid','startdate','starth','startl','starto','startc','startv']
                   gp3=gp3.set_index('gpid')
                   idx2=db.groupby('gpid')['id'].transform(max)==db['id']
-                  gp32=db[idx2][['gpid','date','l','c','wdate','ang58']]
-                  gp32.columns=['gpid','lastdate','lastl','lastc','lastwdate','lastang58']
+                  gp32=db[idx2][['gpid','date','l','c']]
+                  gp32.columns=['gpid','lastdate','lastl','lastc']
                   gp32=gp32.set_index('gpid')
                   
-                  #idx5=db.groupby('gpid')['h'].transform(max)==db['h']
-                  #gp51=db[idx5][['gpid','date','gpno']]
-                  #gp51.columns=['gpid','maxdate','maxgpno']
-                  gp=pd.concat([gp1,gp2,gp22,gp23,gp24,gp3,gp32],axis=1,join="inner")
+                  gp=pd.concat([gp22,gp3,gp32],axis=1,join="inner")
                   #gp=pd.concat([gp,gp33],axis=1,join="inner")
                   #return gp33,gp
-                  gp['len']=gp.apply(lambda x:x.lennum if x.lenang>0 else -x.lennum,axis=1)
-                  gp['len1']=gp.len.shift(1)
+                  gp['sn']=self.sn
+                  gp['len1']=gp.len.shift(1) 
+                  gp=gp.dropna(axis=0)  #drop the first row that is not really segment
+                  
                   gp['len2']=gp.len.shift(2)
                   gp['len3']=gp.len.shift(3)
-                  
-                  gp['smaxc1']=gp.smaxc.shift(1).abs()
-                  gp['maxc']=gp.apply(lambda x: x.smaxc1 if x.len<0 else x.smaxc ,axis=1)
-                  gp['maxc1']=gp.maxc.shift(1).abs()
-                  gp['maxc2']=gp.maxc.shift(2).abs()
-                  gp['maxc3']=gp.maxc.shift(3).abs()
+                  gp['segment1']=gp.segment6.shift(1)
+                  p13=peak_valley_pivots(np.array(db['c']),0.13,-0.13)
+                  segdrawdown=compute_segment_returns(np.array(db['c']),p13)
+                  #segdrawdown=np.insert(segdrawdown,0,0)
+                  gp['segdrawdown']=pd.Series(segdrawdown,index=gp.index)
+                  gp['segdrawdown1']=gp.segdrawdown.shift(1)
+                  gp['segdrawdown2']=gp.segdrawdown.shift(2)
+
                  
-                  
-                  gp['sminc1']=gp.sminc.shift(1)
-                  gp['minc']=gp.apply(lambda x: x.sminc1 if x.len>0 else x.sminc ,axis=1) # if len>0 minc is the provious minc if len<0 minc is isself
-                  gp['minc1']=gp.minc.shift(1)
-                  gp['minc2']=gp.minc.shift(2)
-                  gp['minc3']=gp.minc.shift(3)
-                            
-                  gp['height']=gp.apply(lambda x: x.maxc-x.minc if x.len>0 else -(x.maxc-x.minc),axis=1)
-                  gp['height1']=gp.height.shift(1)
-                  gp['proheight']=gp.height.shift(2)
-                  gp['prominc']=gp.apply(self.getprominc,axis=1)
-                  gp['promaxc']=gp.apply(self.getpromaxc,axis=1)
-                  gp['compheight']=gp.apply(self.compheight,axis=1)
-                  gp['compheight1']=gp.compheight.shift(1)
-                  gp['compheight2']=gp.compheight.shift(2)
-                  
-                  
-                  gp['middlerat']=gp.apply(self.middlerat,axis=1)
-                  gp['middletoprat']=gp.apply(self.middletoprat,axis=1)
-                  gp['trendtype']    =gp.apply(self.gettrendtype,axis=1)
-                  gp['trendtype1']=gp.trendtype.shift(1)
-                  gp['trendtype2']=gp.trendtype.shift(2)
-                  gp['trendtype3']=gp.trendtype.shift(3)
-                  #gp['topbotton']=gp.apply(self.TopBotton,axis=1)
-                  gp['mkey']=gp.apply(self.middlekey,axis=1)
-                  
-                  gp['trixlang1']=gp.trixlang.shift(1)
-                  gp['trixlang2']=gp.trixlang.shift(2)
-                  gp['trixlang3']=gp.trixlang.shift(3)
-                  gp['startl1']=gp.startl.shift(1)
-                  gp['lastc1']=gp.lastc.shift(1)
-                  gp['sn']=self.sn
-                  gp['gpid']=gp.index
-                  #gp['downtype']=gp.apply(lambda x: 1 if (x.len>0)&(x.maxc<x.promaxc)&(x.minc<x.prominc) else 0,axis=1)
-                  
-                  gp['rat']=gp.apply(self.getrat,axis=1)
-                  gp['prrat1']=gp.rat.shift(1)
-                  gp['prrat2']=gp.rat.shift(2)
-                  gp['goodkey']=gp.apply(lambda x: 1 if (x.len<0)&(x.len1>0)&(-x.len>x.len1)&(-x.trixlang>x.trixlang1) else 0,axis=1 )
-                  gp['goodkey1']=gp.goodkey.shift(1)
-                  #future 
-                  gp['fuminc1']=gp.minc.shift(-1)
-                  gp['fulen1']=gp.len.shift(-1)
-                  gp['fumaxc2']=gp.maxc.shift(-2)
-                  gp['fulen2']=gp.len.shift(-2)
-                  gp['fuminc2']=gp.minc.shift(-3)
-                  gp['startang581']=gp.startang58.shift(1)
-                  gp['lastang581']=gp.lastang58.shift(1)
-                  
-                  gp['scope1']=gp.scope.shift(1)
-                  gp['scope2']=gp.scope.shift(2)
-                  gp['scope3']=gp.scope.shift(3)
-                  
+ 
                   return gp        
       def getgp(self):
             try:
@@ -448,9 +366,9 @@ class ANALYSIS:
                                     
                                     result=dbcurrent.append(gp)
                                     if cyctype=='D':
-                                          result1=db1.append(gp.tail(1)[['sn','startdate','len','len1','trendtype','trendtype1']])
+                                          result1=db1.append(gp.tail(1)[['sn','startdate','len','len1','segdrawdown','segdrawdown1']])
                                     else:
-                                          result1=db1.append(gp.tail(1)[['sn','startdate','len','len1','topbotton','trendtype','trendtype1']])
+                                          result1=db1.append(gp.tail(1)[['sn','startdate','len','len1','segdrawdown','segdrawdown1']])
                                     i=i+1
                               except:
                                     print(a.sn)
@@ -488,24 +406,17 @@ class ANALYSIS:
             
             
             finddb=self.keyfindt(gp)
-            wdb=stwobj.getexdb()
-            if wdb is not None:
-                  w=wdb[['date','tmacd']]
-                  w.columns=[['wdate','wtmacd']]
-               
-                  res=pd.merge(w,finddb,how='right', left_on='wdate',right_on='startwdate')
+            #wdb=stwobj.getexdb()
             
-                  return res[['gpid','sn','rat','startdate','len','len1','len2','trendtype1','trendtype2','trendtype3','startwdate','wtmacd','ang58']]
-            else:
-                  return finddb[['gpid','sn','rat','startdate','len','len1','len2','trendtype1','trendtype2','trendtype3','startwdate','ang58']]
+            return finddb[['sn','startdate','len','len1','len2','segdrawdown','segdrawdown1','segdrawdown2']]
       
       
       # angtype :a
                        
       # angtype :t   
-      CONt=['gpid','sn','rat','startdate','len','len1','len2','trendtype1','trendtype2','trendtype3','startwdate']
+      CONt=['sn','startdate','len','len1','len2','segdrawdown','segdrawdown1','segdrawdown2']
       def keyfindt(self,gp):
-            return gp[(gp.trendtype1=='m')&(gp.trendtype2=='m')&(gp.trendtype3!='d')&(gp.len>0)&(gp.compheight1=='fastdown')
+            return gp[(gp.len1<0)&(gp.len2>0)&(gp.segdrawdown2.abs()>gp.segdrawdown1.abs())
                       ][self.CONt]
             
       def keyfindt2(self,gp):

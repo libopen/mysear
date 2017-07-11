@@ -37,10 +37,11 @@ class StockInfo:
            todaystartprice=slist[1]
            nowprice=slist[3]
            todayhighprice=slist[4]
+           todaylowprice=slist[5]
            upgraderate=(float(nowprice)-float(yesterdayendprice))/float(yesterdayendprice)
-           upgraderate=upgraderate *100
+           upgraderate=round(upgraderate *100,2)
            dateandtime=slist[30]+' ' + slist[31]
-           print('t %s, c %s, h %s '%(ti,nowprice,todayhighprice))
+           print('t %s, c %s, l %s   %s '%(ti,nowprice,todaylowprice,upgraderate))
 
       def GetStockInfo(num):
            str=StockInfo.GetStockStrByNum(num)
@@ -60,7 +61,7 @@ class StockInfo:
                code.write(f.readall())
 
 def   Main():
-      stocks=['sh600176','sh600684']
+      stocks=['sh600684','sh600176','sh603108']
       for stock in stocks:
           StockInfo.GetStockInfo(stock)
 
