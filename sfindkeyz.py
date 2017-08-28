@@ -154,6 +154,7 @@ class STDTB(object):
                   exdb['trnc']=exdb.apply(lambda x:x.c if x.trn==1 else 0 ,axis=1)
                   exdb['dmacd']=exdb.apply(lambda x:-x.macd if x.macd<0 else 0 ,axis=1)
                   exdb['umacd']=exdb.apply(lambda x:x.macd if x.macd>0 else 0 ,axis=1)
+                  exdb['rat']=exdb.apply(lambda x: x.h/x.l-1 if (x.c<x.o)&(x.h/x.c>1.05)&(x.o/x.c>1.05) else 0 ,axis=1)
                   z6=peak_valley_pivots(np.array(exdb.c),0.06,-0.06)
                   z13=peak_valley_pivots(np.array(exdb.c),0.13,-0.13)
                   z6mode=pivots_to_modes(z6)
@@ -179,103 +180,10 @@ class STDTB(object):
             except:
                   pass
                   #print (self.sn)
-      def getrat(self,x):
-                  if x.len>0:
-                        return (x.maxc/x.startc-1)*100
-                  elif x.len<0 and x.len2<0  :
-                        return -(x.minc1/x.minc-1)*100
-                  elif x.len<0 and x.minc>x.minc1 :
-                        return  (x.minc/x.minc1-1)*100
-      def downrat(self,x):
-            if (x.len<0 and x.len1>0 and x.minc>x.minc1):
-                  return -((x.maxc-x.minc)/(x.maxc-x.minc1))*100
-                  
-      def ProvPattern(self,x):
-            if x.len>0 and x.len1<0 and x.maxc<x.maxc1 and x.trendtype1=='u' :
-                  return '+f'
-      def compheight(self,x):
-            if x.len>0 and x.len1<0 and x.len2>0 :
-                  if x.height>x.proheight:
-                        return 'fastup'
-                  else:
-                        return 'slowup'
-            elif x.len<0 and x.len1>0 and x.len2<0 :
-                  if x.height<x.proheight:
-                        return 'fastdown'
-                  else:
-                        return 'slowdown'
+         
+ 
 
-      def getpromaxc(self,x):
-            if (x.len<0 and x.len1<0 and x.len2>0) :
-                  return x.maxc3
-            elif (x.len<0 and x.len1>0 and x.len2<0):
-                  return x.maxc2
-            elif (x.len<0 and x.len1>0 and x.len2>0):
-                  return x.maxc3
-            elif (x.len>0 and x.len1<0 and x.len2>0):
-                  return x.maxc2
-            elif (x.len>0 and x.len1>0 and x.len2<0):
-                  return x.maxc3
-            elif (x.len>0 and x.len1<0 and x.len2<0):
-                  return x.maxc3
       
-      def getprominc(self,x):
-            if (x.len>0 and x.len1<0 and x.len2>0) :
-                  return x.minc2
-            elif (x.len>0 and x.len1<0 and x.len2<0):
-                  return x.minc3
-            elif (x.len>0 and x.len1>0 and x.len2<0):
-                  return x.minc3
-            elif (x.len<0 and x.len1>0 and x.len2<0):
-                  return x.minc2
-            elif (x.len<0 and x.len1<0 and x.len2>0):
-                  return x.minc3
-            elif (x.len<0 and x.len1>0 and x.len2>0):
-                  return x.minc3
-            
-             
-      def gettrendtype(self,x):
-                        
-            if (x.len>0 and x.len1<0 and x.len2>0 and x.maxc<x.maxc2 and x.minc<x.minc2):
-                  return 'd'
-            #elif (x.len>0 and x.maxc>x.promaxc and x.minc<x.prominc):
-                  #return '+)'
-            #elif (x.len>0 and x.maxc>x.promaxc and x.minc>x.prominc):
-                  #return '+^'
-            #elif (x.len>0 and x.maxc<x.promaxc and x.minc>x.prominc):
-                  #return '+F'         #Flag model
-            elif  (x.len<0 and x.len1>0 and x.len2<0 and  x.maxc>x.maxc2 and x.minc>x.minc2) :
-                  return 'u'
-            #elif (x.len<0 and x.maxc>x.promaxc and x.minc<x.prominc):
-                  #return '-)'
-            #elif (x.len<0 and x.maxc<x.promaxc and x.minc>x.prominc):
-                  #return '-F'
-            #elif (x.len<0 and x.maxc<x.promaxc and x.minc<x.prominc):
-                  #return '-v'
-            else:
-                  return 'm'
-
-      #def getturn(self,x):
-            #if (x.len<0 and x.len1>0 and x.trendtype1=='d' and x.minc>x.minc1 ):
-                  #return 'bt' 
-      def TopBotton(self,x):
-            if (x.len>0 and x.len1<0 and x.maxc<x.maxc1 and x.trendtype1=='u'):
-                  return 't'
-            elif (x.len<0 and x.len1>0 and x.minc>x.minc1 and x.trendtype1=='d'):  #compare len2<0 and len2's 
-                  return 'b'
-           
-           
-      def middlerat(self,x):
-            if (x.len<0 and x.len1>0 and x.minc>x.minc1):
-                  return (x.minc-x.minc1)/(x.maxc-x.minc1)
-
-      def middletoprat(self,x):                        # use to judge is middle
-            if (x.len<0 and x.len1>0 and x.minc>x.minc2):
-                  return (x.maxc/x.minc-1)*100
-      
-      def middlekey(self,x):                        # use to judge is middle
-            if (x.len<0 and x.len1>0 and x.minc>x.minc1 and x.compheight=='ds'):
-                  return 'k'
             
             
       def creatgp(self,db):
@@ -444,8 +352,8 @@ class STDTB(object):
                   gp3.columns=['gpid6','s6startdate','s6startc']
                   gp3=gp3.set_index('gpid6')
                   idx2=db.groupby('gpid6')['id'].transform(max)==db['id']
-                  gp32=db[idx2][['gpid6','date','c','gpid']]
-                  gp32.columns=['gpid6','s6lastdate','s6lastc','gpid']
+                  gp32=db[idx2][['gpid6','date','c','gpid','l','h','id','rat']]
+                  gp32.columns=['gpid6','s6lastdate','s6lastc','gpid','s6lastl','s6lasth','s6id','s6keyrat']
                   gp32=gp32.set_index('gpid6')
                   gp=pd.concat([gp22,gp23,gp24,gp3,gp32],axis=1,join="inner")
                   
@@ -460,6 +368,7 @@ class STDTB(object):
                   gp['s6len4']=gp.s6len.shift(4)
                   gp['s6len5']=gp.s6len.shift(5)
                   gp['s6len6']=gp.s6len.shift(6)
+                  gp['s6len7']=gp.s6len.shift(7)
                   p6=peak_valley_pivots(np.array(db['c']),0.06,-0.06)
                   #segdrawdown: sdd6
                   s6sdd=compute_segment_returns(np.array(db['c']),p6)
@@ -471,6 +380,7 @@ class STDTB(object):
                   gp['s6sdd4']=gp.s6sdd.shift(4)
                   gp['s6sdd5']=gp.s6sdd.shift(5)
                   gp['s6sdd6']=gp.s6sdd.shift(6)
+                  gp['s6sdd7']=gp.s6sdd.shift(7)
                   gp['s6g0']=gp.apply(lambda x:x.s6lastc if x.s6len>0 else x.s6startc,axis=1)
                   gp['s6d0']=gp.apply(lambda x:x.s6lastc if x.s6len<0 else x.s6startc,axis=1)
                   gp['s6startc1']=gp.s6startc.shift(1)
@@ -479,12 +389,14 @@ class STDTB(object):
                   gp['s6startc4']=gp.s6startc.shift(4)
                   gp['s6startc5']=gp.s6startc.shift(5)
                   gp['s6startc6']=gp.s6startc.shift(6)
+                  gp['s6startc7']=gp.s6startc.shift(7)
                   gp['s6lastc1']=gp.s6lastc.shift(1)
                   gp['s6lastc2']=gp.s6lastc.shift(2)
                   gp['s6lastc3']=gp.s6lastc.shift(3)
                   gp['s6lastc4']=gp.s6lastc.shift(4)
                   gp['s6lastc5']=gp.s6lastc.shift(5)
                   gp['s6lastc6']=gp.s6lastc.shift(6)
+                  gp['s6lastc7']=gp.s6lastc.shift(7)
                   gp['s6g1']=gp.apply(lambda x :x.s6lastc1 if x.s6len1>0 else x.s6startc1,axis=1)
                   gp['s6d1']=gp.apply(lambda x :x.s6lastc1 if x.s6len1<0 else x.s6startc1,axis=1)
                   gp['s6g2']=gp.apply(lambda x :x.s6lastc2 if x.s6len2>0 else x.s6startc2,axis=1)
@@ -496,7 +408,10 @@ class STDTB(object):
                   gp['s6g5']=gp.apply(lambda x :x.s6lastc5 if x.s6len5>0 else x.s6startc5,axis=1)
                   gp['s6d5']=gp.apply(lambda x :x.s6lastc5 if x.s6len5<0 else x.s6startc5,axis=1)                  
                   gp['s6g6']=gp.apply(lambda x :x.s6lastc6 if x.s6len6>0 else x.s6startc6,axis=1)
-                  gp['s6d6']=gp.apply(lambda x :x.s6lastc6 if x.s6len6<0 else x.s6startc6,axis=1)                  
+                  gp['s6d6']=gp.apply(lambda x :x.s6lastc6 if x.s6len6<0 else x.s6startc6,axis=1)
+                  gp['s6g7']=gp.apply(lambda x :x.s6lastc7 if x.s6len7>0 else x.s6startc7,axis=1)
+                  gp['s6d7']=gp.apply(lambda x :x.s6lastc7 if x.s6len7<0 else x.s6startc7,axis=1)                  
+                  
                   gp['s6dmacd1']=gp.s6dmacd.shift(1)
                   gp['s6dmacd2']=gp.s6dmacd.shift(2)
                   gp['s6dmacd3']=gp.s6dmacd.shift(3)
@@ -538,11 +453,14 @@ class STDTB(object):
                   
                   
             return db             
-      def pvt6 (self,x):
-            if x.s6sdd<0 and x.s6g0>x.s6g2 and x.s6d0>x.s6d2 :
-                  return 'vt' 
-            elif x.s6sdd<0 and x.s6g0<x.s6g2 and x.s6d0<x.s6d2 :
-                  return 'd'
+      def moduleL (self,x):
+            if (x.s6sdd4>0 and x.s6sdd4>-x.s6sdd3 and x.s6sdd2<x.s6sdd4 and x.s6g2<x.s6g4 and x.s6d3>x.s6d5): # 
+                  return 'DL' # 厂 shape
+            # 这里不能使用abs 
+            elif (x.s6sdd4<0 and -x.s6sdd4 >x.s6sdd3 and -x.s6sdd2<x.s6sdd3 and x.s6g5>x.s6g3 and x.s6d4<x.s6d2 ):
+                  return 'L'  # L shape
+            else:
+                  return 'N'  
                   
       def getgp(self):
             try:
@@ -550,13 +468,13 @@ class STDTB(object):
                   gp6=self.creatgp6(db)
                   gp13=self.creatgp13(db)
                   gpn=pd.merge(gp6,gp13 ,left_on='gpid',right_on='gpid')
-                  gpn['drat']=gpn.apply(lambda x: x.s6d0/x.s13d1-1 if (x.s13sdd<0) &(x.s13d0>x.s13d1) else 0,axis=1)
-                  gpn['pvt0']=gpn.apply(self.pvt6,axis=1)
-                  gpn['pvt1']=gpn.pvt0.shift(1)
-                  gpn['pvt2']=gpn.pvt0.shift(2)
-                  gpn['pvt3']=gpn.pvt0.shift(3)
-                  gpn['pvt4']=gpn.pvt0.shift(4)
                   gpn['id']=gpn.index
+                  gpn['s6equkey']=gpn.apply(lambda x: 1 if (x.s6sdd2>0)&(x.s6sdd1<0)&(x.s6d1>x.s6d3)&(x.s6d1<x.s6d3*1.02) else 0,axis=1)
+                  gpn['s13equkey']=gpn.apply(lambda x: 1 if (x.s13sdd2>0)&(x.s13sdd1<0)&(x.s13d1>x.s13d3)&(x.s13d1<x.s13d3*1.02) else 0,axis=1)
+                  gpn['ml0']=gpn.apply(self.moduleL,axis=1)
+                  gpn['ml1']=gpn.ml0.shift(1)
+                  gpn['ml2']=gpn.ml0.shift(2)
+                  
  
                   
                   
@@ -586,13 +504,15 @@ class STDTB(object):
             return gp[gp.index>=refid][['len','minc','maxc','len1']].head()
       def mainstream(self):
             try:
-                  db=self.getexdb()[['date','gpid','h','c']]
-                  if db is not None:
-                        gp=self.getgp()[['gpid','len','len1','len2','len3']]
-                        df1=pd.merge(db,gp,left_on='gpid',right_on='gpid')
-                        df1['up']=df1.apply(lambda x:1 if x.len>0 else 0,axis=1)
-                        df1['do']=df1.apply(lambda x:1 if x.len<0 else 0,axis=1)
-                        return df1
+                  gp=self.getgp()
+                  if gp is not None:
+                        gp1=gp[(gp.s6segs>3)&(gp.s13sdd>0)&(gp.gp6no==1)][['s13startdate','s13sdd','gpid','s6segs','s6d0','s6g0']]
+                        gp2=gp[(gp.s6segs>3)&(gp.s13sdd>0)&(gp.gp6no==2)][['gpid','s6d0','s6g0']]
+                        gp1.columns=['s13startdate','s13sdd','gpid1','s6seg2','s1d','s1g']
+                        gp2.columns=['gpid2','s2d','s2g']
+                         
+                        df=pd.merge(gp1,gp2,left_on='gpid1',right_on='gpid2')
+                        return df
             except:
                   pass
             
@@ -774,7 +694,7 @@ class ANALYSIS:
             return result
             
             #return db[(db.lastdate==curdate)&(db.lastc>db.)][['startdate','sn','len','len1','segdrawdown','segdrawdown1','segdrawdown2']]
-      CONt=['gpid','sn','s13startdate','s13len','s13len1','s13len2','s13sdd']
+      CONt=['s6startdate','lenrat','presdd','prehigh','prelow','s6len','cur','sn','ml0','ml1']
       def singlefind(self,sn,findtype='t'):
             stobj=STDTB("{}{}.txt".format(ROOTPATH,sn),findtype[0])
             stwobj=STWTB("{}{}.txt".format(ROOTPATH,sn),findtype[0])
@@ -794,10 +714,15 @@ class ANALYSIS:
       
       def keyfindt(self,gp):
             # s13 : 1: cur down   cursdd <s13sdd1  cur have 3 s6segs   
-            return gp[(gp.s13sdd3<-0.15)&(gp.s6segs3>=3) # line3 is 3 segs  
-                  &(gp.s6segs2==1)&(gp.s13sdd2>0.1)&(gp.s13g2<gp.s13g3) #line2 only 1 segs 
-                  &(gp.s13umacd2>gp.s13dmacd1)&(gp.s13len2.abs()>gp.s13len1.abs())&(gp.s13d1>gp.s13d3)
-                      ][self.CONt]
+            df=gp[(gp.s6equkey==1)|(gp.s13equkey==1)]
+            df=np.round(df,decimals=2)
+            df['lenrat']=df.apply(lambda x:'{s6len2}/{s6len1}'.format(**x),axis=1)
+            df['presdd']=df.apply(lambda x:'{s6sdd4}/{s6sdd3}/{s6sdd2}'.format(**x),axis=1)
+            df['prehigh']=df.apply(lambda x:'{s6g4}/{s6g2}/'.format(**x),axis=1)
+            df['prelow']=df.apply(lambda x:'{s6d3}/{s6d1}/'.format(**x),axis=1)
+            df['cur']=df.apply(lambda x:'{s6g1}/{s6lastc}/{s6d0}'.format(**x),axis=1)
+            return df
+
       def keyfindz(self,gp):
             return  gp[(gp.segdrawdown2<0)&(gp.segdrawdown1.abs()>0)&(gp.segdrawdown2.abs()>gp.segdrawdown1.abs())&(gp.segdrawdown<0)&(gp.segdrawdown.abs()<gp.segdrawdown1.abs())
                        &(gp.segdrawdown.abs()/gp.segdrawdown1.abs()>0.5) ][self.CONt]
