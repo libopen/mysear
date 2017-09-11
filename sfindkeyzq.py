@@ -169,16 +169,16 @@ class STDTB(object):
                   exdb['z13mode']=pd.Series(z13mode,index=exdb.index)
                   exdb['prez13mode']=exdb.z13mode.shift(1).fillna(0).astype(int)
                   exdb['prez6mode']=exdb.z6mode.shift(1).fillna(0).astype(int)
-                  
                   exdb['gpid']=0
                   exdb['gpid6']=0
+                  #exdb=exdb[1:]  #drop the first rows that is not realy segment
+                  #exdb['prez13mode']=exdb['prez13mode'].astype(int)
+                  
+                  #exdb['trn']=exdb.apply(self.gettrn,axis=1)
                   
      
                   exdb=self.regroup13(exdb)
                   exdb=self.regroup6(exdb)
-                  exdb['s6id']=exdb.id-exdb.gpid6+1
-                  exdb['s13id']=exdb.id-exdb.gpid+1
-                  
                   return exdb
             except:
                   pass
@@ -232,10 +232,12 @@ class STDTB(object):
       def creatgp13(self,db):
                   # group by gpid get sum of md and gpred
             if db.empty==False and len(db)>60:
-                  gp22=db.groupby('gpid').sum()[['z13mode','dm','um']]
-                  gp22.columns=['s13len','s13sumdmacd','s13sumumacd']
+                  gp22=db.groupby('gpid').sum()[['z13mode','dmacd','umacd','dm','um']]
+                  gp22.columns=['s13len','s13sumdmacd','s13sumumacd','s13dm','s13um']
                   gp23=db.groupby('gpid').max()[['dmacd','umacd']]
-                  gp23.columns=['s13maxdmacd','s13maxumacd']
+                  gp23.columns=['s13dmacd','s13umacd']
+                  gp24=db.groupby('gpid').min()[['trn']]
+                  gp24.columns=['s13mintrn']
                   
                   #gp23=db.groupby('gpid')
                   idx=db.groupby('gpid')['id'].transform(min)==db['id']
@@ -249,7 +251,7 @@ class STDTB(object):
                   s6=db.groupby('gpid').gpid6.nunique()
                   gp6=pd.DataFrame(s6)
                   gp6.columns=['s6segs']
-                  gp=pd.concat([gp22,gp23,gp3,gp32,gp6],axis=1,join="inner")
+                  gp=pd.concat([gp22,gp23,gp24,gp3,gp32,gp6],axis=1,join="inner")
                   
                   gp['s13len1']=gp.s13len.shift(1) 
                   gp=gp.dropna(axis=0)  #drop the first row that is not really segment
@@ -257,6 +259,8 @@ class STDTB(object):
                   gp['s13len2']=gp.s13len.shift(2)
                   gp['s13len3']=gp.s13len.shift(3)
                   gp['s13len4']=gp.s13len.shift(4)
+                  gp['s13len5']=gp.s13len.shift(5)
+                  gp['s13len6']=gp.s13len.shift(6)
                   p13=peak_valley_pivots(np.array(db['c']),0.13,-0.13)
                   s13sdd=compute_segment_returns(np.array(db['c']),p13)
                   #segdrawdown=np.insert(segdrawdown,0,0)
@@ -265,16 +269,22 @@ class STDTB(object):
                   gp['s13sdd2']=gp.s13sdd.shift(2)
                   gp['s13sdd3']=gp.s13sdd.shift(3)
                   gp['s13sdd4']=gp.s13sdd.shift(4)
+                  gp['s13sdd5']=gp.s13sdd.shift(5)
+                  gp['s13sdd6']=gp.s13sdd.shift(6)
                   gp['s13g0']=gp.apply(lambda x:x.s13lastc if x.s13len>0 else x.s13startc,axis=1)
                   gp['s13d0']=gp.apply(lambda x:x.s13lastc if x.s13len<0 else x.s13startc,axis=1)
                   gp['s13startc1']=gp.s13startc.shift(1)
                   gp['s13startc2']=gp.s13startc.shift(2)
                   gp['s13startc3']=gp.s13startc.shift(3)
                   gp['s13startc4']=gp.s13startc.shift(4)
+                  gp['s13startc5']=gp.s13startc.shift(5)
+                  gp['s13startc6']=gp.s13startc.shift(6)
                   gp['s13lastc1']=gp.s13lastc.shift(1)
                   gp['s13lastc2']=gp.s13lastc.shift(2)
                   gp['s13lastc3']=gp.s13lastc.shift(3)
                   gp['s13lastc4']=gp.s13lastc.shift(4)
+                  gp['s13lastc5']=gp.s13lastc.shift(5)
+                  gp['s13lastc6']=gp.s13lastc.shift(6)
                   gp['s13g1']=gp.apply(lambda x :x.s13lastc1 if x.s13len1>0 else x.s13startc1,axis=1)
                   gp['s13d1']=gp.apply(lambda x :x.s13lastc1 if x.s13len1<0 else x.s13startc1,axis=1)
                   gp['s13g2']=gp.apply(lambda x :x.s13lastc2 if x.s13len2>0 else x.s13startc2,axis=1)
@@ -283,6 +293,10 @@ class STDTB(object):
                   gp['s13d3']=gp.apply(lambda x :x.s13lastc3 if x.s13len3<0 else x.s13startc3,axis=1)                  
                   gp['s13g4']=gp.apply(lambda x :x.s13lastc4 if x.s13len4>0 else x.s13startc4,axis=1)
                   gp['s13d4']=gp.apply(lambda x :x.s13lastc4 if x.s13len4<0 else x.s13startc4,axis=1)                  
+                  gp['s13g5']=gp.apply(lambda x :x.s13lastc5 if x.s13len5>0 else x.s13startc5,axis=1)
+                  gp['s13d5']=gp.apply(lambda x :x.s13lastc5 if x.s13len5<0 else x.s13startc5,axis=1)                  
+                  gp['s13g6']=gp.apply(lambda x :x.s13lastc6 if x.s13len6>0 else x.s13startc6,axis=1)
+                  gp['s13d6']=gp.apply(lambda x :x.s13lastc6 if x.s13len6<0 else x.s13startc6,axis=1)                  
                   gp['s6segs1']=gp.s6segs.shift(1)
                   gp['s6segs2']=gp.s6segs.shift(2)
                   gp['s6segs3']=gp.s6segs.shift(3)
@@ -291,18 +305,26 @@ class STDTB(object):
                   gp['s13sumdmacd2']=gp.s13sumdmacd.shift(2)
                   gp['s13sumdmacd3']=gp.s13sumdmacd.shift(3)
                   gp['s13sumdmacd4']=gp.s13sumdmacd.shift(4)
+                  gp['s13sumdmacd5']=gp.s13sumdmacd.shift(5)
+                  gp['s13sumdmacd6']=gp.s13sumdmacd.shift(6)                  
                   gp['s13sumumacd1']=gp.s13sumumacd.shift(1)
                   gp['s13sumumacd2']=gp.s13sumumacd.shift(2)
                   gp['s13sumumacd3']=gp.s13sumumacd.shift(3)
                   gp['s13sumumacd4']=gp.s13sumumacd.shift(4)
-                  gp['s13maxumacd1']=gp.s13maxumacd.shift(1)
-                  gp['s13maxumacd2']=gp.s13maxumacd.shift(2)
-                  gp['s13maxumacd3']=gp.s13maxumacd.shift(3)
-                  gp['s13maxumacd4']=gp.s13maxumacd.shift(4)
-                  gp['s13maxdmacd1']=gp.s13maxdmacd.shift(1)
-                  gp['s13maxdmacd2']=gp.s13maxdmacd.shift(2)
-                  gp['s13maxdmacd3']=gp.s13maxdmacd.shift(3)
-                  gp['s13maxdmacd4']=gp.s13maxdmacd.shift(4)
+                  gp['s13sumumacd5']=gp.s13sumumacd.shift(5)
+                  gp['s13sumumacd6']=gp.s13sumumacd.shift(6)                  
+                  gp['s13umacd1']=gp.s13umacd.shift(1)
+                  gp['s13umacd2']=gp.s13umacd.shift(2)
+                  gp['s13umacd3']=gp.s13umacd.shift(3)
+                  gp['s13umacd4']=gp.s13umacd.shift(4)
+                  gp['s13umacd5']=gp.s13umacd.shift(5)
+                  gp['s13umacd6']=gp.s13umacd.shift(6)    
+                  gp['s13dmacd1']=gp.s13dmacd.shift(1)
+                  gp['s13dmacd2']=gp.s13dmacd.shift(2)
+                  gp['s13dmacd3']=gp.s13dmacd.shift(3)
+                  gp['s13dmacd4']=gp.s13dmacd.shift(4)
+                  gp['s13dmacd5']=gp.s13dmacd.shift(5)
+                  gp['s13dmacd6']=gp.s13dmacd.shift(6)    
                   gp['s13startdate1']=gp.s13startdate.shift(1)
                   gp['s13startdate2']=gp.s13startdate.shift(2) 
                   gp['s13startdate3']=gp.s13startdate.shift(3)
@@ -310,6 +332,10 @@ class STDTB(object):
                   gp['s13startdate5']=gp.s13startdate.shift(5)
                   gp['s13startdate6']=gp.s13startdate.shift(6)                  
                   gp['gpid']=gp.index
+                  gp['ratd01']=gp.s13d0/gp.s13d1
+                  gp['ratd12']=gp.s13d1/gp.s13d2
+                  gp['s13mintrn1']=gp.s13mintrn.shift(1)
+                  gp['s13mintrn2']=gp.s13mintrn.shift(2)
                   return gp        
             
  
@@ -317,20 +343,20 @@ class STDTB(object):
       def creatgp6(self,db):
                   # group by gpid get sum of md and gpred
             if db.empty==False and len(db)>60:
-                  gp22=db.groupby('gpid6').sum()[['z6mode','dm','um']]
-                  gp22.columns=['s6len','s6sumdmacd','s6sumumacd'] #len6 :seg6 
+                  gp22=db.groupby('gpid6').sum()[['z6mode','dmacd','umacd','dm','um']]
+                  gp22.columns=['s6len','s6sumdmacd','s6sumumacd','s6dm','s6um'] #len6 :seg6 
                   #gp23=db.groupby('gpid')
                   gp23=db.groupby('gpid6').max()[['dmacd','umacd']]
-                  gp23.columns=['s6maxdmacd','s6maxumacd']                  
-                  gp24=db.groupby('gpid6').min()[['c',]]
-                  gp24.columns=['s6minc']                  
+                  gp23.columns=['s6dmacd','s6umacd']                  
+                  gp24=db.groupby('gpid6').min()[['c','trn']]
+                  gp24.columns=['s6minc','s6mintrn']                  
                   idx=db.groupby('gpid6')['id'].transform(min)==db['id']
                   gp3=db[idx][['gpid6','date','c']]
                   gp3.columns=['gpid6','s6startdate','s6startc']
                   gp3=gp3.set_index('gpid6')
                   idx2=db.groupby('gpid6')['id'].transform(max)==db['id']
-                  gp32=db[idx2][['gpid6','date'     ,'c'      ,'gpid','s6id','dm','um','dmacd']]
-                  gp32.columns=['gpid6','s6lastdate','s6lastc','gpid','s6id','dm','um','s6lastdmacd']
+                  gp32=db[idx2][['gpid6','date','c','gpid','l','h','id','rat']]
+                  gp32.columns=['gpid6','s6lastdate','s6lastc','gpid','s6lastl','s6lasth','s6id','s6keyrat']
                   gp32=gp32.set_index('gpid6')
                   gp=pd.concat([gp22,gp23,gp24,gp3,gp32],axis=1,join="inner")
                   
@@ -343,6 +369,9 @@ class STDTB(object):
                   gp['s6len2']=gp.s6len.shift(2)
                   gp['s6len3']=gp.s6len.shift(3)
                   gp['s6len4']=gp.s6len.shift(4)
+                  gp['s6len5']=gp.s6len.shift(5)
+                  gp['s6len6']=gp.s6len.shift(6)
+                  gp['s6len7']=gp.s6len.shift(7)
                   p6=peak_valley_pivots(np.array(db['c']),0.06,-0.06)
                   #segdrawdown: sdd6
                   s6sdd=compute_segment_returns(np.array(db['c']),p6)
@@ -352,16 +381,25 @@ class STDTB(object):
                   gp['s6sdd2']=gp.s6sdd.shift(2)
                   gp['s6sdd3']=gp.s6sdd.shift(3)
                   gp['s6sdd4']=gp.s6sdd.shift(4)
+                  gp['s6sdd5']=gp.s6sdd.shift(5)
+                  gp['s6sdd6']=gp.s6sdd.shift(6)
+                  gp['s6sdd7']=gp.s6sdd.shift(7)
                   gp['s6g0']=gp.apply(lambda x:x.s6lastc if x.s6len>0 else x.s6startc,axis=1)
                   gp['s6d0']=gp.apply(lambda x:x.s6lastc if x.s6len<0 else x.s6startc,axis=1)
                   gp['s6startc1']=gp.s6startc.shift(1)
                   gp['s6startc2']=gp.s6startc.shift(2)
                   gp['s6startc3']=gp.s6startc.shift(3)
                   gp['s6startc4']=gp.s6startc.shift(4)
+                  gp['s6startc5']=gp.s6startc.shift(5)
+                  gp['s6startc6']=gp.s6startc.shift(6)
+                  gp['s6startc7']=gp.s6startc.shift(7)
                   gp['s6lastc1']=gp.s6lastc.shift(1)
                   gp['s6lastc2']=gp.s6lastc.shift(2)
                   gp['s6lastc3']=gp.s6lastc.shift(3)
                   gp['s6lastc4']=gp.s6lastc.shift(4)
+                  gp['s6lastc5']=gp.s6lastc.shift(5)
+                  gp['s6lastc6']=gp.s6lastc.shift(6)
+                  gp['s6lastc7']=gp.s6lastc.shift(7)
                   gp['s6g1']=gp.apply(lambda x :x.s6lastc1 if x.s6len1>0 else x.s6startc1,axis=1)
                   gp['s6d1']=gp.apply(lambda x :x.s6lastc1 if x.s6len1<0 else x.s6startc1,axis=1)
                   gp['s6g2']=gp.apply(lambda x :x.s6lastc2 if x.s6len2>0 else x.s6startc2,axis=1)
@@ -370,27 +408,31 @@ class STDTB(object):
                   gp['s6d3']=gp.apply(lambda x :x.s6lastc3 if x.s6len3<0 else x.s6startc3,axis=1)                  
                   gp['s6g4']=gp.apply(lambda x :x.s6lastc4 if x.s6len4>0 else x.s6startc4,axis=1)
                   gp['s6d4']=gp.apply(lambda x :x.s6lastc4 if x.s6len4<0 else x.s6startc4,axis=1)                  
-                  gp['s6sumdmacd1']=gp.s6sumdmacd.shift(1)
-                  gp['s6sumdmacd2']=gp.s6sumdmacd.shift(2)
-                  gp['s6sumdmacd3']=gp.s6sumdmacd.shift(3)
-                  gp['s6sumdmacd4']=gp.s6sumdmacd.shift(4)
-                  gp['s6sumumacd1']=gp.s6sumumacd.shift(1)
-                  gp['s6sumumacd2']=gp.s6sumumacd.shift(2)
-                  gp['s6sumumacd3']=gp.s6sumumacd.shift(3)
-                  gp['s6sumumacd4']=gp.s6sumumacd.shift(4)
+                  gp['s6g5']=gp.apply(lambda x :x.s6lastc5 if x.s6len5>0 else x.s6startc5,axis=1)
+                  gp['s6d5']=gp.apply(lambda x :x.s6lastc5 if x.s6len5<0 else x.s6startc5,axis=1)                  
+                  gp['s6g6']=gp.apply(lambda x :x.s6lastc6 if x.s6len6>0 else x.s6startc6,axis=1)
+                  gp['s6d6']=gp.apply(lambda x :x.s6lastc6 if x.s6len6<0 else x.s6startc6,axis=1)
+                  gp['s6g7']=gp.apply(lambda x :x.s6lastc7 if x.s6len7>0 else x.s6startc7,axis=1)
+                  gp['s6d7']=gp.apply(lambda x :x.s6lastc7 if x.s6len7<0 else x.s6startc7,axis=1)                  
                   
-                  gp['s6maxdmacd1']=gp.s6maxdmacd.shift(1)
-                  gp['s6maxdmacd2']=gp.s6maxdmacd.shift(2)
-                  gp['s6maxdmacd3']=gp.s6maxdmacd.shift(3)
-                  gp['s6maxdmacd4']=gp.s6maxdmacd.shift(4)
-                  gp['s6maxumacd1']=gp.s6maxumacd.shift(1)
-                  gp['s6maxumacd2']=gp.s6maxumacd.shift(2)
-                  gp['s6maxumacd3']=gp.s6maxumacd.shift(3)
-                  gp['s6maxumacd4']=gp.s6maxumacd.shift(4)
+                  gp['s6dmacd1']=gp.s6dmacd.shift(1)
+                  gp['s6dmacd2']=gp.s6dmacd.shift(2)
+                  gp['s6dmacd3']=gp.s6dmacd.shift(3)
+                  gp['s6dmacd4']=gp.s6dmacd.shift(4)
+                  gp['s6dmacd5']=gp.s6dmacd.shift(5)
+                  gp['s6dmacd6']=gp.s6dmacd.shift(6)    
+                  gp['s6umacd1']=gp.s6umacd.shift(1)
+                  gp['s6umacd2']=gp.s6umacd.shift(2)
+                  gp['s6umacd3']=gp.s6umacd.shift(3)
+                  gp['s6umacd4']=gp.s6umacd.shift(4)
+                  gp['s6umacd5']=gp.s6umacd.shift(5)
+                  gp['s6umacd6']=gp.s6umacd.shift(6)    
                   gp['s6startdate1']=gp.s6startdate.shift(1)
                   gp['s6startdate2']=gp.s6startdate.shift(2)
                   gp['s6startdate3']=gp.s6startdate.shift(3)
                   gp['s6startdate4']=gp.s6startdate.shift(4)
+                  gp['s6startdate5']=gp.s6startdate.shift(5)
+                  gp['s6startdate6']=gp.s6startdate.shift(6)                  
                  
                   gp['gpid6']=gp.index
                   
@@ -432,20 +474,15 @@ class STDTB(object):
                   gpn['id']=gpn.index
                   gpn['s6equkey']=gpn.apply(lambda x: 1 if (x.s6sdd2>0)&(x.s6sdd1<0)&(x.s6d1>x.s6d3)&(x.s6d1<x.s6d3*1.02) else 0,axis=1)
                   gpn['s13equkey']=gpn.apply(lambda x: 1 if (x.s13sdd2>0)&(x.s13sdd1<0)&(x.s13d1>x.s13d3)&(x.s13d1<x.s13d3*1.02) else 0,axis=1)
-                  #gpn['ml0']=gpn.apply(self.moduleL,axis=1)
-                  #gpn['ml1']=gpn.ml0.shift(1)
-                  #gpn['ml2']=gpn.ml0.shift(2)
+                  gpn['ml0']=gpn.apply(self.moduleL,axis=1)
+                  gpn['ml1']=gpn.ml0.shift(1)
+                  gpn['ml2']=gpn.ml0.shift(2)
                   
  
                   
                   
                   
-                  gpn=self.sortgpid6(gpn)                     
-                  gpn['gp6no1']=gpn.gp6no.shift(1)
-                  gpn['gp6no2']=gpn.gp6no.shift(2)
-                  gpn['gp6no3']=gpn.gp6no.shift(3)
-                  gpn['gp6no4']=gpn.gp6no.shift(4)
-                  return gpn
+                  return self.sortgpid6(gpn)                     
             except:
                   #print('get gp failure')
                   return None
@@ -484,28 +521,12 @@ class STDTB(object):
             
       def findbyumdm(self):
             gp=self.getgp()
-            #df=gp[(gp.s6sdd<0)&(gp.s6sumumacd>gp.s6sumdmacd)][['s6startdate','s6sumdmacd','s6sumumacd','s6um','s6dm','s6len','s6sdd']]
-            df=gp[(gp.s6sdd3<0)&(gp.s6sdd3.abs()>gp.s6sdd2.abs()*1.05)&(gp.s6sumumacd2>gp.s6sumdmacd1)]
-            
-            gp1=gp.loc[df.index][['s6startdate','s6sdd3','s6sdd2','s6sdd1','s6sdd','s6d3','s6g3','s6g2','s6d2','s6g1','s6d1','s6d0','s6g0','s6sumumacd2','s6sumdmacd1','s6sumumacd','s6sumdmacd']]
-            gp1['s6sddf1']=gp['s6sdd'].ix[df.index+1].values
-            gp1['s6d0f1']=gp['s6d0'].ix[df.index+1].values
-            gp1['d123']=gp1.apply(lambda x:'d3[{s6d3}]:d2[{s6d2}]:d1[{s6d1}]'.format(**x),axis=1)
-            gp1['s2lts3']=gp1.apply(lambda x:1 if x.s6sdd2<-x.s6sdd3 else 0,axis=1)
-            gp1['d0gtd2']=gp1.apply(lambda x: 1 if (x.s6d1>x.s6d2)|(x.s6d1>x.s6d3) else 0,axis=1)
-            
-            gp1=np.round(gp1,decimals=2)
-            return gp1[['s6sdd3','s6sdd','d123','s2lts3','d0gtd2']]
+            df=gp[(gp.s6sdd<0)&(gp.s6um>gp.s6dm)][['s6startdate','s6sumdmacd','s6sumumacd','s6um','s6dm','s6len','s6sdd']]
+            gp1=gp.loc[df.index][['s6startdate','s6sumdmacd','s6sumumacd','s6um','s6dm','s6len','s6sdd']]
+            gp1['s6sdd1']=gp['s6sdd'].ix[df.index+1].values
+            return gp1
 
-      def selftest(self):
-            gp=self.getgp()
-            #df=gp[(gp.s6sdd<0)&(gp.um==1)]
-            df=gp[(gp.s6sdd<0)&(gp.s6sumdmacd1>(gp.s6sumumacd1+gp.s6sumumacd))&(gp.s6maxdmacd1>gp.s6maxdmacd)&(gp.s6maxdmacd1>gp.s6maxumacd1)]
-            gp1=gp.loc[df.index][['s13sdd','s6segs','s6startdate','s6sdd','s6id','um','dm','s6len','s6sdd1','s6sdd2','s6sdd3']]
-            gp1['s6len1']=gp['s6len'].ix[df.index+1].values
-            gp1['s6sdd0']=gp['s6sdd'].ix[df.index+1].values
-            gp1=np.round(gp1,decimals=2)
-            return gp1.sort_values(by=['s6sdd0'],ascending=True)[['s13sdd','s6segs','s6startdate','s6sdd3','s6sdd2','s6sdd1','s6sdd','s6sdd0']]
+
             
             
 class STWTB(STDTB):
@@ -542,7 +563,14 @@ class ANALYSIS:
       def myfind(self):
             return self.speciallist
                       
-      #no use       
+      def batfindlast1(self,sortfield='s13len1'):
+            gp=pd.read_csv('gpSH6zDlast.csv')
+            find=gp[(gp.s13sdd1<-0.35)&(gp.s13sdd>0)][['sn','s13startdate','s6segs','s13sdd1','s13sdd','s6sdd','s6seg1sdd','s6seg1lastc','s6seg1startc','s13lastc']]
+            find=np.round(find,decimals=2)
+            find['curpos']=find.apply(lambda x:'L:{s6seg1startc}-c:{s13lastc}-H{s6seg1lastc})'.format(**x),axis=1)            
+            find['currat']=(find.s13lastc-find.s6seg1startc)/(find.s6seg1lastc-find.s6seg1startc)
+            #return find.sort_values(by=['s13len1','s13sdd1'],ascending=True)
+            return find[['sn','s13startdate','s6segs','s13sdd1','s13sdd','s6sdd','s6seg1sdd','s13lastc','curpos','currat']]
       def seg4(self):
             gp=pd.read_csv('gpSH6zD.csv')
             #df=gp[(gp.s13len2>0)&(gp.s13len1<0)&(gp.s6segs1==3)&(gp.s13d1>gp.s13d2)][['s13len','sn','s13sdd','s13len1','s13len2','s13sdd1','s13sdd2','s13startdate','s13g0','s13g2']]
@@ -685,36 +713,25 @@ class ANALYSIS:
  
       
                                        
-
-      def batfindlast1(self,sortfield='s13len1'):
-          gp=pd.read_csv('gpSH6zDlast.csv')
-          find=gp[(gp.s13sdd1<-0.35)&(gp.s13sdd>0)][['sn','s13startdate','s6segs','s13sdd1','s13sdd','s6sdd','s6seg1sdd','s6seg1lastc','s6seg1startc','s13lastc']]
-          find=np.round(find,decimals=2)
-          find['curpos']=find.apply(lambda x:'L:{s6seg1startc}-c:{s13lastc}-H{s6seg1lastc})'.format(**x),axis=1)            
-          find['currat']=(find.s13lastc-find.s6seg1startc)/(find.s6seg1lastc-find.s6seg1startc)
-          #return find.sort_values(by=['s13len1','s13sdd1'],ascending=True)
-          return find[['sn','s13startdate','s6segs','s13sdd1','s13sdd','s6sdd','s6seg1sdd','s13lastc','curpos','currat']]
-    
       def batfind(self,pat,findtype='t',cyctype='D'):
             gp=pd.read_csv("gp{}{}{}.csv".format(pat,'z',cyctype))
-            df=gp[(gp.s6sdd<0)&(gp.um==1)]
-           # if findtype=='t':
-            result=self.keyfindt(gp)
+            if findtype=='t':
+                  result=self.keyfindt(gp)
             #if result.empty==False:
                   #self.statics(result)	
             #cur=datetime.datetime.now().strftime('%Y-%m-01')
-            return result
-           
+                  return result
       def batfindlast(self,pat,findtype='z',cyctype='D'): #findtype is mean use zigzag 
             gp=pd.read_csv("gp{}{}{}last.csv".format(pat,findtype[0],cyctype))
-            df= gp[(gp.s6sdd3>0)&(gp.s6sdd3>gp.s6sdd2.abs())&(gp.s6sdd3>gp.s6sdd1)&(gp.s6sdd3>gp.s6sdd.abs())&(gp.s6maxdmacd2>gp.s6maxdmacd)&(gp.s6sdd<0)&(gp.um==1)]#[['s6startdate','s13startdate','s6len','s13sdd','s6sdd','sn','gp6no','s6sumdmacd','s6sumumacd']]
-            df['d123']=df.apply(lambda x:'d3[{s6d1}]:d2[{s6lastc}]:d1[{s6d0}]'.format(**x),axis=1)
-            df['ud']=df.apply(lambda x:'d[{s6sumdmacd}]:u[{s6sumumacd}]:d1[{s6sumdmacd1}]:u1[{s6sumumacd1}]'.format(**x),axis=1)
-            return df[['s13startdate','s6startdate','s13sdd','d123','sn','gp6no']]
-  
+            if findtype=='z':
+                  result=self.keyfindt(gp)
+            #if result.empty==False:
+                  #self.statics(result)	
+            #cur=datetime.datetime.now().strftime('%Y-%m-01')
+                  return result[self.CONt]
             
             #return db[(db.lastdate==curdate)&(db.lastc>db.)][['startdate','sn','len','len1','segdrawdown','segdrawdown1','segdrawdown2']]
-      CONt=['sn','s6startdate','s6sdd3','s6sddf1']
+      CONt=['s6startdate','lenrat','presdd','prehigh','prelow','s6len','cur','sn','ml0','ml1']
       def singlefind(self,sn,findtype='t'):
             stobj=STDTB("{}{}.txt".format(ROOTPATH,sn),findtype[0])
             stwobj=STWTB("{}{}.txt".format(ROOTPATH,sn),findtype[0])
@@ -726,24 +743,30 @@ class ANALYSIS:
             #wdb=stwobj.getexdb()
             
             return finddb[self.CONt]
+      
+      
+      # angtype :a
+                       
+      # angtype :t   
+      
       def keyfindt(self,gp):
             # s13 : 1: cur down   cursdd <s13sdd1  cur have 3 s6segs   
-            #df=gp[(gp.s6sdd3<0)&(gp.s6sdd3.abs()>gp.s6sdd2.abs())&(gp.s6sumumacd2>gp.s6sumdmacd1)]
-            #df=gp[(gp.s6sdd3<0)&(gp.s6sdd3.abs()>gp.s6sdd2.abs()*1.05)&(gp.s6sumumacd2>(gp.s6sumdmacd1+gp.s6sumdmacd2))]
-            df=gp[(gp.s6sdd3>0)&(gp.s6sdd3>gp.s6sdd2.abs())&(gp.s6sdd3>gp.s6sdd1)&(gp.s6sdd3>gp.s6sdd.abs())&(gp.s6maxdmacd2>gp.s6maxdmacd)]
-            gp1=gp.loc[df.index][['sn','s6startdate','s6sdd3','s6sdd2','s6sdd1','s6sdd','s6d3','s6g3','s6g2','s6d2','s6g1','s6d1','s6d0','s6g0','s6sumumacd2','s6sumdmacd1','s6sumumacd','s6sumdmacd']]
-            gp1['s6sddf1']=gp['s6sdd'].ix[df.index+1].values
-            gp1['s6d0f1']=gp['s6d0'].ix[df.index+1].values
-            #gp1['d123']=gp1.apply(lambda x:'d3[{s6d3}]:d2[{s6d2}]:d1[{s6d1}]'.format(**x),axis=1)
-            gp1['d123']=gp1.s6d1/gp1.s6d3
-            gp1['entrylo']=gp1.apply(lambda x: 'ind2' if (x.s6d1>x.s6d2)|(x.s6d1>x.s6d3) else 'outd2',axis=1)
-            gp1['entryhi']=gp1.apply(lambda x: 'ing2' if (x.s6g0<x.s6g2)|(x.s6g0<x.s6g1) else 'outg2',axis=1)
-            gp1['entryum']=gp1.apply(lambda x:'ltum2' if (x.s6sumumacd<x.s6sumumacd2) else 'gtum2',axis=1)
-            gp1=np.round(gp1,decimals=2)
-            return gp1[self.CONt]
+            df=gp[(gp.s6equkey==1)|(gp.s13equkey==1)]
+            df=np.round(df,decimals=2)
+            df['lenrat']=df.apply(lambda x:'{s6len2}/{s6len1}'.format(**x),axis=1)
+            df['presdd']=df.apply(lambda x:'{s6sdd4}/{s6sdd3}/{s6sdd2}'.format(**x),axis=1)
+            df['prehigh']=df.apply(lambda x:'{s6g4}/{s6g2}/'.format(**x),axis=1)
+            df['prelow']=df.apply(lambda x:'{s6d3}/{s6d1}/'.format(**x),axis=1)
+            df['cur']=df.apply(lambda x:'{s6g1}/{s6lastc}/{s6d0}'.format(**x),axis=1)
+            return df
 
+      def keyfindz(self,gp):
+            return  gp[(gp.segdrawdown2<0)&(gp.segdrawdown1.abs()>0)&(gp.segdrawdown2.abs()>gp.segdrawdown1.abs())&(gp.segdrawdown<0)&(gp.segdrawdown.abs()<gp.segdrawdown1.abs())
+                       &(gp.segdrawdown.abs()/gp.segdrawdown1.abs()>0.5) ][self.CONt]
             
-           
+      def keyfindt2(self,gp):
+            return gp[(gp.len<0)&(gp.lastang58>gp.startang58)][['startdate','len','len1','len2','compheight','trendtype','trendtype1','startang58','lastang58']]
+            
       def fustatics(self,df):
             # begin the startc that is not the most lower point the lowest
             print("success fumaxc2 below minc   rate:{}".format(df[df.fumaxc2<df.minc]['sn'].count()/df.sn.count()))

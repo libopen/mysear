@@ -70,7 +70,7 @@ def csv_from_excel():
                    if float(rowlist[0])==1.0 : # get first merge_cells
                       tmpCol2 = rowlist[1]
                       tmpCol3 = rowlist[2]
-                      #tmpCol4 = rowlist[3]
+                      tmpCol4 = rowlist[3]
                       tmpCol5 = rowlist[4]
                    else :
                       #do  merge_cell 
@@ -82,12 +82,12 @@ def csv_from_excel():
                          rowlist[2]=tmpCol3
                       else:
                          tmpCol3 = rowlist[2]
-                      """
+                      
                       if rowlist[3]=="" : 
                          rowlist[3]=tmpCol4
                       else :
                          tmpCol4 = rowlist[3]
-                      """
+                      
                       if rowlist[4]=="" :
                          rowlist[4] = tmpCol5
                       else:
