@@ -275,7 +275,7 @@ class STDTB(object):
                   gp6=gp[idx6][['gpid','s6sdd','s6startc','s6lastc']]
                   gp6.columns=['gpid','s6seg1sdd','s6seg1startc','s6seg1lastc']
                   gpn=pd.merge(gp,gp6 ,left_on='gpid',right_on='gpid')
-                  return gpn        
+                  return gpn      
       
       def sortgpid6(self,db):
             
@@ -303,9 +303,15 @@ class STDTB(object):
                   #print('get gp failure')
                   return None
             
-  
+      CONf6=['sn','s6startdate','s6sdd1']
+      def getgp6(self):
+            exdb=self.getexdb()
+            gp=self.creatgp6(exdb)
+            gp['seg1dm']=gp.apply(lambda x:'{s6sumdmzd1}-{s6sumdmzu1}'.format(**x),axis=1)
+            #gp['g12']=
+            return gp[self.CONf6]
             
-      MAINCONf=['s6startdate','s6sdd3','s6sdd2','s6sdd1','s6len','s6sdd','s6sumumzd','s6sumumzu','s6d4','s6g4','s6d1','s6d2','s6d3']
+      MAINCONf=['sn','s6startdate','s6sdd3','s6sdd2','s6sdd1','s6len','s6sdd','s6sumumzd','s6sumumzu','proh','s6g0','prol','s6d0','s6d1','s6sumdmzd1','s6sumdmzu1']
       def mainindicator6(self):
             #for gp6 the most import indicator is the seg1,seg2 and seg3 seg3 is down 
             # 1.s6sdd3>s6sdd1
@@ -322,6 +328,11 @@ class STDTB(object):
                                #&(gp.s6maxdmzu3>gp.s6maxdmzd1)
                                #&(gp.s6sumzmzd>0)
                                ]
+                        #df['g12']=df.apply(lambda x :max(x.s6g1,x.s6g2),axis=1) is not currect is use below
+                        df['proh']=df.apply(lambda x:x.s6g1 if x.s6g1>x.s6g2 else x.s6g2,axis=1)
+                        df['prol']=df.apply(lambda x:x.s6d2 if x.s6d2<x.s6d3 else x.s6d3,axis=1)
+                        
+                        df=np.round(df,decimals=2)
                         return df[self.MAINCONf]
                         
             except:
