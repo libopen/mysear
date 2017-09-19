@@ -192,6 +192,47 @@ class STDTB(object):
                   gp['gpid']=gp.index
                   return gp        
             
+      def creatgp13v2(self,db):
+                        # group by gpid get sum of md and gpred
+                  if db.empty==False and len(db)>60:
+                        gp22=db.groupby('gpid').sum()[['z13mode']]
+                        gp22.columns=['s13len']
+      
+                        #gp23=db.groupby('gpid')
+                        idx=db.groupby('gpid')['id'].transform(min)==db['id']
+                        gp3=db[idx][['gpid','date','c']]
+                        gp3.columns=['gpid','s13startdate','s13startc']
+                        gp3=gp3.set_index('gpid')
+                        idx2=db.groupby('gpid')['id'].transform(max)==db['id']
+                        gp32=db[idx2][['gpid','date','c']]
+                        gp32.columns=['gpid','s13lastdate','s13lastc']
+                        gp32=gp32.set_index('gpid')
+                        s6=db.groupby('gpid').gpid6.nunique()
+                        gp6=pd.DataFrame(s6)
+                        gp6.columns=['s6segs']
+                        gp=pd.concat([gp22,gp3,gp32,gp6],axis=1,join="inner")
+      
+                        gp['s13len1']=gp.s13len.shift(1) 
+                        gp=gp.dropna(axis=0)  #drop the first row that is not really segment
+      
+                        p13=peak_valley_pivots(np.array(db['c']),0.13,-0.13)
+                        s13sdd=compute_segment_returns(np.array(db['c']),p13)
+                        #segdrawdown=np.insert(segdrawdown,0,0)
+                        gp['s13sdd']=pd.Series(s13sdd,index=gp.index)
+                        gp['s13sdd1']=gp.s13sdd.shift(1)
+                        gp['s13sdd2']=gp.s13sdd.shift(2)
+                        gp['s13g0']=gp.apply(lambda x:x.s13lastc if x.s13len>0 else x.s13startc,axis=1)
+                        gp['s13d0']=gp.apply(lambda x:x.s13lastc if x.s13len<0 else x.s13startc,axis=1)
+                        gp['s13startc1']=gp.s13startc.shift(1)
+                        gp['s13lastc1']=gp.s13lastc.shift(1)
+                        gp['s13g1']=gp.apply(lambda x :x.s13lastc1 if x.s13len1>0 else x.s13startc1,axis=1)
+                        gp['s13d1']=gp.apply(lambda x :x.s13lastc1 if x.s13len1<0 else x.s13startc1,axis=1)
+                        gp['s6segs1']=gp.s6segs.shift(1)
+                        gp['s6segs2']=gp.s6segs.shift(2)
+                        gp['s13startdate1']=gp.s13startdate.shift(1)
+                        gp['s13startdate2']=gp.s13startdate.shift(2) 
+                        gp['gpid']=gp.index
+                        return gp        
  
                   
       def creatgp6(self,db):
@@ -251,13 +292,24 @@ class STDTB(object):
                   gp['s6g4']=gp.apply(lambda x :x.s6lastc4 if x.s6len4>0 else x.s6startc4,axis=1)
                   gp['s6d4']=gp.apply(lambda x :x.s6lastc4 if x.s6len4<0 else x.s6startc4,axis=1) 
                   # seg3 up seg seg2 down seg seg1 up seg seg current seg is also key entry               
-                  gp['s6sumdmzu1']=gp.s6sumdmzu.shift(1)
+                  gp['s6sumdmzu1']=gp.s6sumdmzu.shift(1) #down and zero 
                   gp['s6sumdmzd1']=gp.s6sumdmzd.shift(1)
-                  gp['s6maxdmzu1']=gp.s6maxumzu.shift(1)
-                  gp['s6maxdmzd1']=gp.s6maxumzd.shift(1)
+                  gp['s6maxumzu1']=gp.s6maxumzu.shift(1)
+                  gp['s6maxumzd1']=gp.s6maxumzd.shift(1)
+                  gp['s6sumumzu1']=gp.s6sumumzu.shift(1) # up and zero 
+                  gp['s6sumumzd1']=gp.s6sumumzd.shift(1)
+                  gp['s6maxdmzu1']=gp.s6maxdmzu.shift(1)
+                  gp['s6maxdmzd1']=gp.s6maxdmzd.shift(1) 
+                  
+                  gp['s6sumdmzu2']=gp.s6sumdmzu.shift(2)
+                  gp['s6sumdmzd2']=gp.s6sumdmzd.shift(2)
                   gp['s6sumumzu2']=gp.s6sumumzu.shift(2)
                   gp['s6sumumzd2']=gp.s6sumumzd.shift(2)
-                  
+                  gp['s6maxumzu2']=gp.s6maxumzu.shift(2)
+                  gp['s6maxumzd2']=gp.s6maxumzd.shift(2)
+                  gp['s6maxdmzu2']=gp.s6maxdmzu.shift(2)
+                  gp['s6maxdmzd2']=gp.s6maxdmzd.shift(2) 
+                                    
                   gp['s6sumdmzu3']=gp.s6sumdmzu.shift(3)
                   gp['s6sumdmzd3']=gp.s6sumdmzd.shift(3)
                   gp['s6maxdmzu3']=gp.s6maxdmzu.shift(2)
@@ -303,15 +355,60 @@ class STDTB(object):
                   #print('get gp failure')
                   return None
             
-      CONf6=['sn','s6startdate','s6sdd1']
+      CONf6=['sn','s13sdd','gp6no','s13sdd1','s6segs','s6startdate','s6sdd','s6sumdmzd','s6sumdmzu','s6sumumzd1','s6sumdmzu1']
       def getgp6(self):
             exdb=self.getexdb()
-            gp=self.creatgp6(exdb)
-            gp['seg1dm']=gp.apply(lambda x:'{s6sumdmzd1}-{s6sumdmzu1}'.format(**x),axis=1)
-            #gp['g12']=
-            return gp[self.CONf6]
+            gp6=self.creatgp6(exdb)
+            #gp6['seg1dm']=gp6.apply(lambda x:'{s6sumdmzd1}-{s6sumdmzu1}'.format(**x),axis=1)
+            gp13=self.creatgp13(exdb)
             
-      MAINCONf=['sn','s6startdate','s6sdd3','s6sdd2','s6sdd1','s6len','s6sdd','s6sumumzd','s6sumumzu','proh','s6g0','prol','s6d0','s6d1','s6sumdmzd1','s6sumdmzu1']
+            gpn=pd.merge(gp6,gp13 ,left_on='gpid',right_on='gpid') 
+            gpn['id']=gpn.index
+            #gp['g12']=
+            gpn=self.sortgpid6(gpn)
+            gpn['gp6no1']=gpn.gp6no.shift(1)
+            return gpn
+            
+      MAINCONf=['sn','s13sdd2','s13sdd1','s13sdd','s6startdate','s6sdd3','s6sdd2','s6sdd1','gp6no1','s6len','s6sdd','gp6no','proh','s6g0','prol','s6d0','s6d1','goodkey']
+      CURRCONf=['sn','s13','s6startdate','s6','s6sdd','proh','s6g0','prol','s6d0','s6d1','nid','lastid','lastsdd','lastc','curno','currat','goodkey','s6sumumzd1','s6sumumzu1','s6sumumzu','s6sumumzd','s6sumdmzd','s6maxumzd1','s6maxdmzd']
+      def indicator6(self):
+            try:
+                  #exdb=self.getexdb()
+                  #gp=self.creatgp6(exdb)
+                  gp=self.getgp6()
+                  if gp is not None:
+                        gp['nid']=pd.Series(range(len(gp)),index=gp.index)
+                        
+                        
+                        #gp=gp.set_index('nid')
+                        df=gp[(gp.s6sdd<0)&(gp.s6sumdmzd>gp.s6sumdmzu)&(gp.s6sumdmzu<3)
+                               &(gp.s6sumumzu1<3)&(gp.s6sumumzd1>gp.s6sumumzu1)
+                               #&(gp.s6maxdmzu3>gp.s6maxdmzd1)
+                               #&(gp.s6sumzmzd>0)
+                               ]
+                        #df['g12']=df.apply(lambda x :max(x.s6g1,x.s6g2),axis=1) is not currect is use below
+                        df.loc[:,'goodkey']=df.apply(lambda x:1 if (x.s6sumumzd1>x.s6sumdmzd)&(x.s6maxumzd1>x.s6maxdmzd) else 0 ,axis=1)
+                        df.loc[:,'proh']=df.apply(lambda x:x.s6g1 if x.s6g1>x.s6g0 else x.s6g0,axis=1)
+                        df.loc[:,'prol']=df.apply(lambda x:x.s6d1 if x.s6d1<x.s6d2 else x.s6d2,axis=1)
+                        df.loc[:,'lastid']=gp[-1:]['nid'].values[0]
+                        df.loc[:,'lastsdd']=gp[-1:]['s6sdd'].values[0]
+                        df.loc[:,'lastc']=gp[-1:]['s6lastc'].values[0]
+                        df.loc[:,'curno']=df['lastid']-df['nid']
+                        df.loc[:,'currat']=df.apply(lambda x :x.lastc/x.prol-1 if x.lastc>x.prol else -x.lastc/x.prol,axis=1)
+                        #df.iloc[-1,df.columns.get_loc('lastid')]=gp[-1:]['nid'].values[0]
+                        #:wdf.loc[df.index[-1],'lastid']=gp[-1,]['nid']
+                        df=np.round(df,decimals=2)
+                        df['s13']=df.apply(lambda x:'{s13sdd},[{s13sdd1}:{s6segs}]'.format(**x),axis=1)
+                        df['s6']=df.apply(lambda x:'{s6sdd3},{s6sdd2},[{s6sdd1}[{gp6no1}]:{s6len1}],[{s6sdd}[{gp6no}]:{s6len}]'.format(**x),axis=1)
+                        #df['Pumzd1-dmzd']=df.apply(lambda x:'{s6maxumzd1}:{s6maxdmzd}'.format(**x),axis=1)
+                        
+                        
+                        return df[self.CURRCONf]
+                        
+            except:
+                  pass
+
+
       def mainindicator6(self):
             #for gp6 the most import indicator is the seg1,seg2 and seg3 seg3 is down 
             # 1.s6sdd3>s6sdd1
@@ -320,17 +417,20 @@ class STDTB(object):
             # 4.s6sdd3<0 sumdmzd3>sumdmzd1 that is time compare maxdmzu3>maxdmzu1 that is power compare
             # 5 s6sdd    sumumzd>sumdmzd
             try:
-                  exdb=self.getexdb()
-                  gp=self.creatgp6(exdb)
+                  #exdb=self.getexdb()
+                  #gp=self.creatgp6(exdb)
+                  gp=self.getgp6()
                   if gp is not None:
+                        #image s6sdd2 is up but it is below zero so sumumzd2>sumumzu2 
                         df=gp[(gp.s6sdd1<0)&(gp.s6sumdmzd1>gp.s6sumdmzu1)&(gp.s6sumdmzu1<3)
                                &(gp.s6sumumzu2<3)&(gp.s6sumumzd2>gp.s6sumumzu2)
                                #&(gp.s6maxdmzu3>gp.s6maxdmzd1)
                                #&(gp.s6sumzmzd>0)
                                ]
                         #df['g12']=df.apply(lambda x :max(x.s6g1,x.s6g2),axis=1) is not currect is use below
-                        df['proh']=df.apply(lambda x:x.s6g1 if x.s6g1>x.s6g2 else x.s6g2,axis=1)
-                        df['prol']=df.apply(lambda x:x.s6d2 if x.s6d2<x.s6d3 else x.s6d3,axis=1)
+                        df.loc[:,'proh']=df.apply(lambda x:x.s6g1 if x.s6g1>x.s6g2 else x.s6g2,axis=1)
+                        df.loc[:,'prol']=df.apply(lambda x:x.s6d2 if x.s6d2<x.s6d3 else x.s6d3,axis=1)
+                        df.loc[:,'goodkey']=df.apply(lambda x:1 if (x.s6sumumzd2>x.s6sumdmzd1)&(x.s6maxumzd2>x.s6maxdmzd1) else 0 ,axis=1)
                         
                         df=np.round(df,decimals=2)
                         return df[self.MAINCONf]
@@ -420,17 +520,21 @@ class ANALYSIS:
             return resultlist
       
        
-      def save6(self,pat):
+      def save6(self,pat,yourtype='pass'):
             snlist=self.getallfile(ROOTPATH,pat)
             i=0
             j=0 
             result=pd.DataFrame()
             result1=pd.DataFrame()            
+            gp=pd.DataFrame()
             for path in snlist:
                               dbcurrent=result
                               db1=result1
                               stobj=STDTB(path,'z')
-                              gp=stobj.mainindicator6()    
+                              if yourtype=='pass':
+                                    gp=stobj.mainindicator6()    
+                              else :
+                                    gp=stobj.indicator6()
                               if gp is not None:
                                     try:
                                           result=dbcurrent.append(gp)
@@ -443,8 +547,8 @@ class ANALYSIS:
                                     j=j+1                              
             if result.empty == False:
                   print("{}total:{} ,failure:{}".format(pat,i,j))
-                  result.to_csv("gp6{}.csv".format(pat))        
-                  result1.to_csv("gp6{}last.csv".format(pat))       
+                  result.to_csv("gp6{}{}.csv".format(pat,yourtype))        
+                  result1.to_csv("gp6{}{}last.csv".format(pat,yourtype))       
                   return result1                                    
                               
       def batsavegp(self,pat,cyctype='D',angtype='z',usemyfind='n'):
@@ -555,7 +659,8 @@ def main():
       #dofindsh6(findtype='m4')
       
       a=ANALYSIS()
-      a.batsavegp(pat=sys.argv[1],angtype=sys.argv[2],usemyfind=sys.argv[3])
+      #a.batsavegp(pat=sys.argv[1],angtype=sys.argv[2],usemyfind=sys.argv[3])
+      a.save6(pat=sys.argv[1],yourtype=sys.argv[2])
       #if (sys.argv[2]=='t'):
             #a.batsavegp(pat=sys.argv[1],angtype=sys.argv[2],cyctype='W')
       

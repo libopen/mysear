@@ -228,7 +228,9 @@ class STDTB(object):
 
                  
  
-                  return gp        
+                  return gp  
+ 
+            
       def creatgp13(self,db):
                   # group by gpid get sum of md and gpred
             if db.empty==False and len(db)>60:
