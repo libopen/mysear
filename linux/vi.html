@@ -1,659 +1,277 @@
-<!DOCTYPE html>
-<!-- saved from url=(0054)https://www.cnblogs.com/88999660/articles/1581524.html -->
-<html lang="zh-cn" slick-uniqueid="3"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>linux下vi命令大全 - 星尘 - 博客园</title>
-<link type="text/css" rel="stylesheet" href="./vi_files/blog-common.css">
-<link id="MainCss" type="text/css" rel="stylesheet" href="./vi_files/bundle-LessIsMoreRight.css">
-<link id="mobile-style" media="only screen and (max-width: 768px)" type="text/css" rel="stylesheet" href="./vi_files/bundle-LessIsMoreRight-mobile.css">
-<link title="RSS" type="application/rss+xml" rel="alternate" href="http://www.cnblogs.com/88999660/rss">
-<link title="RSD" type="application/rsd+xml" rel="EditURI" href="http://www.cnblogs.com/88999660/rsd.xml">
-<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="http://www.cnblogs.com/88999660/wlwmanifest.xml">
-<script src="./vi_files/jquery.js" type="text/javascript"></script>  
-<script type="text/javascript">var currentBlogApp = '88999660', cb_enable_mathjax=false;var isLogined=false;</script>
-<script src="./vi_files/blog-common.js" type="text/javascript"></script>
-</head>
-<body>
-<a name="top"></a>
-
-<div id="home">
-<div id="header">
-	<div id="blogTitle">
-		
-<!--done-->
-<div class="title"><a id="Header1_HeaderTitle" class="headermaintitle" href="http://www.cnblogs.com/88999660/">星尘</a></div>
-<div class="subtitle"></div>
-
-
-
-		
-	</div><!--end: blogTitle 博客的标题和副标题 -->
-	<div id="navigator">
-		
-<ul id="navList">
-<li id="nav_sitehome"><a id="blog_nav_sitehome" class="menu" href="http://www.cnblogs.com/">博客园</a></li>
-<li id="nav_myhome"><a id="blog_nav_myhome" class="menu" href="http://www.cnblogs.com/88999660/">首页</a></li>
-<li id="nav_newpost"><a id="blog_nav_newpost" class="menu" rel="nofollow" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a></li>
-<li id="nav_contact"><a id="blog_nav_contact" class="menu" rel="nofollow" href="https://msg.cnblogs.com/send/%E6%98%9F%E5%B0%98">联系</a></li>
-<li id="nav_rss"><a id="blog_nav_rss" class="menu" href="http://www.cnblogs.com/88999660/rss">订阅</a>
-<!--<a id="blog_nav_rss_image" class="aHeaderXML" href="http://www.cnblogs.com/88999660/rss"><img src="//www.cnblogs.com/images/xml.gif" alt="订阅" /></a>--></li>
-<li id="nav_admin"><a id="blog_nav_admin" class="menu" rel="nofollow" href="https://i.cnblogs.com/">管理</a></li>
-</ul>
-
-		<div class="blogStats">
-			
-			<div id="blog_stats">
-<!--done-->
-随笔-61&nbsp;
-文章-23&nbsp;
-评论-94&nbsp;
-</div>
-			
-		</div><!--end: blogStats -->
-	</div><!--end: navigator 博客导航栏 -->
-</div><!--end: header 头部 -->
-<div id="main">
-	<div id="mainContent">
-	<div class="forFlow">
-		
-<div id="post_detail">
-<!--done-->
-<div id="topics">
-	<div class="post">
-		<h1 class="postTitle">
-			<a id="cb_post_title_url" class="postTitle2" href="http://www.cnblogs.com/88999660/articles/1581524.html">linux下vi命令大全</a>
-		</h1>
-		<div class="clear"></div>
-		<div class="postBody">
-			<div id="cnblogs_post_body"><p>进入vi的命令 <br>vi filename :打开或新建文件，并将光标置于第一行首 <br>vi +n filename ：打开文件，并将光标置于第n行首 <br>vi + filename ：打开文件，并将光标置于最后一行首 <br>vi +/pattern filename：打开文件，并将光标置于第一个与pattern匹配的串处 <br>vi -r filename ：在上次正用vi编辑时发生系统崩溃，恢复filename <br>vi filename....filename ：打开多个文件，依次进行编辑 <br><br>移动光标类命令<br>h ：光标左移一个字符 <br>l ：光标右移一个字符 <br>space：光标右移一个字符 <br>Backspace：光标左移一个字符 <br>k或Ctrl+p：光标上移一行 <br>j或Ctrl+n ：光标下移一行 <br>Enter ：光标下移一行 <br>w或W ：光标右移一个字至字首 <br>b或B ：光标左移一个字至字首 <br>e或E ：光标右移一个字至字尾 <br>) ：光标移至句尾 <br>( ：光标移至句首 <br>}：光标移至段落开头 <br>{：光标移至段落结尾 <br>nG：光标移至第n行首 <br>n+：光标下移n行 <br>n-：光标上移n行 <br>n$：光标移至第n行尾 <br>H ：光标移至屏幕顶行 <br>M ：光标移至屏幕中间行 <br>L ：光标移至屏幕最后行 <br>0：（注意是数字零）光标移至当前行首 <br>$：光标移至当前行尾 <br><br>屏幕翻滚类命令 <br>Ctrl+u：向文件首翻半屏 <br>Ctrl+d：向文件尾翻半屏 <br>Ctrl+f：向文件尾翻一屏 <br>Ctrl＋b；向文件首翻一屏 <br>nz：将第n行滚至屏幕顶部，不指定n时将当前行滚至屏幕顶部。 <br><br>插入文本类命令 <br>i ：在光标前 <br>I ：在当前行首 <br>a：光标后 <br>A：在当前行尾 <br>o：在当前行之下新开一行 <br>O：在当前行之上新开一行 <br>r：替换当前字符 <br>R：替换当前字符及其后的字符，直至按ESC键 <br>s：从当前光标位置处开始，以输入的文本替代指定数目的字符 <br>S：删除指定数目的行，并以所输入文本代替之 <br>ncw或nCW：修改指定数目的字 <br>nCC：修改指定数目的行 <br><br>删除命令 <br>ndw或ndW：删除光标处开始及其后的n-1个字 <br>do：删至行首 <br>d$：删至行尾 <br>ndd：删除当前行及其后n-1行 <br>x或X：删除一个字符，x删除光标后的，而X删除光标前的 <br>Ctrl+u：删除输入方式下所输入的文本 <br><br>搜索及替换命令 <br>/pattern：从光标开始处向文件尾搜索pattern <br>?pattern：从光标开始处向文件首搜索pattern <br>n：在同一方向重复上一次搜索命令 <br>N：在反方向上重复上一次搜索命令 <br>：s/p1/p2/g：将当前行中所有p1均用p2替代 <br>：n1,n2s/p1/p2/g：将第n1至n2行中所有p1均用p2替代 <br>：g/p1/s//p2/g：将文件中所有p1均用p2替换 <br><br>选项设置 <br>all：列出所有选项设置情况 <br>term：设置终端类型 <br>ignorance：在搜索中忽略大小写 <br>list：显示制表位(Ctrl+I)和行尾标志（$) <br>number：显示行号 <br>report：显示由面向行的命令修改过的数目 <br>terse：显示简短的警告信息 <br>warn：在转到别的文件时若没保存当前文件则显示NO write信息 <br>nomagic：允许在搜索模式中，使用前面不带“\”的特殊字符 <br>nowrapscan：禁止vi在搜索到达文件两端时，又从另一端开始 <br>mesg：允许vi显示其他用户用write写到自己终端上的信息 <br><br>最后行方式命令 <br>：n1,n2 co n3：将n1行到n2行之间的内容拷贝到第n3行下 <br>：n1,n2 m n3：将n1行到n2行之间的内容移至到第n3行下 <br>：n1,n2 d ：将n1行到n2行之间的内容删除 <br>：w ：保存当前文件 <br>：e filename：打开文件filename进行编辑 <br>：x：保存当前文件并退出 <br>：q：退出vi <br>：q!：不保存文件并退出vi <br>：!command：执行shell命令command <br>：n1,n2 w!command：将文件中n1行至n2行的内容作为command的输入并执行之，若不指定n1，n2，则表示将整个文件内容作为command的输入 <br>：r!command：将命令command的输出结果放到当前行 <br><br>寄存器操作 <br>"?nyy：将当前行及其下n行的内容保存到寄存器？中，其中?为一个字母，n为一个数字 <br>"?nyw：将当前行及其下n个字保存到寄存器？中，其中?为一个字母，n为一个数字 <br>"?nyl：将当前行及其下n个字符保存到寄存器？中，其中?为一个字母，n为一个数字 <br>"?p：取出寄存器？中的内容并将其放到光标位置处。这里？可以是一个字母，也可以是一个数字 <br>ndd：将当前行及其下共n行文本删除，并将所删内容放到1号删除寄存器中。<br><br>VI的使用<br>--------------------------------------------------------------------------------<br><br>一、插入文本 <br>┌──┬────────────┐ <br>│命令│描述　　　　　　　　　　│ <br>├──┼────────────┤ <br>│i 　│在当前字符前插入文本　　│ <br>├──┼────────────┤ <br>│I 　│在行首插入文本 　　　 　│ <br>├──┼────────────┤ <br>│a 　│在当前字符后添加文本　　│ <br>├──┼────────────┤ <br>│A 　│在行末添加文本　　　　　│ <br>├──┼────────────┤ <br>│o 　│在当前行后面插入一空行　│ <br>├──┼────────────┤ <br>│O 　│在当前行前面插入一空行　│ <br>├──┼────────────┤ <br>│R 　│以改写方式输入文本　　　│ <br>└──┴────────────┘ <br>二、移动光标 <br>┌─────┬───────────┐ <br>│命令　　　│描述　　　　　　　　　│ <br>├─────┼───────────┤ <br>│j或下箭头 │向下移动一行　　　　　│ <br>├─────┼───────────┤ <br>│k或上箭头 │向上移动一行　　　　　│ <br>├─────┼───────────┤ <br>│h或左箭头 │左移一个字符　　　　　│ <br>├─────┼───────────┤ <br>│l或右箭头 │右移一个字符　　　　　│ <br>├─────┼───────────┤ <br>│w 　　　　│右移一个词　　　　　　│ <br>├─────┼───────────┤ <br>│W 　　　　│右移一个以空格分隔的词│ <br>├─────┼───────────┤ <br>│b 　　　　│左移一个词　　　　　　│ <br>├─────┼───────────┤ <br>│B 　　　　│左移一个以空格分隔的词│ <br>├─────┼───────────┤ <br>│0 　　　　│移到行首　　　　　　　│ <br>│Ctrl-F　　│向前翻页　　　　　　　│ <br>├─────┼───────────┤ <br>│Ctrl-B　　│向后翻页　　　　　　　│ <br>├─────┼───────────┤ <br>│nG　　　　│到第n行 　　　　　　　│ <br>├─────┼───────────┤ <br>│G 　　　　│到最后一行　　　　　　│ <br>└─────┴───────────┘ <br>三、替换文本 <br>┌─────┬──────┐ <br>│命令　　　│描述　　　　│ <br>├─────┼──────┤ <br>│$ 　　　　│到行尾　　　│ <br>├─────┼──────┤ <br>│( 　　　　│到句子的开头│ <br>├─────┼──────┤ <br>│) 　　　　│到句子的末尾│ <br>├─────┼──────┤ <br>│{　 　　　│到段落的开头│ <br>├─────┼──────┤ <br>│}　　 　　│到段落的末尾│ <br>└─────┴──────┘ <br><br>四、删除文本 <br>┌───┬───────────┐ <br>│命令　│描述 　　　　　　 　　│ <br>├───┼───────────┤ <br>│r 　　│替换一个字符 　　　　 │ <br>├───┼───────────┤ <br>│c 　　│修改文本直到按下Esc健 │ <br>├───┼───────────┤ <br>│cw　　│修改下一个词 　　　 　│ <br>├───┼───────────┤ <br>│cnw　 │修改接下来的n个词 　　│ <br>└───┴───────────┘ <br>五、文本编辑 <br>┌──┬──────────────────────┐ <br>│命寺│描述　　　　　　　　　　　　　　　　　　　　│ <br>├──┼──────────────────────┤ <br>│yy　│将一行文本移到缺省缓冲区中 　　　　 　　　　│ <br>├──┼──────────────────────┤ <br>│yn　│将下一个词移到缺省缓冲区中 　　 　　　　　　│ <br>├──┼──────────────────────┤ <br>│ynw │将后面的n个词移到缺省缓冲区中　　　　 　　　│ <br>├──┼──────────────────────┤ <br>│p 　│如果缺省缓冲区中包含一行文本，则在当前　　　│ <br>│　　│行后面插入一个空行井将缺省缓冲区中的声　　　│ <br>│　　│容粘贴到这一行中；如果缺省缓冲区中包含　　　│ <br>│　　│多个词，把这些词粘贴到光标的右边．　　　　　│ <br>├──┼──────────────────────┤ <br>│P 　│如果缺省缓冲区中包含一行文本，则正当前 　 　│ <br>│ 　 │行前面插入一个空行井将缺省缓冲区中的内 　 　│ <br>│　　│容粘贴到这一行中；如果缺省缓冲区中包含 　　 │ <br>│ 　 │多个词，把这些词粘贴到光标的左边 　 　<br><br>　　│ <br>└──┴──────────────────────┘ <br>六、保存退出 <br>┌───────────┬───────────────┐ <br>│命令　　　　　　　　　│描述　　　　　　　　　　　　　│ <br>├───────────┼───────────────┤ <br>│zz　　　　　　　　　　│保存并退出　　　　　　　　　　│ <br>├───────────┼───────────────┤ <br>│:w filename　　　　 　│写入文件　　　　　　　　　 　 │ <br>├───────────┼───────────────┤ <br>│:W　　　　　　　　　　│写入文件　　　　　　　　　　　│ <br>├───────────┼───────────────┤ <br>│:x　　　　　　　　　　│保存(如果当前文件修改过)并退出│ <br>├───────────┼───────────────┤ <br>│:q!　　　　　　　　　 │不保存文件，直接退出　　 　　 │ <br>├───────────┼───────────────┤ <br>│:q　　　　　　　　　　│退出vi　　　　　　　　　　　　│ <br><br>VI常用技巧<br><br>VI命令可以说是Unix/Linux世界里最常用的编辑文件的命令了，但是因为它的命令集众多，很多人都不习惯使用它，其实您只需要掌握基本命令，然后加以灵活运用，就会发现它的优势，并会逐渐喜欢使用这种方法。本文旨在介绍VI的一些最常用命令和高级应用技巧。 <br><br>一、基本命令介绍 <br><br>---- 1．光标命令 <br><br>k、j、h、l——上、下、左、右光标移动命令。虽然您可以在Linux中使用键盘右边的4个光标键，但是记住这4个命令还是非常有用的。这4个键正是右手在键盘上放置的基本位置。 <br>nG——跳转命令。n为行数，该命令立即使光标跳到指定行。 <br>Ctrl+G——光标所在位置的行数和列数报告。 <br>w、b——使光标向前或向后跳过一个单词。 <br>---- 2．编辑命令 <br>i、a、r——在光标的前、后以及所在处插入字符命令(i=insert、a=append、r=replace)。 <br>cw、dw——改变(置换)/删除光标所在处的单词的命令 (c=change、d=delete)。 <br>x、d$、dd——删除一个字符、删除光标所在处到行尾的所有字符以及删除整行的命令。 <br>---- 3．查找命令 <br>---- /string、?string——从光标所在处向后或向前查找相应的字符串的命令。 <br>---- 4．拷贝复制命令 <br>---- yy、p——拷贝一行到剪贴板或取出剪贴板中内容的命令。 <br><br>二、常见问题及应用技巧 <br><br>---- 1．在一个新文件中读/etc/passwd中的内容，取出用户名部分。 <br>---- vi file <br>---- :r /etc/passwd 在打开的文件file中光标所在处读入/etc/passwd <br>---- :%s/:.*//g 删除/etc/passwd中用户名后面的从冒号开始直到行尾的所有部分。 <br>---- 您也可以在指定的行号后读入文件内容，例如使用命令“:3r /etc/passwd”从新文件的第3行开始读入 /etc/passwd的所有内容。 <br>---- 我们还可以使用以下方法删掉文件中所有的空行及以#开始的注释行。 <br>---- #cat squid.conf.default | grep -v ^$ | grep -v ^# <br><br>---- 2．在打开一个文件编辑后才知道登录的用户对该文件没有写的权限，不能存盘，需要将所做修改存入临时文件。 <br>---- vi file <br>---- :w /tmp/1 保存所做的所有修改，也可以将其中的某一部分修改保存到临时文件，例如仅仅把第20～59行之间的内容存盘成文件/tmp/1，我们可以键入如下命令。 <br>---- vi file <br>---- :20,59w /tmp/1 <br><br>---- 3．用VI编辑一个文件，但需要删除大段的内容。 <br>---- 首先利用编辑命令“vi file”打开文件，然后将光标移到需要删除的行处按Ctrl+G显示行号，再到结尾处再按Ctrl+G，显示文件结尾的行号。 <br>---- :23,1045d 假定2次得到的行号为23和1045，则把这期间的内容全删除，也可以在要删除的开始行和结束行中用ma、mb命令标记，然后利用“:a,bd”命令删除。 <br><br>---- 4．在整个文件的各行或某几行的行首或行尾加一些字符串。 <br>---- vi file <br>---- :3,$s/^/some string / 在文件的第一行至最后一行的行首插入“some string”。 <br>---- :%s/$/some string/g 在整个文件每一行的行尾添加“some string”。 <br>---- :%s/string1/string2/g 在整个文件中替换“string1”成“string2”。 <br>---- :3,7s/string1/string2/ 仅替换文件中的第3行到第7行中的“string1”成“string2”。 <br>---- 注意: 其中s为substitute，%表示所有行，g表示global。 <br><br>---- 5．同时编辑2个文件，拷贝一个文件中的文本并粘贴到另一个文件中。 <br>---- vi file1 file2 <br>---- yy 在文件1的光标处拷贝所在行 <br>---- :n 切换到文件2 (n=next) <br>---- p 在文件2的光标所在处粘贴所拷贝的行 <br>---- :n 切换回文件1 <br><br>---- 6．替换文件中的路径。 <br>---- 使用命令“:%s#/usr/bin#/bin#g”可以把文件中所有路径/usr/bin换成/bin。也可以使用命令“:%s//usr/bin//bin/g”实现，其中“”是转义字符，表明其后的“/”字符是具有实际意义的字符，不是分隔符。</p></div><div id="MySignature"></div>
-<div class="clear"></div>
-<div id="blog_post_info_block">
-<div id="BlogPostCategory">分类: <a href="http://www.cnblogs.com/88999660/category/213519.html" target="_blank">Linux</a></div>
-<div id="EntryTag"></div>
-<div id="blog_post_info"><div id="green_channel">
-        <a href="javascript:void(0);" id="green_channel_digg" onclick="DiggIt(1581524,cb_blogId,1);green_channel_success(this,&#39;谢谢推荐！&#39;);">好文要顶</a>
-            <a id="green_channel_follow" onclick="follow(&#39;8ecd2971-53a8-de11-ba8f-001cf0cd104b&#39;);" href="javascript:void(0);">关注我</a>
-    <a id="green_channel_favorite" onclick="AddToWz(cb_entryId);return false;" href="javascript:void(0);">收藏该文</a>
-    <a id="green_channel_weibo" href="javascript:void(0);" title="分享至新浪微博" onclick="ShareToTsina()"><img src="./vi_files/icon_weibo_24.png" alt=""></a>
-    <a id="green_channel_wechat" href="javascript:void(0);" title="分享至微信" onclick="shareOnWechat()"><img src="./vi_files/wechat.png" alt=""></a>
-</div>
-<div id="author_profile">
-    <div id="author_profile_info" class="author_profile_info">
-            <a href="http://home.cnblogs.com/u/88999660/" target="_blank"><img src="./vi_files/u90192.jpg" class="author_avatar" alt=""></a>
-        <div id="author_profile_detail" class="author_profile_info">
-            <a href="http://home.cnblogs.com/u/88999660/">星尘</a><br>
-            <a href="http://home.cnblogs.com/u/88999660/followees">关注 - 4</a><br>
-            <a href="http://home.cnblogs.com/u/88999660/followers">粉丝 - 191</a>
-        </div>
-    </div>
-    <div class="clear"></div>
-    <div id="author_profile_honor"></div>
-    <div id="author_profile_follow">
-                <a href="javascript:void(0);" onclick="follow(&#39;8ecd2971-53a8-de11-ba8f-001cf0cd104b&#39;);return false;">+加关注</a>
-    </div>
-</div>
-<div id="div_digg">
-    <div class="diggit" onclick="votePost(1581524,&#39;Digg&#39;)">
-        <span class="diggnum" id="digg_count">63</span>
-    </div>
-    <div class="buryit" onclick="votePost(1581524,&#39;Bury&#39;)">
-        <span class="burynum" id="bury_count">0</span>
-    </div>
-    <div class="clear"></div>
-    <div class="diggword" id="digg_tips">
-    </div>
-</div>
-</div>
-<div class="clear"></div>
-<div id="post_next_prev"><a href="http://www.cnblogs.com/88999660/archive/2011/11/20/2256460.html" class="p_n_p_prefix">» </a> 下一篇：<a href="http://www.cnblogs.com/88999660/archive/2011/11/20/2256460.html" title="发布于2011-11-20 21:13">【译】Html5游戏开发示例(-)</a><br></div>
-</div>
-
-
-		</div>
-		<div class="postDesc">posted @ <span id="post-date">2009-10-12 09:44</span> <a href="http://www.cnblogs.com/88999660/">星尘</a> 阅读(<span id="post_view_count">1023876</span>) 评论(<span id="post_comment_count">25</span>) &nbsp;<a href="https://i.cnblogs.com/EditArticles.aspx?postid=1581524" rel="nofollow">编辑</a> <a href="https://www.cnblogs.com/88999660/articles/1581524.html#" onclick="AddToWz(1581524);return false;">收藏</a></div>
-	</div>
-	<script type="text/javascript">var allowComments=true,cb_blogId=61271,cb_entryId=1581524,cb_blogApp=currentBlogApp,cb_blogUserGuid='8ecd2971-53a8-de11-ba8f-001cf0cd104b',cb_entryCreatedDate='2009/10/12 9:44:00';loadViewCount(cb_entryId);</script>
-	
-</div><!--end: topics 文章、评论容器-->
-</div><a name="!comments"></a><div id="blog-comments-placeholder"><div id="comments_pager_top"></div>
-<!--done-->
-<div class="feedback_area_title">评论列表</div>
-<div class="feedbackNoItems"></div>
-	
-
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#2620364" class="layer">#1楼</a><a name="2620364" id="comment_anchor_2620364"></a>  <span class="comment_date">2013-02-21 11:54</span> <a id="a_comment_author_2620364" href="http://www.cnblogs.com/markdev/" target="_blank">Dream boy</a> <a href="http://msg.cnblogs.com/send/Dream%20boy" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_2620364" class="blog_comment_body">好东西，支持一下。</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2620364,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2620364,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_2620364_avatar" style="display:none;">http://pic.cnblogs.com/face/u338120.jpg?id=30111448</span>
-			</div>
-		</div>
-	
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#2651254" class="layer">#2楼</a><a name="2651254" id="comment_anchor_2651254"></a>  <span class="comment_date">2013-04-07 17:01</span> <a id="a_comment_author_2651254" href="http://home.cnblogs.com/u/489480/" target="_blank">mohuixin</a> <a href="http://msg.cnblogs.com/send/mohuixin" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_2651254" class="blog_comment_body">谢谢了。呵呵</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2651254,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2651254,&#39;Bury&#39;,this)">反对(0)</a></div>
-			</div>
-		</div>
-	
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#2663867" class="layer">#3楼</a><a name="2663867" id="comment_anchor_2663867"></a>  <span class="comment_date">2013-04-22 20:47</span> <a id="a_comment_author_2663867" href="http://www.cnblogs.com/lgfeng/" target="_blank">haifeng0730</a> <a href="http://msg.cnblogs.com/send/haifeng0730" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_2663867" class="blog_comment_body">收藏了，谢谢！！！</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2663867,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2663867,&#39;Bury&#39;,this)">反对(0)</a></div>
-			</div>
-		</div>
-	
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#2726548" class="layer">#4楼</a><a name="2726548" id="comment_anchor_2726548"></a>  <span class="comment_date">2013-07-13 17:41</span> <a id="a_comment_author_2726548" href="http://www.cnblogs.com/rosekin/" target="_blank">小新786</a> <a href="http://msg.cnblogs.com/send/%E5%B0%8F%E6%96%B0786" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_2726548" class="blog_comment_body">收下了，谢谢了哦</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2726548,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2726548,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_2726548_avatar" style="display:none;">http://pic.cnblogs.com/face/u319292.jpg?id=24162124</span>
-			</div>
-		</div>
-	
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#2753355" class="layer">#5楼</a><a name="2753355" id="comment_anchor_2753355"></a>  <span class="comment_date">2013-08-16 21:57</span> <a id="a_comment_author_2753355" href="http://www.cnblogs.com/baiting0317/" target="_blank">baiting0317</a> <a href="http://msg.cnblogs.com/send/baiting0317" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_2753355" class="blog_comment_body">收藏~感谢分享！</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2753355,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2753355,&#39;Bury&#39;,this)">反对(0)</a></div>
-			</div>
-		</div>
-	
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#2764723" class="layer">#6楼</a><a name="2764723" id="comment_anchor_2764723"></a>  <span class="comment_date">2013-08-30 15:50</span> <a id="a_comment_author_2764723" href="http://www.cnblogs.com/wws19125/" target="_blank">无姬霸王</a> <a href="http://msg.cnblogs.com/send/%E6%97%A0%E5%A7%AC%E9%9C%B8%E7%8E%8B" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_2764723" class="blog_comment_body">习惯了emacs,vi的快捷键，暂时顶不住...........</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2764723,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2764723,&#39;Bury&#39;,this)">反对(0)</a></div>
-			</div>
-		</div>
-	
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#2777431" class="layer">#7楼</a><a name="2777431" id="comment_anchor_2777431"></a>  <span class="comment_date">2013-09-17 16:37</span> <a id="a_comment_author_2777431" href="http://www.cnblogs.com/AzikPhil/" target="_blank">Azik</a> <a href="http://msg.cnblogs.com/send/Azik" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_2777431" class="blog_comment_body">楼主我爱你~收藏先~</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2777431,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2777431,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_2777431_avatar" style="display:none;">http://pic.cnblogs.com/face/u368784.jpg?id=12161754</span>
-			</div>
-		</div>
-	
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#2813222" class="layer">#8楼</a><a name="2813222" id="comment_anchor_2813222"></a>  <span class="comment_date">2013-11-09 18:10</span> <a id="a_comment_author_2813222" href="http://home.cnblogs.com/u/151528/" target="_blank">guobosheng</a> <a href="http://msg.cnblogs.com/send/guobosheng" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_2813222" class="blog_comment_body">谢谢分享！</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2813222,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2813222,&#39;Bury&#39;,this)">反对(0)</a></div>
-			</div>
-		</div>
-	
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#2821249" class="layer">#9楼</a><a name="2821249" id="comment_anchor_2821249"></a>  <span class="comment_date">2013-11-21 14:36</span> <a id="a_comment_author_2821249" href="http://www.cnblogs.com/lizhi0755/" target="_blank">三胖他爹</a> <a href="http://msg.cnblogs.com/send/%E4%B8%89%E8%83%96%E4%BB%96%E7%88%B9" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_2821249" class="blog_comment_body">挖坟啊</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2821249,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2821249,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_2821249_avatar" style="display:none;">http://pic.cnblogs.com/face/15252/20131129155411.png</span>
-			</div>
-		</div>
-	
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#2852807" class="layer">#10楼</a><a name="2852807" id="comment_anchor_2852807"></a>  <span class="comment_date">2014-01-06 11:32</span> <a id="a_comment_author_2852807" href="http://www.cnblogs.com/lyhabc/" target="_blank">桦仔</a> <a href="http://msg.cnblogs.com/send/%E6%A1%A6%E4%BB%94" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_2852807" class="blog_comment_body">好文要顶！！</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2852807,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2852807,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_2852807_avatar" style="display:none;">http://pic.cnblogs.com/face/257159/20151110124424.png</span>
-			</div>
-		</div>
-	
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#2877846" class="layer">#11楼</a><a name="2877846" id="comment_anchor_2877846"></a>  <span class="comment_date">2014-02-18 21:05</span> <a id="a_comment_author_2877846" href="http://www.cnblogs.com/jjjjava/" target="_blank">JAVABABY</a> <a href="http://msg.cnblogs.com/send/JAVABABY" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_2877846" class="blog_comment_body">非常好，谢谢分享</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2877846,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2877846,&#39;Bury&#39;,this)">反对(0)</a></div>
-			</div>
-		</div>
-	
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#2925099" class="layer">#12楼</a><a name="2925099" id="comment_anchor_2925099"></a>  <span class="comment_date">2014-04-25 10:12</span> <a id="a_comment_author_2925099" href="http://home.cnblogs.com/u/627643/" target="_blank">kelly1210</a> <a href="http://msg.cnblogs.com/send/kelly1210" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_2925099" class="blog_comment_body">谢谢分享，正学习呢</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2925099,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2925099,&#39;Bury&#39;,this)">反对(0)</a></div>
-			</div>
-		</div>
-	
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#2957469" class="layer">#13楼</a><a name="2957469" id="comment_anchor_2957469"></a>  <span class="comment_date">2014-06-04 10:16</span> <a id="a_comment_author_2957469" href="http://home.cnblogs.com/u/448166/" target="_blank">hping16</a> <a href="http://msg.cnblogs.com/send/hping16" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_2957469" class="blog_comment_body">不错，mark一下</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2957469,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2957469,&#39;Bury&#39;,this)">反对(0)</a></div>
-			</div>
-		</div>
-	
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#2958922" class="layer">#14楼</a><a name="2958922" id="comment_anchor_2958922"></a>  <span class="comment_date">2014-06-06 09:54</span> <a id="a_comment_author_2958922" href="http://www.cnblogs.com/zhangwei595806165/" target="_blank">承影剑</a> <a href="http://msg.cnblogs.com/send/%E6%89%BF%E5%BD%B1%E5%89%91" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_2958922" class="blog_comment_body">学习一下</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(2958922,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(2958922,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_2958922_avatar" style="display:none;">http://pic.cnblogs.com/face/290106/20130929143841.png</span>
-			</div>
-		</div>
-	
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#3092009" class="layer">#15楼</a><a name="3092009" id="comment_anchor_3092009"></a>  <span class="comment_date">2014-12-23 11:25</span> <a id="a_comment_author_3092009" href="http://home.cnblogs.com/u/440171/" target="_blank">feilian09</a> <a href="http://msg.cnblogs.com/send/feilian09" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_3092009" class="blog_comment_body">收下了</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3092009,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3092009,&#39;Bury&#39;,this)">反对(0)</a></div>
-			</div>
-		</div>
-	
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#3143258" class="layer">#16楼</a><a name="3143258" id="comment_anchor_3143258"></a>  <span class="comment_date">2015-03-18 09:17</span> <a id="a_comment_author_3143258" href="http://home.cnblogs.com/u/732462/" target="_blank">PaulineZ</a> <a href="http://msg.cnblogs.com/send/PaulineZ" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_3143258" class="blog_comment_body">不错不错，学习了</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3143258,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3143258,&#39;Bury&#39;,this)">反对(0)</a></div>
-			</div>
-		</div>
-	
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#3145712" class="layer">#17楼</a><a name="3145712" id="comment_anchor_3145712"></a>  <span class="comment_date">2015-03-21 09:35</span> <a id="a_comment_author_3145712" href="http://home.cnblogs.com/u/733907/" target="_blank">IT手册</a> <a href="http://msg.cnblogs.com/send/IT%E6%89%8B%E5%86%8C" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_3145712" class="blog_comment_body">不错。我觉得 操作系统命令手册（os.itshouce.cn）  可能更全，包含了Linxu aix dos hpux等操作系统在线命令</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3145712,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3145712,&#39;Bury&#39;,this)">反对(0)</a></div>
-			</div>
-		</div>
-	
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#3148779" class="layer">#18楼</a><a name="3148779" id="comment_anchor_3148779"></a>  <span class="comment_date">2015-03-25 23:30</span> <a id="a_comment_author_3148779" href="http://home.cnblogs.com/u/59234/" target="_blank">阿一</a> <a href="http://msg.cnblogs.com/send/%E9%98%BF%E4%B8%80" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_3148779" class="blog_comment_body">谢谢分享。</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3148779,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3148779,&#39;Bury&#39;,this)">反对(0)</a></div>
-			</div>
-		</div>
-	
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#3218177" class="layer">#19楼</a><a name="3218177" id="comment_anchor_3218177"></a>  <span class="comment_date">2015-06-30 11:10</span> <a id="a_comment_author_3218177" href="http://www.cnblogs.com/jueshiqin/" target="_blank">欧阳致一</a> <a href="http://msg.cnblogs.com/send/%E6%AC%A7%E9%98%B3%E8%87%B4%E4%B8%80" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_3218177" class="blog_comment_body">常用的都可以找到，感谢了。</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3218177,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3218177,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_3218177_avatar" style="display:none;">http://pic.cnblogs.com/face/577987/20150119150945.png</span>
-			</div>
-		</div>
-	
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#3267332" class="layer">#20楼</a><a name="3267332" id="comment_anchor_3267332"></a>  <span class="comment_date">2015-09-15 19:54</span> <a id="a_comment_author_3267332" href="http://www.cnblogs.com/hans-201506/" target="_blank">张祎</a> <a href="http://msg.cnblogs.com/send/%E5%BC%A0%E7%A5%8E" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_3267332" class="blog_comment_body">真是，简单粗暴呀</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3267332,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3267332,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_3267332_avatar" style="display:none;">http://pic.cnblogs.com/face/160178/20150624155804.png</span>
-			</div>
-		</div>
-	
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#3347351" class="layer">#21楼</a><a name="3347351" id="comment_anchor_3347351"></a>  <span class="comment_date">2016-01-14 08:41</span> <a id="a_comment_author_3347351" href="http://www.cnblogs.com/outofthink/" target="_blank">想不到</a> <a href="http://msg.cnblogs.com/send/%E6%83%B3%E4%B8%8D%E5%88%B0" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_3347351" class="blog_comment_body">汇总得不错</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3347351,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3347351,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_3347351_avatar" style="display:none;">http://pic.cnblogs.com/face/u38903.jpg</span>
-			</div>
-		</div>
-	
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#3351284" class="layer">#22楼</a><a name="3351284" id="comment_anchor_3351284"></a>  <span class="comment_date">2016-01-20 17:47</span> <a id="a_comment_author_3351284" href="http://www.cnblogs.com/xgqfrms/" target="_blank">xgqfrms</a> <a href="http://msg.cnblogs.com/send/xgqfrms" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_3351284" class="blog_comment_body">vi 的基本概念<br><br>基本上vi可分为三种操作状态，分别是命令模式（Command mode）、插入模式（Insert mode）和底线命令模式（Last line mode），各模式的功能区分如下：<br><br>1． Comand mode：控制屏幕光标的移动，字符或光标的删除，移动复制某区段及进入Insert mode下，或者到Last line mode。<br><br>2． Insert mode：唯有在Insert mode下，才可做文字数据输入，按Esc等可回到Comand mode。<br><br>3． Last line mode：将储存文件或离开编辑器，也可设置编辑环境，如寻找字符串、列出行号等。<br><br>不过可以把vi简化成两个模式，即是将Last line mode也算入Command mode,把vi分成Command 和Insert mode。<br><br>vi的基本操作<br><br>?进入vi<br><br>在系统提示符号输入vi及文件名称后，即可进入vi全屏幕编辑画面：<br><br>$ vi testfile<br><br>有一点要特别注意，就是您进入vi之后是处于“Command mode”下，您要切换到Insert mode才能输入文字。初次用vi的用户都会想先用上下左右键移动光标，结果电脑一直叫，把自己气个半死，所以进入vi后，先不要乱动，转换入 Insert后再说。<br><br>?切换至Insert mode编辑文件<br><br>在Command mode下按‘i’、‘a’或‘o’三键就可进入Insert mode。这时候您就可以开始输入文字了。<br><br>i: 插入，从目前光标所在之处插入所输入的文字。<br><br>a: 增加，目前光标所在的下一个字开始输入文字。<br><br>o: 插入新的一行，从行首开始输入文字。<br><br>?Insert的切换→Command mode，按Esc键<br><br>您目前处于Insert mode，您就只能一直打字。假如您发现打错字了，想用光标键往回移动，将该字删除，就要按ESC键转换回Command mode，再删除文字。<br><br>? 离开vi及存文件<br><br>在Command mode下，可按冒号“：”键入入Last line mode，例如：<br><br>:w filename (输入“w filename”，将文章存入指定的文件名filename)<br><br>:wq (输入“wq”，因为进入之时已经指定文件名testfile，所以会写入testfile并离开vi)<br><br>:q! (输入“q!”，强制离开并放弃编辑的文件)<br><br>Command mode功能键列表<br><br>在介绍command mode指令的时后，指令后面加上“常用”字眼的功能键，表示比较常用的vi指令，请读者您一定要学会、记住。<br><br>（1）I、a、o切换进入 Insert mode。[超级常用]<br><br>（2）移动光标<br><br>vi可以直接用键盘上的光标键来上下左右移动，但正规的vi是用小写英文字母<br><br>h、 j、k、l，分别控制光标左、下、上、右移一格。<br><br>按Ctrl+B：屏幕往后移动一页。[常用]<br><br>按Ctrl+F：屏幕往前移动一页。[常用]<br><br>按Ctrl+U：屏幕往后移动半页。<br><br>按Ctrl+D：屏幕往前移动半页。<br><br>按 0 （数字零）：移动文章的开头。[常用]<br><br>按 G：移动到文章的最后。[常用]<br><br>按 w：光标跳到下个word的开头。[常用]<br><br>按 e：光标跳到下个word的字尾。<br><br>按 b：光标回到上个word的开头。<br><br>按 $：移到光标所在行的行尾。[常用]<br><br>按 ^：移到该行第一个非空白的字符。<br><br>按 0：移到该行的开头位置。[常用]<br><br>按 #：移到该行的第#个位置，例：51、121。[常用]</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3351284,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3351284,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_3351284_avatar" style="display:none;">http://pic.cnblogs.com/face/740516/20151127165124.png</span>
-			</div>
-		</div>
-	
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#3351287" class="layer">#23楼</a><a name="3351287" id="comment_anchor_3351287"></a>  <span class="comment_date">2016-01-20 17:48</span> <a id="a_comment_author_3351287" href="http://www.cnblogs.com/xgqfrms/" target="_blank">xgqfrms</a> <a href="http://msg.cnblogs.com/send/xgqfrms" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_3351287" class="blog_comment_body">（3）删除文字<br><br>x：每按一次删除光标所在位置的后面一个字符。[超常用]<br><br>#x：例如，6x 表删除光标所在位置的后面6个字符。[常用]<br><br>X：大字的X，每按一次删除光标所在位置的前面一个字符。<br><br>#X：例如，20X 表删除光标所在位置的前面20个字符。<br><br>dd：删除光标所在行。[超常用]<br><br>#dd：例如，6dd表删除从光标所在的该行往下数6行之文字。[常用]<br><br>（4）复制<br><br>yw：将光标所在处到字尾的字符复制到缓冲区中。<br><br>（想在和#x、#X的功能相反）<br><br>p：将缓冲区内的字符粘贴到光标所在位置（指令‘yw’与‘p必须搭配使用）。<br><br>yy：复制光标所在行。[超常用]<br><br>p：复制单行到您想粘贴之处。（指令‘yy’与‘p’必须搭配使用）<br><br>#yy：如：6yy表示拷贝从光标所在的该行往下数6行之文字。[常用]<br><br>p:复制多行到您想粘贴之处。（指令‘#yy’与‘p’必须搭配使用）<br><br>“ayy：将复制行放入buffer a, vi提供buffer功能，可将常用的数据存在buffer<br><br>“ap：将放在buffer a的数据粘贴。<br><br>“b3yy：将三行数据存入 buffer b。<br><br>“b3p：将存在buffer b的资料粘贴<br><br>（5）取代<br><br>r: 取代光标所在处的字符：[常用]<br><br>R：取代字符直到按Esc为止。<br><br>（6）复原（undo）上一个指令<br><br>u：假如您误操作一个指令，可以马上按u，回复到上一个操作。[超常用]<br><br>.: .可以重复执行上一次的指令。<br><br>（7）更改<br><br>cw：更改光标所在处的字到字尾$处。<br><br>c#w：例如，c3w代表更改3个字。<br><br>（8）跳至指定行<br><br>Ctrl+G：列出光标所在行的行号。<br><br>#G：例如，15G，表示移动光标至文章的第15行行首。[常用]<br><br>Last line mode下指令简介<br><br>读者您要使用Last line mode之前，请记得先按Esc键确定您已经处于Command mode下后，再按冒号“：”或“/”或“？”三键的其中一键进入Last line mode。<br><br>1．列出行号<br><br>set nu: 输入“set nu”后，会在文章的每一行前面列出行号。<br><br>2．跳到文章的某一行<br><br>#：井号代表一个数字，在Last line mode提示符号“：”前输入数字，再按Enter就会跳到该行了，如：15[Enter]就会跳到文章的第15行。[常用]<br><br>3．寻找字符串<br><br>/ 关键字：先按/，再输入您想寻找的字，如果第一次找的关键字不是您相尽可能的，可以一直按n会往下寻找到您要的关键字为止。<br><br>？关键字：先按？，再输入您想寻找的字，如果第一次找的关键字不是您想要的，可以按n会往前寻找到您要的关键字为止。<br><br>4．取代字符串<br><br>1，$s/string /replae/g：在last line mode输入“1，$s/string/replace/g”会将全文的string字符串取代为replace字符串，其中1,$s就是指搜寻区间为文章从头至尾的意思，g则是表示全部取代不必确认。<br><br>%s/string/replace/c：同样会将全文的string字符串取代为 replace字符串，和上面指令不同的地方是，%s和1,$s是相同的功能，c则是表示要替代之前必须再次确认是否取代。<br><br>1,20s/string /replace/g：将1至20行间的string替代为relpace字符串。<br><br>5．存文件<br><br>w：在last line mode提示符号“：”前按w即可将文件存起来。[超常用]<br><br>#，# w filename：如果您想摘取文章的某一段，存成另一个文件，可用这个指令#代表行号，例如30,50 w nice，将您正在编辑文章的第30~50行存成nice这个文件。<br><br>6．离开<br><br>q：按q就离开，有时如果无法离开vi，可搭配“！：强置离开vi，如“q！”<br><br>qw：一般建议离开时，搭配w一起使用，如此离开时还可存文件。[常用]</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3351287,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3351287,&#39;Bury&#39;,this)">反对(2)</a></div><span id="comment_3351287_avatar" style="display:none;">http://pic.cnblogs.com/face/740516/20151127165124.png</span>
-			</div>
-		</div>
-	
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#3471084" class="layer">#24楼</a><a name="3471084" id="comment_anchor_3471084"></a>  <span class="comment_date">2016-07-16 11:12</span> <a id="a_comment_author_3471084" href="http://www.cnblogs.com/wahsonleung/" target="_blank">WahsonLeung</a> <a href="http://msg.cnblogs.com/send/WahsonLeung" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_3471084" class="blog_comment_body">楼主，这里写反了<br>}：光标移至段落开头 <br>{：光标移至段落结尾<br><br>应该是<br>{：光标移至段落开头 <br>}：光标移至段落结尾</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3471084,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3471084,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_3471084_avatar" style="display:none;">http://pic.cnblogs.com/face/514212/20130419161424.png</span>
-			</div>
-		</div>
-	
-		<div class="feedbackItem">
-			<div class="feedbackListSubtitle">
-				<div class="feedbackManage">
-					&nbsp;&nbsp;<span class="comment_actions"></span>
-				</div>
-				<a href="https://www.cnblogs.com/88999660/articles/1581524.html#3501008" class="layer">#25楼</a><a name="3501008" id="comment_anchor_3501008"></a><span id="comment-maxId" style="display:none;">3501008</span><span id="comment-maxDate" style="display:none;">2016/9/1 10:27:52</span>  <span class="comment_date">2016-09-01 10:27</span> <a id="a_comment_author_3501008" href="http://www.cnblogs.com/CodingPerfectWorld/" target="_blank">Ethan Shan</a> <a href="http://msg.cnblogs.com/send/Ethan%20Shan" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
-			</div>
-			<div class="feedbackCon">
-				<div id="comment_body_3501008" class="blog_comment_body">Mark.</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3501008,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3501008,&#39;Bury&#39;,this)">反对(0)</a></div><span id="comment_3501008_avatar" style="display:none;">http://pic.cnblogs.com/face/u125949.jpg</span>
-			</div>
-		</div>
-	<div id="comments_pager_bottom"></div></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
-<div id="comment_form" class="commentform">
-<a name="commentform"></a>
-<div id="divCommentShow"></div>
-<div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="https://www.cnblogs.com/88999660/articles/1581524.html#" onclick="return RefreshPage();">刷新页面</a><a href="https://www.cnblogs.com/88999660/articles/1581524.html#top">返回顶部</a></div>
-<div id="comment_form_container"><div class="login_tips">注册用户登录后才能发表评论，请 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return login(&#39;commentform&#39;);">登录</a> 或 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return register();">注册</a>，<a href="http://www.cnblogs.com/">访问</a>网站首页。</div></div>
-<div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
-<div id="ad_t2"></div>
-<div id="opt_under_post"></div>
-<div id="cnblogs_c1" class="c_ad_block"></div>
-<div id="under_post_news"><div class="itnews c_ad_block"><b>最新IT新闻</b>:<br> ·  <a href="http://news.cnblogs.com/n/578714/" target="_blank">战斗民族的手机正式杀入中国市场</a><br> ·  <a href="http://news.cnblogs.com/n/578713/" target="_blank">Nest发布家庭安全系统NestSecure 售价499美元</a><br> ·  <a href="http://news.cnblogs.com/n/578716/" target="_blank">借款乐视网却爽约，贾跃亭家族套现近140个亿去哪儿了？</a><br> ·  <a href="http://news.cnblogs.com/n/578700/" target="_blank">Intel 10nm CannonLake处理器突传噩耗：跳票2018年末</a><br> ·  <a href="http://news.cnblogs.com/n/578712/" target="_blank">Uber冤吗？窃取Waymo商业机密被索赔26亿美元</a><br>» <a href="http://news.cnblogs.com/" title="IT新闻" target="_blank">更多新闻...</a></div></div>
-<div id="cnblogs_c2" class="c_ad_block"></div>
-<div id="under_post_kb"><div class="itnews c_ad_block" id="kb_block"><b>最新知识库文章</b>:<br><div id="kb_recent"> ·  <a href="http://kb.cnblogs.com/page/578103/" target="_blank">Google 及其云智慧</a><br> ·  <a href="http://kb.cnblogs.com/page/575829/" target="_blank">做到这一点，你也可以成为优秀的程序员</a><br> ·  <a href="http://kb.cnblogs.com/page/566880/" target="_blank">写给立志做码农的大学生</a><br> ·  <a href="http://kb.cnblogs.com/page/569057/" target="_blank">架构腐化之谜</a><br> ·  <a href="http://kb.cnblogs.com/page/572854/" target="_blank">学会思考，而不只是编程</a><br></div>» <a href="http://kb.cnblogs.com/" target="_blank">更多知识库文章...</a></div></div>
-<div id="HistoryToday" class="c_ad_block"></div>
-<script type="text/javascript">
-    fixPostBody();
-    setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
-    deliverAdT2();
-    deliverAdC1();
-    deliverAdC2();    
-    loadNewsAndKb();
-    loadBlogSignature();
-    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
-    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate);
-    loadOptUnderPost();
-    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);   
-</script>
-</div>
-
-
-	</div><!--end: forFlow -->
-	</div><!--end: mainContent 主体内容容器-->
-
-	<div id="sideBar">
-		<div id="sideBarMain">
-			
-<!--done-->
-<div class="newsItem">
-<h3 class="catListTitle">公告</h3>
-	<div id="blog-news"><div id="profile_block">昵称：<a href="http://home.cnblogs.com/u/88999660/">星尘</a><br>园龄：<a href="http://home.cnblogs.com/u/88999660/" title="入园时间：2009-09-23">7年11个月</a><br>粉丝：<a href="http://home.cnblogs.com/u/88999660/followers/">191</a><br>关注：<a href="http://home.cnblogs.com/u/88999660/followees/">4</a><div id="p_b_follow"><a href="javascript:void(0);" onclick="follow(&#39;8ecd2971-53a8-de11-ba8f-001cf0cd104b&#39;)">+加关注</a></div></div></div><script type="text/javascript">loadBlogNews();</script>
-</div>
-
-			<div id="calendar"><div id="blog-calendar"><table id="blogCalendar" class="Cal" cellspacing="0" cellpadding="0" title="日历">
-	<tbody><tr><td colspan="7"><table class="CalTitle" cellspacing="0">
-		<tbody><tr><td class="CalNextPrev"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2017/08/01&#39;);return false;">&lt;</a></td><td align="center">2017年9月</td><td class="CalNextPrev" align="right"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2017/10/01&#39;);return false;">&gt;</a></td></tr>
-	</tbody></table></td></tr><tr><th class="CalDayHeader" align="center" abbr="日" scope="col">日</th><th class="CalDayHeader" align="center" abbr="一" scope="col">一</th><th class="CalDayHeader" align="center" abbr="二" scope="col">二</th><th class="CalDayHeader" align="center" abbr="三" scope="col">三</th><th class="CalDayHeader" align="center" abbr="四" scope="col">四</th><th class="CalDayHeader" align="center" abbr="五" scope="col">五</th><th class="CalDayHeader" align="center" abbr="六" scope="col">六</th></tr><tr><td class="CalOtherMonthDay" align="center">27</td><td class="CalOtherMonthDay" align="center">28</td><td class="CalOtherMonthDay" align="center">29</td><td class="CalOtherMonthDay" align="center">30</td><td class="CalOtherMonthDay" align="center">31</td><td align="center">1</td><td class="CalWeekendDay" align="center">2</td></tr><tr><td class="CalWeekendDay" align="center">3</td><td align="center">4</td><td align="center">5</td><td align="center">6</td><td align="center">7</td><td align="center">8</td><td class="CalWeekendDay" align="center">9</td></tr><tr><td class="CalWeekendDay" align="center">10</td><td align="center">11</td><td align="center">12</td><td align="center">13</td><td align="center">14</td><td align="center">15</td><td class="CalWeekendDay" align="center">16</td></tr><tr><td class="CalWeekendDay" align="center">17</td><td align="center">18</td><td align="center">19</td><td align="center">20</td><td class="CalTodayDay" align="center">21</td><td align="center">22</td><td class="CalWeekendDay" align="center">23</td></tr><tr><td class="CalWeekendDay" align="center">24</td><td align="center">25</td><td align="center">26</td><td align="center">27</td><td align="center">28</td><td align="center">29</td><td class="CalWeekendDay" align="center">30</td></tr><tr><td class="CalOtherMonthDay" align="center">1</td><td class="CalOtherMonthDay" align="center">2</td><td class="CalOtherMonthDay" align="center">3</td><td class="CalOtherMonthDay" align="center">4</td><td class="CalOtherMonthDay" align="center">5</td><td class="CalOtherMonthDay" align="center">6</td><td class="CalOtherMonthDay" align="center">7</td></tr>
-</tbody></table></div><script type="text/javascript">loadBlogDefaultCalendar();</script></div>
-			
-			<div id="leftcontentcontainer">
-				<div id="blog-sidecolumn"><div id="sidebar_search" class="sidebar-block">
-<div id="sidebar_search" class="mySearch">
-<h3 class="catListTitle">搜索</h3>
-<div id="sidebar_search_box">
-<div id="widget_my_zzk" class="div_my_zzk"><input type="text" id="q" onkeydown="return zzk_go_enter(event);" class="input_my_zzk">&nbsp;<input onclick="zzk_go()" type="button" value="找找看" id="btnZzk" class="btn_my_zzk"></div>
-<div id="widget_my_google" class="div_my_zzk"><input type="text" name="google_q" id="google_q" onkeydown="return google_go_enter(event)" class="input_my_zzk">&nbsp;<input onclick="google_go()" type="button" value="谷歌搜索" class="btn_my_zzk"></div>
-</div>
-</div>
-
-</div><div id="sidebar_shortcut" class="sidebar-block">
-<div class="catListLink">
-<h3 class="catListTitle">常用链接</h3>
-<ul>
-<li><a href="http://www.cnblogs.com/88999660/p/" title="我的博客的随笔列表">我的随笔</a></li><li><a href="http://www.cnblogs.com/88999660/MyComments.html" title="我发表过的评论列表">我的评论</a></li><li><a href="http://www.cnblogs.com/88999660/OtherPosts.html" title="我评论过的随笔列表">我的参与</a></li><li><a href="http://www.cnblogs.com/88999660/RecentComments.html" title="我的博客的评论列表">最新评论</a></li><li><a href="http://www.cnblogs.com/88999660/tag/" title="我的博客的标签列表">我的标签</a></li>
-</ul>
-<div id="itemListLin_con" style="display:none;">
-<ul>
-
-</ul>
-</div>
-</div></div><div id="sidebar_toptags" class="sidebar-block">
-<div class="catListTag">
-<h3 class="catListTitle">我的标签</h3>
-<ul>
-<li><a href="http://www.cnblogs.com/88999660/tag/DB2%E6%97%A5%E5%B8%B8%E5%BA%94%E7%94%A8/">DB2日常应用</a>(1)</li><li><a href="http://www.cnblogs.com/88999660/tag/DB2%E6%97%A5%E5%B8%B8%E5%BA%94%E7%94%A8%E6%B1%87%E6%80%BB/">DB2日常应用汇总</a>(1)</li><li><a href="http://www.cnblogs.com/88999660/tag/Html5GamesDevelopmentByExample/">Html5GamesDevelopmentByExample</a>(1)</li><li><a href="http://www.cnblogs.com/88999660/tag/IBM/">IBM</a>(1)</li><li><a href="http://www.cnblogs.com/88999660/tag/IBM%20DB2/">IBM DB2</a>(1)</li><li><a href="http://www.cnblogs.com/88999660/tag/smartfoxserver/">smartfoxserver</a>(1)</li><li><a href="http://www.cnblogs.com/88999660/tag/SQLSTATE%20%E6%B6%88%E6%81%AF/">SQLSTATE 消息</a>(1)</li><li><a href="http://www.cnblogs.com/88999660/tag/unity3d%20Billboard/">unity3d Billboard</a>(1)</li><li><a href="http://www.cnblogs.com/88999660/tag/unity3d%20findtarget/">unity3d findtarget</a>(1)</li><li><a href="http://www.cnblogs.com/88999660/tag/unity3d%20LineRenderer%20%E7%94%BB%E7%BA%BF%20%E5%B0%84%E7%BA%BF%20%E7%BA%BF%E6%AE%B5%20%E5%A4%9A%E7%BA%BF%E6%AE%B5%20%E5%A4%9A%E8%BE%B9%E5%BD%A2/">unity3d LineRenderer 画线 射线 线段 多线段 多边形</a>(1)</li><li><a href="http://www.cnblogs.com/88999660/tag/">更多</a></li>
-</ul>
-</div></div><div id="sidebar_categories">
-<div class="catListPostCategory">
-<h3 class="catListTitle">随笔分类</h3>
-
-<ul>
-
-<li><a id="CatList_LinkList_0_Link_0" href="http://www.cnblogs.com/88999660/category/286986.html">.Net(5)</a> </li>
-
-<li><a id="CatList_LinkList_0_Link_1" href="http://www.cnblogs.com/88999660/category/286987.html">ASP.Net(4)</a> </li>
-
-<li><a id="CatList_LinkList_0_Link_2" href="http://www.cnblogs.com/88999660/category/286989.html">CSS</a> </li>
-
-<li><a id="CatList_LinkList_0_Link_3" href="http://www.cnblogs.com/88999660/category/336971.html">HTML5(2)</a> </li>
-
-<li><a id="CatList_LinkList_0_Link_4" href="http://www.cnblogs.com/88999660/category/286988.html">Javascript(1)</a> </li>
-
-<li><a id="CatList_LinkList_0_Link_5" href="http://www.cnblogs.com/88999660/category/286990.html">SQL</a> </li>
-
-<li><a id="CatList_LinkList_0_Link_6" href="http://www.cnblogs.com/88999660/category/447440.html">Unity3D(49)</a> </li>
-
-</ul>
-
-</div>
-
-<div class="catListPostArchive">
-<h3 class="catListTitle">随笔档案</h3>
-
-<ul>
-
-<li><a id="CatList_LinkList_1_Link_0" href="http://www.cnblogs.com/88999660/archive/2016/09.html">2016年9月 (1)</a> </li>
-
-<li><a id="CatList_LinkList_1_Link_1" href="http://www.cnblogs.com/88999660/archive/2016/05.html">2016年5月 (1)</a> </li>
-
-<li><a id="CatList_LinkList_1_Link_2" href="http://www.cnblogs.com/88999660/archive/2016/03.html">2016年3月 (2)</a> </li>
-
-<li><a id="CatList_LinkList_1_Link_3" href="http://www.cnblogs.com/88999660/archive/2016/02.html">2016年2月 (1)</a> </li>
-
-<li><a id="CatList_LinkList_1_Link_4" href="http://www.cnblogs.com/88999660/archive/2015/08.html">2015年8月 (1)</a> </li>
-
-<li><a id="CatList_LinkList_1_Link_5" href="http://www.cnblogs.com/88999660/archive/2015/01.html">2015年1月 (1)</a> </li>
-
-<li><a id="CatList_LinkList_1_Link_6" href="http://www.cnblogs.com/88999660/archive/2014/11.html">2014年11月 (1)</a> </li>
-
-<li><a id="CatList_LinkList_1_Link_7" href="http://www.cnblogs.com/88999660/archive/2014/10.html">2014年10月 (2)</a> </li>
-
-<li><a id="CatList_LinkList_1_Link_8" href="http://www.cnblogs.com/88999660/archive/2014/07.html">2014年7月 (1)</a> </li>
-
-<li><a id="CatList_LinkList_1_Link_9" href="http://www.cnblogs.com/88999660/archive/2014/06.html">2014年6月 (1)</a> </li>
-
-<li><a id="CatList_LinkList_1_Link_10" href="http://www.cnblogs.com/88999660/archive/2014/05.html">2014年5月 (6)</a> </li>
-
-<li><a id="CatList_LinkList_1_Link_11" href="http://www.cnblogs.com/88999660/archive/2014/04.html">2014年4月 (1)</a> </li>
-
-<li><a id="CatList_LinkList_1_Link_12" href="http://www.cnblogs.com/88999660/archive/2013/11.html">2013年11月 (1)</a> </li>
-
-<li><a id="CatList_LinkList_1_Link_13" href="http://www.cnblogs.com/88999660/archive/2013/10.html">2013年10月 (3)</a> </li>
-
-<li><a id="CatList_LinkList_1_Link_14" href="http://www.cnblogs.com/88999660/archive/2013/08.html">2013年8月 (3)</a> </li>
-
-<li><a id="CatList_LinkList_1_Link_15" href="http://www.cnblogs.com/88999660/archive/2013/06.html">2013年6月 (1)</a> </li>
-
-<li><a id="CatList_LinkList_1_Link_16" href="http://www.cnblogs.com/88999660/archive/2013/05.html">2013年5月 (1)</a> </li>
-
-<li><a id="CatList_LinkList_1_Link_17" href="http://www.cnblogs.com/88999660/archive/2013/04.html">2013年4月 (8)</a> </li>
-
-<li><a id="CatList_LinkList_1_Link_18" href="http://www.cnblogs.com/88999660/archive/2013/03.html">2013年3月 (15)</a> </li>
-
-<li><a id="CatList_LinkList_1_Link_19" href="http://www.cnblogs.com/88999660/archive/2013/02.html">2013年2月 (3)</a> </li>
-
-<li><a id="CatList_LinkList_1_Link_20" href="http://www.cnblogs.com/88999660/archive/2013/01.html">2013年1月 (4)</a> </li>
-
-<li><a id="CatList_LinkList_1_Link_21" href="http://www.cnblogs.com/88999660/archive/2011/11.html">2011年11月 (3)</a> </li>
-
-</ul>
-
-</div>
-
-<div class="catListArticleCategory">
-<h3 class="catListTitle">文章分类</h3>
-
-<ul>
-
-<li><a id="CatList_LinkList_2_Link_0" href="http://www.cnblogs.com/88999660/category/286981.html">.Net</a> </li>
-
-<li><a id="CatList_LinkList_2_Link_1" href="http://www.cnblogs.com/88999660/category/286982.html">ASP.Net</a> </li>
-
-<li><a id="CatList_LinkList_2_Link_2" href="http://www.cnblogs.com/88999660/category/286985.html">CSS</a> </li>
-
-<li><a id="CatList_LinkList_2_Link_3" href="http://www.cnblogs.com/88999660/category/212354.html">DB2(9)</a> </li>
-
-<li><a id="CatList_LinkList_2_Link_4" href="http://www.cnblogs.com/88999660/category/336656.html">HTML5</a> </li>
-
-<li><a id="CatList_LinkList_2_Link_5" href="http://www.cnblogs.com/88999660/category/213091.html">Java(3)</a> </li>
-
-<li><a id="CatList_LinkList_2_Link_6" href="http://www.cnblogs.com/88999660/category/286983.html">Javascript</a> </li>
-
-<li><a id="CatList_LinkList_2_Link_7" href="http://www.cnblogs.com/88999660/category/213519.html">Linux(1)</a> </li>
-
-<li><a id="CatList_LinkList_2_Link_8" href="http://www.cnblogs.com/88999660/category/449429.html">SFS(5)</a> </li>
-
-<li><a id="CatList_LinkList_2_Link_9" href="http://www.cnblogs.com/88999660/category/286984.html">SQL</a> </li>
-
-<li><a id="CatList_LinkList_2_Link_10" href="http://www.cnblogs.com/88999660/category/449430.html">Unity3D(3)</a> </li>
-
-</ul>
-
-</div>
-
-</div><div id="sidebar_recentcomments" class="sidebar-block"><div id="recent_comments_wrap">
-<div class="catListComment">
-<h3 class="catListTitle">最新评论</h3>
-	<div id="RecentCommentsBlock"><ul>
-        <li class="recent_comment_title"><a href="http://www.cnblogs.com/88999660/archive/2013/03/15/2961663.html#3751675">1. Re:Unity3D占用内存太大的解决方法</a></li>
-        <li class="recent_comment_body">好多年后来看还是有收获，谢了。</li>
-        <li class="recent_comment_author">--鸡毛土人</li>
-        <li class="recent_comment_title"><a href="http://www.cnblogs.com/88999660/archive/2013/03/14/2959439.html#3750635">2. Re:unity3d camera.culling mask</a></li>
-        <li class="recent_comment_body">这有什么奇怪的。。。用位的索引标记哪层该渲染而已。比如 0x0101，意思就是只显示第一层和第三层。你的公式：camera.cullingMask = 1&lt;&lt;10 + 1&lt;&lt;11 + 1&lt;&lt;12;应该......</li>
-        <li class="recent_comment_author">--namesk</li>
-        <li class="recent_comment_title"><a href="http://www.cnblogs.com/88999660/articles/1581880.html#3721457">3. Re:java CS结构软件自动升级的实现</a></li>
-        <li class="recent_comment_body">@ jsRunner @星辰<br>请问源代码还有吗？有的话能给我发一份吗，谢谢了！liu_2510@163.com</li>
-        <li class="recent_comment_author">--liuxiao5211</li>
-        <li class="recent_comment_title"><a href="http://www.cnblogs.com/88999660/articles/2889422.html#3706162">4. Re:给物体边缘加高光轮廓的办法</a></li>
-        <li class="recent_comment_body">谢谢分享</li>
-        <li class="recent_comment_author">--漠海</li>
-        <li class="recent_comment_title"><a href="http://www.cnblogs.com/88999660/articles/2889422.html#3692566">5. Re:给物体边缘加高光轮廓的办法</a></li>
-        <li class="recent_comment_body">很不错，值得学习</li>
-        <li class="recent_comment_author">--烟花盛开在泪海</li>
-</ul>
-</div>
-</div>
-</div></div><div id="sidebar_topviewedposts" class="sidebar-block"><div id="topview_posts_wrap">
-<div class="catListView">
-<h3 class="catListTitle">阅读排行榜</h3>
-	<div id="TopViewPostsBlock"><ul><li><a href="http://www.cnblogs.com/88999660/archive/2013/03/15/2961663.html">1. Unity3D占用内存太大的解决方法(90429)</a></li><li><a href="http://www.cnblogs.com/88999660/archive/2013/01/21/2869498.html">2. Unity3d LineRenderer画线(23298)</a></li><li><a href="http://www.cnblogs.com/88999660/archive/2013/04/02/2995074.html">3. unity3d的四元数 Quaternion(16905)</a></li><li><a href="http://www.cnblogs.com/88999660/p/4054516.html">4. unity3d 本地数据存储(10336)</a></li><li><a href="http://www.cnblogs.com/88999660/archive/2013/03/14/2959439.html">5. unity3d camera.culling mask(9540)</a></li></ul></div>
-</div>
-</div></div><div id="sidebar_topcommentedposts" class="sidebar-block"><div id="topfeedback_posts_wrap">
-<div class="catListFeedback">
-<h3 class="catListTitle">评论排行榜</h3>
-	<div id="TopFeedbackPostsBlock"><ul><li><a href="http://www.cnblogs.com/88999660/archive/2013/03/15/2961663.html">1. Unity3D占用内存太大的解决方法(10)</a></li><li><a href="http://www.cnblogs.com/88999660/archive/2013/01/21/2869498.html">2. Unity3d LineRenderer画线(3)</a></li><li><a href="http://www.cnblogs.com/88999660/archive/2011/11/20/2256460.html">3. 【译】Html5游戏开发示例(-)(3)</a></li><li><a href="http://www.cnblogs.com/88999660/archive/2011/11/21/2257742.html">4. 【译】Html5游戏开发示例(2)(3)</a></li><li><a href="http://www.cnblogs.com/88999660/archive/2013/03/14/2959439.html">5. unity3d camera.culling mask(2)</a></li></ul></div>
-</div>
-</div></div><div id="sidebar_topdiggedposts" class="sidebar-block"><div id="topdigg_posts_wrap">
-<div class="catListView">
-<h3 class="catListTitle">推荐排行榜</h3>
-<div id="TopDiggPostsBlock"><ul><li><a href="http://www.cnblogs.com/88999660/archive/2013/03/15/2961663.html">1. Unity3D占用内存太大的解决方法(20)</a></li><li><a href="http://www.cnblogs.com/88999660/archive/2011/11/20/2256460.html">2. 【译】Html5游戏开发示例(-)(4)</a></li><li><a href="http://www.cnblogs.com/88999660/archive/2011/11/24/2262327.html">3. 【译】Html5游戏开发示例(3)(2)</a></li><li><a href="http://www.cnblogs.com/88999660/archive/2013/03/11/2954279.html">4. Unity3d向web服务器发送数据(2)</a></li><li><a href="http://www.cnblogs.com/88999660/archive/2013/03/14/2959439.html">5. unity3d camera.culling mask(2)</a></li></ul></div>
-</div></div></div></div><script type="text/javascript">loadBlogSideColumn();</script>
-			</div>
-			
-		</div><!--end: sideBarMain -->
-	</div><!--end: sideBar 侧边栏容器 -->
-	<div class="clear"></div>
-	</div><!--end: main -->
-	<div class="clear"></div>
-	<div id="footer">
-		
-<!--done-->
-Copyright ©2017 星尘
-	</div><!--end: footer -->
-</div><!--end: home 自定义的最大容器 -->
-
-
-</body></html>
+进入vi的命令 
+vi filename :打开或新建文件，并将光标置于第一行首 
+vi +n filename ：打开文件，并将光标置于第n行首 
+vi + filename ：打开文件，并将光标置于最后一行首 
+vi +/pattern filename：打开文件，并将光标置于第一个与pattern匹配的串处 
+vi -r filename ：在上次正用vi编辑时发生系统崩溃，恢复filename 
+vi filename....filename ：打开多个文件，依次进行编辑 
+
+移动光标类命令
+h ：光标左移一个字符 
+l ：光标右移一个字符 
+space：光标右移一个字符 
+Backspace：光标左移一个字符 
+k或Ctrl+p：光标上移一行 
+j或Ctrl+n ：光标下移一行 
+Enter ：光标下移一行 
+w或W ：光标右移一个字至字首 
+b或B ：光标左移一个字至字首 
+e或E ：光标右移一个字至字尾 
+) ：光标移至句尾 
+( ：光标移至句首 
+}：光标移至段落开头 
+{：光标移至段落结尾 
+nG：光标移至第n行首 
+n+：光标下移n行 
+n-：光标上移n行 
+n$：光标移至第n行尾 
+H ：光标移至屏幕顶行 
+M ：光标移至屏幕中间行 
+L ：光标移至屏幕最后行 
+0：（注意是数字零）光标移至当前行首 
+$：光标移至当前行尾 
+
+屏幕翻滚类命令 
+Ctrl+u：向文件首翻半屏 
+Ctrl+d：向文件尾翻半屏 
+Ctrl+f：向文件尾翻一屏 
+Ctrl＋b；向文件首翻一屏 
+nz：将第n行滚至屏幕顶部，不指定n时将当前行滚至屏幕顶部。 
+
+插入文本类命令 
+i ：在光标前 
+I ：在当前行首 
+a：光标后 
+A：在当前行尾 
+o：在当前行之下新开一行 
+O：在当前行之上新开一行 
+r：替换当前字符 
+R：替换当前字符及其后的字符，直至按ESC键 
+s：从当前光标位置处开始，以输入的文本替代指定数目的字符 
+S：删除指定数目的行，并以所输入文本代替之 
+ncw或nCW：修改指定数目的字 
+nCC：修改指定数目的行 
+
+删除命令 
+ndw或ndW：删除光标处开始及其后的n-1个字 
+do：删至行首 
+d$：删至行尾 
+ndd：删除当前行及其后n-1行 
+x或X：删除一个字符，x删除光标后的，而X删除光标前的 
+Ctrl+u：删除输入方式下所输入的文本 
+
+搜索及替换命令 
+/pattern：从光标开始处向文件尾搜索pattern 
+?pattern：从光标开始处向文件首搜索pattern 
+n：在同一方向重复上一次搜索命令 
+N：在反方向上重复上一次搜索命令 
+：s/p1/p2/g：将当前行中所有p1均用p2替代 
+：n1,n2s/p1/p2/g：将第n1至n2行中所有p1均用p2替代 
+：g/p1/s//p2/g：将文件中所有p1均用p2替换 
+
+选项设置 
+all：列出所有选项设置情况 
+term：设置终端类型 
+ignorance：在搜索中忽略大小写 
+list：显示制表位(Ctrl+I)和行尾标志（$) 
+number：显示行号 
+report：显示由面向行的命令修改过的数目 
+terse：显示简短的警告信息 
+warn：在转到别的文件时若没保存当前文件则显示NO write信息 
+nomagic：允许在搜索模式中，使用前面不带“\”的特殊字符 
+nowrapscan：禁止vi在搜索到达文件两端时，又从另一端开始 
+mesg：允许vi显示其他用户用write写到自己终端上的信息 
+
+最后行方式命令 
+：n1,n2 co n3：将n1行到n2行之间的内容拷贝到第n3行下 
+：n1,n2 m n3：将n1行到n2行之间的内容移至到第n3行下 
+：n1,n2 d ：将n1行到n2行之间的内容删除 
+：w ：保存当前文件 
+：e filename：打开文件filename进行编辑 
+：x：保存当前文件并退出 
+：q：退出vi 
+：q!：不保存文件并退出vi 
+：!command：执行shell命令command 
+：n1,n2 w!command：将文件中n1行至n2行的内容作为command的输入并执行之，若不指定n1，n2，则表示将整个文件内容作为command的输入 
+：r!command：将命令command的输出结果放到当前行 
+
+寄存器操作 
+"?nyy：将当前行及其下n行的内容保存到寄存器？中，其中?为一个字母，n为一个数字 
+"?nyw：将当前行及其下n个字保存到寄存器？中，其中?为一个字母，n为一个数字 
+"?nyl：将当前行及其下n个字符保存到寄存器？中，其中?为一个字母，n为一个数字 
+"?p：取出寄存器？中的内容并将其放到光标位置处。这里？可以是一个字母，也可以是一个数字 
+ndd：将当前行及其下共n行文本删除，并将所删内容放到1号删除寄存器中。
+
+VI的使用
+--------------------------------------------------------------------------------
+
+一、插入文本 
+┌──┬────────────┐ 
+│命令│描述　　　　　　　　　　│ 
+├──┼────────────┤ 
+│i 　│在当前字符前插入文本　　│ 
+├──┼────────────┤ 
+│I 　│在行首插入文本 　　　 　│ 
+├──┼────────────┤ 
+│a 　│在当前字符后添加文本　　│ 
+├──┼────────────┤ 
+│A 　│在行末添加文本　　　　　│ 
+├──┼────────────┤ 
+│o 　│在当前行后面插入一空行　│ 
+├──┼────────────┤ 
+│O 　│在当前行前面插入一空行　│ 
+├──┼────────────┤ 
+│R 　│以改写方式输入文本　　　│ 
+└──┴────────────┘ 
+二、移动光标 
+┌─────┬───────────┐ 
+│命令　　　│描述　　　　　　　　　│ 
+├─────┼───────────┤ 
+│j或下箭头 │向下移动一行　　　　　│ 
+├─────┼───────────┤ 
+│k或上箭头 │向上移动一行　　　　　│ 
+├─────┼───────────┤ 
+│h或左箭头 │左移一个字符　　　　　│ 
+├─────┼───────────┤ 
+│l或右箭头 │右移一个字符　　　　　│ 
+├─────┼───────────┤ 
+│w 　　　　│右移一个词　　　　　　│ 
+├─────┼───────────┤ 
+│W 　　　　│右移一个以空格分隔的词│ 
+├─────┼───────────┤ 
+│b 　　　　│左移一个词　　　　　　│ 
+├─────┼───────────┤ 
+│B 　　　　│左移一个以空格分隔的词│ 
+├─────┼───────────┤ 
+│0 　　　　│移到行首　　　　　　　│ 
+│Ctrl-F　　│向前翻页　　　　　　　│ 
+├─────┼───────────┤ 
+│Ctrl-B　　│向后翻页　　　　　　　│ 
+├─────┼───────────┤ 
+│nG　　　　│到第n行 　　　　　　　│ 
+├─────┼───────────┤ 
+│G 　　　　│到最后一行　　　　　　│ 
+└─────┴───────────┘ 
+三、替换文本 
+┌─────┬──────┐ 
+│命令　　　│描述　　　　│ 
+├─────┼──────┤ 
+│$ 　　　　│到行尾　　　│ 
+├─────┼──────┤ 
+│( 　　　　│到句子的开头│ 
+├─────┼──────┤ 
+│) 　　　　│到句子的末尾│ 
+├─────┼──────┤ 
+│{　 　　　│到段落的开头│ 
+├─────┼──────┤ 
+│}　　 　　│到段落的末尾│ 
+└─────┴──────┘ 
+
+四、删除文本 
+┌───┬───────────┐ 
+│命令　│描述 　　　　　　 　　│ 
+├───┼───────────┤ 
+│r 　　│替换一个字符 　　　　 │ 
+├───┼───────────┤ 
+│c 　　│修改文本直到按下Esc健 │ 
+├───┼───────────┤ 
+│cw　　│修改下一个词 　　　 　│ 
+├───┼───────────┤ 
+│cnw　 │修改接下来的n个词 　　│ 
+└───┴───────────┘ 
+五、文本编辑 
+┌──┬──────────────────────┐ 
+│命寺│描述　　　　　　　　　　　　　　　　　　　　│ 
+├──┼──────────────────────┤ 
+│yy　│将一行文本移到缺省缓冲区中 　　　　 　　　　│ 
+├──┼──────────────────────┤ 
+│yn　│将下一个词移到缺省缓冲区中 　　 　　　　　　│ 
+├──┼──────────────────────┤ 
+│ynw │将后面的n个词移到缺省缓冲区中　　　　 　　　│ 
+├──┼──────────────────────┤ 
+│p 　│如果缺省缓冲区中包含一行文本，则在当前　　　│ 
+│　　│行后面插入一个空行井将缺省缓冲区中的声　　　│ 
+│　　│容粘贴到这一行中；如果缺省缓冲区中包含　　　│ 
+│　　│多个词，把这些词粘贴到光标的右边．　　　　　│ 
+├──┼──────────────────────┤ 
+│P 　│如果缺省缓冲区中包含一行文本，则正当前 　 　│ 
+│ 　 │行前面插入一个空行井将缺省缓冲区中的内 　 　│ 
+│　　│容粘贴到这一行中；如果缺省缓冲区中包含 　　 │ 
+│ 　 │多个词，把这些词粘贴到光标的左边 　 　
+
+　　│ 
+└──┴──────────────────────┘ 
+六、保存退出 
+┌───────────┬───────────────┐ 
+│命令　　　　　　　　　│描述　　　　　　　　　　　　　│ 
+├───────────┼───────────────┤ 
+│zz　　　　　　　　　　│保存并退出　　　　　　　　　　│ 
+├───────────┼───────────────┤ 
+│:w filename　　　　 　│写入文件　　　　　　　　　 　 │ 
+├───────────┼───────────────┤ 
+│:W　　　　　　　　　　│写入文件　　　　　　　　　　　│ 
+├───────────┼───────────────┤ 
+│:x　　　　　　　　　　│保存(如果当前文件修改过)并退出│ 
+├───────────┼───────────────┤ 
+│:q!　　　　　　　　　 │不保存文件，直接退出　　 　　 │ 
+├───────────┼───────────────┤ 
+│:q　　　　　　　　　　│退出vi　　　　　　　　　　　　│ 
+
+VI常用技巧
+
+VI命令可以说是Unix/Linux世界里最常用的编辑文件的命令了，但是因为它的命令集众多，很多人都不习惯使用它，其实您只需要掌握基本命令，然后加以灵活运用，就会发现它的优势，并会逐渐喜欢使用这种方法。本文旨在介绍VI的一些最常用命令和高级应用技巧。 
+
+一、基本命令介绍 
+
+---- 1．光标命令 
+
+k、j、h、l——上、下、左、右光标移动命令。虽然您可以在Linux中使用键盘右边的4个光标键，但是记住这4个命令还是非常有用的。这4个键正是右手在键盘上放置的基本位置。 
+nG——跳转命令。n为行数，该命令立即使光标跳到指定行。 
+Ctrl+G——光标所在位置的行数和列数报告。 
+w、b——使光标向前或向后跳过一个单词。 
+---- 2．编辑命令 
+i、a、r——在光标的前、后以及所在处插入字符命令(i=insert、a=append、r=replace)。 
+cw、dw——改变(置换)/删除光标所在处的单词的命令 (c=change、d=delete)。 
+x、d$、dd——删除一个字符、删除光标所在处到行尾的所有字符以及删除整行的命令。 
+---- 3．查找命令 
+---- /string、?string——从光标所在处向后或向前查找相应的字符串的命令。 
+---- 4．拷贝复制命令 
+---- yy、p——拷贝一行到剪贴板或取出剪贴板中内容的命令。 
+
+二、常见问题及应用技巧 
+
+---- 1．在一个新文件中读/etc/passwd中的内容，取出用户名部分。 
+---- vi file 
+---- :r /etc/passwd 在打开的文件file中光标所在处读入/etc/passwd 
+---- :%s/:.*//g 删除/etc/passwd中用户名后面的从冒号开始直到行尾的所有部分。 
+---- 您也可以在指定的行号后读入文件内容，例如使用命令“:3r /etc/passwd”从新文件的第3行开始读入 /etc/passwd的所有内容。 
+---- 我们还可以使用以下方法删掉文件中所有的空行及以#开始的注释行。 
+---- #cat squid.conf.default | grep -v ^$ | grep -v ^# 
+
+---- 2．在打开一个文件编辑后才知道登录的用户对该文件没有写的权限，不能存盘，需要将所做修改存入临时文件。 
+---- vi file 
+---- :w /tmp/1 保存所做的所有修改，也可以将其中的某一部分修改保存到临时文件，例如仅仅把第20～59行之间的内容存盘成文件/tmp/1，我们可以键入如下命令。 
+---- vi file 
+---- :20,59w /tmp/1 
+
+---- 3．用VI编辑一个文件，但需要删除大段的内容。 
+---- 首先利用编辑命令“vi file”打开文件，然后将光标移到需要删除的行处按Ctrl+G显示行号，再到结尾处再按Ctrl+G，显示文件结尾的行号。 
+---- :23,1045d 假定2次得到的行号为23和1045，则把这期间的内容全删除，也可以在要删除的开始行和结束行中用ma、mb命令标记，然后利用“:a,bd”命令删除。 
+
+---- 4．在整个文件的各行或某几行的行首或行尾加一些字符串。 
+---- vi file 
+---- :3,$s/^/some string / 在文件的第一行至最后一行的行首插入“some string”。 
+---- :%s/$/some string/g 在整个文件每一行的行尾添加“some string”。 
+---- :%s/string1/string2/g 在整个文件中替换“string1”成“string2”。 
+---- :3,7s/string1/string2/ 仅替换文件中的第3行到第7行中的“string1”成“string2”。 
+---- 注意: 其中s为substitute，%表示所有行，g表示global。 
+
+---- 5．同时编辑2个文件，拷贝一个文件中的文本并粘贴到另一个文件中。 
+---- vi file1 file2 
+---- yy 在文件1的光标处拷贝所在行 
+---- :n 切换到文件2 (n=next) 
+---- p 在文件2的光标所在处粘贴所拷贝的行 
+---- :n 切换回文件1 
+
+---- 6．替换文件中的路径。 
+---- 使用命令“:%s#/usr/bin#/bin#g”可以把文件中所有路径/usr/bin换成/bin。也可以使用命令“:%s//usr/bin//bin/g”实现，其中“”是转义字符，表明其后的“/”字符是具有实际意义的字符，不是分隔符。
