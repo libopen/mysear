@@ -66,44 +66,59 @@ class STDTB(object):
                   db.loc[index,'gpid6']=curid
             return db 
  
- 
+      def regroup(self,db):
+            curid13=0
+            curid6=0
+            for index,row in db.iterrows():
+                  if row['prez6mode']!=row['z6mode']:
+                        curid6=index
+                  if row['prez13mode']!=row['z13mode']:
+                        curid13=index
+            
+                  db.loc[index,'gpid6']=curid6
+                  db.loc[index,'gpid']=curid13
+            return db 
+            
       def getexdb(self):
             try:
                   self.load()
                   exdb=self.db
+                  #print(time.time())
                   exdb['dif'],exdb['dea'],exdb['macd']=talib.MACD(np.array(exdb.c),10,20,6) # change
  
-                  exdb['id']=exdb.index
+                  exdb.loc[:,'id']=exdb.index
+                  #exdb.set_index('id')
  
-                  exdb['dmzu']=exdb.apply(lambda x:-x.macd if (x.macd<0)&(x.dif>0)&(x.dea>0) else 0 ,axis=1) #zero axis down macd
-                  exdb['dmzd']=exdb.apply(lambda x:-x.macd if (x.macd<0)&(x.dmzu==0) else 0 ,axis=1)
-                  exdb['umzu']=exdb.apply(lambda x:x.macd if (x.macd>0)&(x.dif>0)&(x.dea>0) else 0 ,axis=1)
-                  exdb['umzd']=exdb.apply(lambda x:x.macd if (x.macd>0)&(x.umzu==0) else 0 ,axis=1)
-                  exdb['idmzu']=exdb.apply(lambda x:1 if (x.macd<0)&(x.dif>0)&(x.dea>0) else 0 ,axis=1)
-                  exdb['idmzd']=exdb.apply(lambda x:1 if (x.macd<0)&(x.idmzu==0) else 0 ,axis=1)
-                  exdb['iumzu']=exdb.apply(lambda x:1 if (x.macd>0)&(x.dif>0)&(x.dea>0) else 0 ,axis=1)
-                  exdb['iumzd']=exdb.apply(lambda x:1 if (x.macd>0)&(x.iumzu==0) else 0 ,axis=1)
+                  exdb.loc[:,'dmzu']=exdb.apply(lambda x:-x.macd if (x.macd<0)&(x.dif>0)&(x.dea>0) else 0 ,axis=1) #zero axis down macd
+                  exdb.loc[:,'dmzd']=exdb.apply(lambda x:-x.macd if (x.macd<0)&(x.dmzu==0) else 0 ,axis=1)
+                  exdb.loc[:,'umzu']=exdb.apply(lambda x:x.macd if (x.macd>0)&(x.dif>0)&(x.dea>0) else 0 ,axis=1)
+                  exdb.loc[:,'umzd']=exdb.apply(lambda x:x.macd if (x.macd>0)&(x.umzu==0) else 0 ,axis=1)
+                  exdb.loc[:,'idmzu']=exdb.apply(lambda x:1 if (x.macd<0)&(x.dif>0)&(x.dea>0) else 0 ,axis=1)
+                  exdb.loc[:,'idmzd']=exdb.apply(lambda x:1 if (x.macd<0)&(x.idmzu==0) else 0 ,axis=1)
+                  exdb.loc[:,'iumzu']=exdb.apply(lambda x:1 if (x.macd>0)&(x.dif>0)&(x.dea>0) else 0 ,axis=1)
+                  exdb.loc[:,'iumzd']=exdb.apply(lambda x:1 if (x.macd>0)&(x.iumzu==0) else 0 ,axis=1)
                   z6=peak_valley_pivots(np.array(exdb.c),0.06,-0.06)
                   z13=peak_valley_pivots(np.array(exdb.c),0.13,-0.13)
                   z6mode=pivots_to_modes(z6)
                   z13mode=pivots_to_modes(z13)
+                  #print(time.time())
+                  exdb.loc[:,'z6']=pd.Series(z6,index=exdb.index)
+                  exdb.loc[:,'z13']=pd.Series(z13,index=exdb.index)
+                  exdb.loc[:,'z6mode']=pd.Series(z6mode,index=exdb.index)
+                  exdb.loc[:,'z13mode']=pd.Series(z13mode,index=exdb.index)
+                  exdb.loc[:,'prez13mode']=exdb.z13mode.shift(1).fillna(0).astype(int)
+                  exdb.loc[:,'prez6mode']=exdb.z6mode.shift(1).fillna(0).astype(int)
                   
-                  exdb['z6']=pd.Series(z6,index=exdb.index)
-                  exdb['z13']=pd.Series(z13,index=exdb.index)
-                  exdb['z6mode']=pd.Series(z6mode,index=exdb.index)
-                  exdb['z13mode']=pd.Series(z13mode,index=exdb.index)
-                  exdb['prez13mode']=exdb.z13mode.shift(1).fillna(0).astype(int)
-                  exdb['prez6mode']=exdb.z6mode.shift(1).fillna(0).astype(int)
+                  exdb.loc[:,'gpid']=0
+                  exdb.loc[:,'gpid6']=0
                   
-                  exdb['gpid']=0
-                  exdb['gpid6']=0
-                  
-     
-                  exdb=self.regroup13(exdb)
-                  exdb=self.regroup6(exdb)
-                  exdb['s6id']=exdb.id-exdb.gpid6+1 #use for get the current position in current seg
-                  exdb['s13id']=exdb.id-exdb.gpid+1
-                  
+                  #print(time.time())
+                  #exdb=self.regroup13(exdb)
+                  #exdb=self.regroup6(exdb)
+                  exdb=self.regroup(exdb)
+                  exdb.loc[:,'s6id']=exdb.id-exdb.gpid6+1 #use for get the current position in current seg
+                  exdb.loc[:,'s13id']=exdb.id-exdb.gpid+1
+                  #print(time.time())
                   return exdb
             except:
                   pass
@@ -387,6 +402,13 @@ class STDTB(object):
                   return 1
             else :
                   return 0
+      def Level3(self,x):
+            if (x.progp6no==1) and (x.curgp6no==1) : #prat>0.13 and crat>-0.13
+                  return 1
+            elif (x.prat>0.1) and (x.prat>=-x.currat) and (-x.currat>0.1) and (x.progp6no>2):
+                  return 2
+            else:
+                  return 0
       def Level5(self,x):
             if (x.ppgpid==x.pgpid) and (x.pgpid==x.cgpid):
                   return 's'
@@ -399,7 +421,7 @@ class STDTB(object):
                   #gp=self.creatgp6(exdb)
                   gp=self.getgp6()
                   if gp is not None:
-                        gp['nid']=pd.Series(range(len(gp)),index=gp.index)
+                        gp.loc[:,'nid']=pd.Series(range(len(gp)),index=gp.index)
                         
                         
                         #gp=gp.set_index('nid')
@@ -438,7 +460,7 @@ class STDTB(object):
                         df.loc[:,'progp6no']=df['gp6no1']
                         df.loc[:,'curgp6no']=df['gp6no']
                         df.loc[:,'Level3data']=df.apply(lambda x:'rat[{prat},{currat}]gno[{progp6no}-{curgp6no}]'.format(**x),axis=1)
-                        df.loc[:,'Level3']=df.apply(lambda x:1 if (x.progp6no==1)&(x.curgp6no==1) else 0,axis=1)
+                        df.loc[:,'Level3']=df.apply(self.Level3,axis=1)
                         df.loc[:,'Level4data']=df.apply(lambda x:'h{proh}-c{s6d0},{s6d1}-l{prol}'.format(**x),axis=1)
                         df.loc[:,'Level4']=df.apply(lambda x:1 if (x.s6d0>=x.prol)&(x.s6d1>=x.prol) else 0 ,axis=1)
                         # current state
@@ -615,20 +637,23 @@ class ANALYSIS:
             i=0
             j=0 
             result=pd.DataFrame()
-            result1=pd.DataFrame()            
+            #result1=pd.DataFrame()            
             gp=pd.DataFrame()
             for path in snlist:
                               dbcurrent=result
-                              db1=result1
+                              #db1=result1
                               stobj=STDTB(path,'z')
                               if yourtype=='pass':
                                     gp=stobj.mainindicator6()    
                               else :
-                                    gp=stobj.indicator6()
+                                    df=stobj.indicator6() 
+                                    #only get the last row
+                                    if df is not None:
+                                          df=df.tail(1)
+                                          gp=df[(df.Level0==1)&(df.Level3!=0)&(df.curno==0)]
                               if gp is not None:
                                     try:
                                           result=dbcurrent.append(gp)
-                                          result1=db1.append(gp.tail(1))
                                           i=i+1
                                     except:
                                           print(gp.sn)
@@ -638,8 +663,8 @@ class ANALYSIS:
             if result.empty == False:
                   print("{}total:{} ,failure:{}".format(pat,i,j))
                   result.to_csv("gp6{}{}.csv".format(pat,yourtype))        
-                  result1.to_csv("gp6{}{}last.csv".format(pat,yourtype))       
-                  return result1                                    
+                  #result1.to_csv("gp6{}{}last.csv".format(pat,yourtype))       
+                  return result                                    
                               
       def batsavegp(self,pat,cyctype='D',angtype='z',usemyfind='n'):
             alllist=self.getallfile(ROOTPATH,pat)
