@@ -626,7 +626,7 @@ class ANALYSIS:
                         pass
                   else:
                         # only get lines >60 
-                        if os.path.basename(path)[0:3]==pat and os.stat(path).st_size>4000 :#and os.path.basename(path)[0:8]=='SZ300008':
+                        if os.path.basename(path)[0:3]==pat and os.stat(path).st_size>4000 :#and os.path.basename(path)[0:8]=='SH600576':
                         #if os.path.basename(path)[0:5]=='SH600' and os.stat(path).st_size!=0: 
                               resultlist.append(path)
             return resultlist
@@ -643,6 +643,7 @@ class ANALYSIS:
                               dbcurrent=result
                               #db1=result1
                               stobj=STDTB(path,'z')
+                              
                               if yourtype=='pass':
                                     gp=stobj.mainindicator6()    
                               else :
@@ -651,10 +652,14 @@ class ANALYSIS:
                                     if df is not None:
                                           df=df.tail(1)
                                           gp=df[(df.Level0==1)&(df.Level3!=0)&(df.curno<=4)]
-                              if gp is not None:
+                                    else:
+                                          gp=pd.DataFrame()
+                              if gp is not None and len(gp)>0:
                                     try:
+                                          #print(stobj.sn)
                                           result=dbcurrent.append(gp)
                                           i=i+1
+                                          #print(i)
                                     except:
                                           print(gp.sn)
                                           continue 
