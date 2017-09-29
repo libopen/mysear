@@ -61,7 +61,7 @@ class StockInfo:
                code.write(f.readall())
 
 def   Main():
-      stocks=['sz300008','sh603108','sh600476']
+      stocks=['sz300008','sz002318','sh600476']
       for stock in stocks:
           StockInfo.GetStockInfo(stock)
 

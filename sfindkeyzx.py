@@ -85,7 +85,8 @@ class STDTB(object):
                   exdb=self.db
                   #print(time.time())
                   exdb['dif'],exdb['dea'],exdb['macd']=talib.MACD(np.array(exdb.c),10,20,6) # change
- 
+                  exdb['sma5']=talib.SMA(np.array(exdb.c),5)
+                  exdb['sma10']=talib.SMA(np.array(exdb.c),10)
                   exdb.loc[:,'id']=exdb.index
                   #exdb.set_index('id')
  
@@ -97,6 +98,8 @@ class STDTB(object):
                   exdb.loc[:,'idmzd']=exdb.apply(lambda x:1 if (x.macd<0)&(x.idmzu==0) else 0 ,axis=1)
                   exdb.loc[:,'iumzu']=exdb.apply(lambda x:1 if (x.macd>0)&(x.dif>0)&(x.dea>0) else 0 ,axis=1)
                   exdb.loc[:,'iumzd']=exdb.apply(lambda x:1 if (x.macd>0)&(x.iumzu==0) else 0 ,axis=1)
+                  exdb.loc[:,'premacd']=exdb.macd.shift(1)
+                  exdb.loc[:,'u510']= exdb.apply(lambda x :1 if (x.c>=x.sma5)&(x.c>=x.sma10)&(x.macd>=0)&(x.premacd<=0) else 0 ,axis=1)
                   z6=peak_valley_pivots(np.array(exdb.c),0.06,-0.06)
                   z13=peak_valley_pivots(np.array(exdb.c),0.13,-0.13)
                   z6mode=pivots_to_modes(z6)
@@ -253,8 +256,8 @@ class STDTB(object):
       def creatgp6(self,db):
                   # group by gpid get sum of md and gpred
             if db.empty==False and len(db)>60:
-                  gp22=db.groupby('gpid6').sum()[['z6mode','idmzu','idmzd','iumzu','iumzd']]
-                  gp22.columns=['s6len','s6sumdmzu','s6sumdmzd','s6sumumzu','s6sumumzd'] #len6 :seg6 
+                  gp22=db.groupby('gpid6').sum()[['z6mode','idmzu','idmzd','iumzu','iumzd','u510']]
+                  gp22.columns=['s6len','s6sumdmzu','s6sumdmzd','s6sumumzu','s6sumumzd','s6sumu510'] #len6 :seg6 
                   #gp23=db.groupby('gpid')
                   gp23=db.groupby('gpid6').max()[['dmzu','umzu','umzd','dmzd']]
                   gp23.columns=['s6maxdmzu','s6maxumzu','s6maxumzd','s6maxdmzd']                  
@@ -265,8 +268,8 @@ class STDTB(object):
                   gp3.columns=['gpid6','s6startdate','s6startc']
                   gp3=gp3.set_index('gpid6')
                   idx2=db.groupby('gpid6')['id'].transform(max)==db['id']
-                  gp32=db[idx2][['gpid6','date'     ,'c'      ,'gpid','s6id']]
-                  gp32.columns=['gpid6','s6lastdate','s6lastc','gpid','s6id']
+                  gp32=db[idx2][['gpid6','date'     ,'c'      ,'gpid','s6id','u510']]
+                  gp32.columns=['gpid6','s6lastdate','s6lastc','gpid','s6id','s6lastu510']
                   gp32=gp32.set_index('gpid6')
                   gp=pd.concat([gp22,gp23,gp24,gp3,gp32],axis=1,join="inner")
                   
@@ -414,7 +417,7 @@ class STDTB(object):
                   return 's'
             else :
                   return 'd'
-      CURRCONf=['sn','Level0','Level0data','s6startdate','pos','lastsdd','lastc','curno','currat','Level1data','Level1','Level2data','Level2','Level3data','Level3','Level4data','Level4','s6same']
+      CURRCONf=['sn','Level0','Level0data','s6startdate','pos','lastsdd','lastc','lastu510','curno','currat','Level1data','Level1','Level2data','Level2','Level3data','Level3','Level4data','Level4','s6same']
       def indicator6(self):
             try:
                   #exdb=self.getexdb()
@@ -467,6 +470,7 @@ class STDTB(object):
                         df.loc[:,'lastid']=gp[-1:]['nid'].values[0]
                         df.loc[:,'lastsdd']=gp[-1:]['s6sdd'].values[0]
                         df.loc[:,'lastc']=gp[-1:]['s6lastc'].values[0]
+                        df.loc[:,'lastu510']=gp[-1:]['s6lastu510'].values[0]
                         df.loc[:,'curno']=df['lastid']-df['nid']
                         df.loc[:,'currat']=df.apply(lambda x :x.lastc/x.prol-1 if x.lastc>x.prol else -x.lastc/x.prol,axis=1)
                         #df.iloc[-1,df.columns.get_loc('lastid')]=gp[-1:]['nid'].values[0]

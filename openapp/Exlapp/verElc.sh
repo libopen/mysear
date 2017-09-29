@@ -2,7 +2,7 @@ flname=$1
 echo 'col batchcode'
 awk -F, '{print $2}' $1 |sort|uniq -c
 read -rsp $'Press enter to continue...\n'
-echo 'col courseid'
+echo 'wrong courseid'
 awk -F, '{if (length($4)!=5) print $4}' $1 |sort|uniq -c
 read -rsp $'Press enter to continue...\n'
 echo 'col spycode'
@@ -15,7 +15,7 @@ echo 'col learningcentercode'
 awk -F, '{print $5}' $1 |sort|uniq -c
 read -rsp $'Press enter to continue...\n'
 echo 'duplicate record'
-awk -F, '{print $2,$3,$4}' $1|sort|uniq -d
+awk -F, '{print $2,$3,$5,$4}' $1|sort|uniq -d
 read -rsp $'Press enter to continue...\n'
 echo ' include . '
 grep '\.0' $1
