@@ -450,22 +450,6 @@ class STDTB(object):
                         df.loc[:,'cur13rat']=df['s13sdd']
                         df.loc[:,'pre13segs']=df['s6segs1']
                         df.loc[:,'cur13segs']=df['s6segs']  
-                        df=np.round(df,decimals=2)
-                        df.loc[:,'Level0data']=df.apply(lambda x:'p13rat{pre13rat}[{s6segs1}],c13rat{cur13rat}'.format(**x),axis=1)
-                        df.loc[:,'Level0']=df.apply(lambda x:1 if (x.pre13rat>0)&(x.pre13rat>=-x.cur13rat)&(x.pre13rat/2>(x.pre13rat+x.cur13rat)) else 0 ,axis=1)
-                        df.loc[:,'Level1data']=df.apply(lambda x:'pow[{ppropowgrefr}-{propowredfr}-{curpowgrefr}]num[{ppronumgrefr}-{pronumredfr}-{curnumgrefr}]'.format(**x),axis=1)
-                        df.loc[:,'Level1']=df.apply(self.Level1,axis=1)
-                        df.loc[:,'pprat']=df['s6sdd2']
-                        df.loc[:,'prat']=df['s6sdd1']
-                        df.loc[:,'currat']=df['s6sdd']
-                        df.loc[:,'Level2data']=df.apply(lambda x:'pow[{pprat},{prat},{currat}]num[{ppronumgrefr}-{pronumredfr}-{curnumgrefr}]'.format(**x),axis=1)
-                        df.loc[:,'Level2']=df.apply(self.Level2,axis=1)
-                        df.loc[:,'progp6no']=df['gp6no1']
-                        df.loc[:,'curgp6no']=df['gp6no']
-                        df.loc[:,'Level3data']=df.apply(lambda x:'rat[{prat},{currat}]gno[{progp6no}-{curgp6no}]'.format(**x),axis=1)
-                        df.loc[:,'Level3']=df.apply(self.Level3,axis=1)
-                        df.loc[:,'Level4data']=df.apply(lambda x:'h{proh}-c{s6d0},{s6d1}-l{prol}'.format(**x),axis=1)
-                        df.loc[:,'Level4']=df.apply(lambda x:1 if (x.s6d0>=x.prol)&(x.s6d1>=x.prol) else 0 ,axis=1)
                         # current state
                         df.loc[:,'lastid']=gp[-1:]['nid'].values[0]
                         df.loc[:,'lastsdd']=gp[-1:]['s6sdd'].values[0]
@@ -478,11 +462,28 @@ class STDTB(object):
                         df.loc[:,'s6w1']=df['s6len1']/5
                         df.loc[:,'s6w']=-df['s6len']/5
                         
+                        df=np.round(df,decimals=2)
+                        df.loc[:,'Level0data']=df.apply(lambda x:'p13rat{pre13rat}[{s6segs1}]，c13rat{cur13rat}'.format(**x),axis=1)
+                        df.loc[:,'Level0']=df.apply(lambda x:1 if (x.pre13rat>0)&(x.pre13rat>=-x.cur13rat)&(x.pre13rat/2>(x.pre13rat+x.cur13rat)) else 0 ,axis=1)
+                        df.loc[:,'Level1data']=df.apply(lambda x:'pow[{ppropowgrefr}-{propowredfr}-{curpowgrefr}]num[{ppronumgrefr}-{pronumredfr}-{curnumgrefr}]'.format(**x),axis=1)
+                        df.loc[:,'Level1']=df.apply(self.Level1,axis=1)
+                        df.loc[:,'pprat']=df['s6sdd2']
+                        df.loc[:,'prat']=df['s6sdd1']
+                        df.loc[:,'currat']=df['s6sdd']
+                        df.loc[:,'Level2data']=df.apply(lambda x:'pow[{pprat}，{prat}，{currat}]num[{ppronumgrefr}-{pronumredfr}-{curnumgrefr}]'.format(**x),axis=1)
+                        df.loc[:,'Level2']=df.apply(self.Level2,axis=1)
+                        df.loc[:,'progp6no']=df['gp6no1']
+                        df.loc[:,'curgp6no']=df['gp6no']
+                        df.loc[:,'Level3data']=df.apply(lambda x:'rat[{prat}，{currat}]gno[{progp6no}-{curgp6no}]'.format(**x),axis=1)
+                        df.loc[:,'Level3']=df.apply(self.Level3,axis=1)
+                        df.loc[:,'Level4data']=df.apply(lambda x:'h{proh}-c{s6d0}，{s6d1}-l{prol}'.format(**x),axis=1)
+                        df.loc[:,'Level4']=df.apply(lambda x:1 if (x.s6d0>=x.prol)&(x.s6d1>=x.prol) else 0 ,axis=1)
+                                                
                         df.loc[:,'ppgpid']=df['gpid2']
                         df.loc[:,'pgpid']=df['gpid1']
                         df.loc[:,'cgpid']=df['gpid']
                         df.loc[:,'s6same']=df.apply(self.Level5,axis=1)
-                        df.loc[:,'pos']=df.apply(lambda x:'curr:{nid},last{lastid},pass{curno}'.format(**x),axis=1)
+                        df.loc[:,'pos']=df.apply(lambda x:'curr:{nid}，last{lastid}，pass{curno}'.format(**x),axis=1)
                         
                         
                         
@@ -670,6 +671,7 @@ class ANALYSIS:
                               else:
                                     j=j+1                              
             if result.empty == False:
+                  result=result.sort_values('sn')
                   print("{}total:{} ,failure:{}".format(pat,i,j))
                   result.to_csv("gp6{}{}.csv".format(pat,yourtype))        
                   #result1.to_csv("gp6{}{}last.csv".format(pat,yourtype))       
