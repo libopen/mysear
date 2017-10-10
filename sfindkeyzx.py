@@ -614,7 +614,7 @@ class STWTB(object):
             wdb=exdb.resample('w').last()
             wdb.h=exdb.h.resample('w').max()
             wdb.o=exdb.o.resample('w').first()
-            wdb.c=exdb.c.resample('w').min()
+            wdb.l=exdb.l.resample('w').min()
             wdb.v=exdb.v.resample('w').sum()
             #wdb=wdb[wdb.o.notnull()]
             wdb=wdb.dropna(axis=0) 
@@ -630,6 +630,9 @@ class STWTB(object):
                   exdb=self.db
                   #print(time.time())
                   exdb['dif'],exdb['dea'],exdb['macd']=talib.MACD(np.array(exdb.c),10,20,6) # change
+                  exdb['trixl']=talib.TRIX(np.array(exdb.c),12) 
+                  exdb['trixs']=talib.SMA(np.array(exdb.trixl),9)
+                  exdb['tmacd']=exdb.trixl-exdb.trixs                  
                   exdb.loc[:,'id']=exdb.index
                   exdb.loc[:,'dmzu']=exdb.apply(lambda x:-x.macd if (x.macd<0)&(x.dif>0)&(x.dea>0) else 0 ,axis=1) #zero axis down macd
                   exdb.loc[:,'dmzd']=exdb.apply(lambda x:-x.macd if (x.macd<0)&(x.dmzu==0) else 0 ,axis=1)
@@ -669,8 +672,8 @@ class STWTB(object):
                   gp3=gp3.fillna(0)
                   gp3=gp3.set_index('gpid')
                   idx2=db.groupby('gpid')['id'].transform(max)==db['id']
-                  gp32=db[idx2][['gpid','date'     ,'c'      ,'s20id','macd']]
-                  gp32.columns=['gpid','s20lastdate','s20lastc','s20id','s20lastmacd']
+                  gp32=db[idx2][['gpid','date'     ,'c'      ,'s20id','macd','ang','tmacd']]
+                  gp32.columns=['gpid','s20lastdate','s20lastc','s20id','s20lastmacd','s20lastang','s20lasttmacd']
                   gp32=gp32.fillna(0)
                   gp32=gp32.set_index('gpid')
                   
@@ -725,7 +728,8 @@ class STWTB(object):
                   gp['gpid']=gp.index
                   
                   
-                  return gp    
+                  return gp  
+   
       def getgp(self):
             try:
                   db=self.getexdb()
@@ -733,7 +737,7 @@ class STWTB(object):
                   gp=self.creatgp(db)
                   gp['sn']=self.sn
                   
-                  return gp
+                  return gp['']
             except:
                   #print('get gp failure')
                   return None
@@ -747,7 +751,7 @@ class STMTB(STWTB):
             wdb=exdb.resample('m').last()
             wdb.h=exdb.h.resample('m').max()
             wdb.o=exdb.o.resample('m').first()
-            wdb.c=exdb.c.resample('m').min()
+            wdb.l=exdb.l.resample('m').min()
             wdb.v=exdb.v.resample('m').sum()
             #wdb=wdb[wdb.o.notnull()]
             wdb=wdb.dropna(axis=0) 
@@ -756,6 +760,27 @@ class STMTB(STWTB):
             
             self.db=wdb.set_index('id')
             self.db.date=pd.to_datetime(self.db.date)
+      def Level0(self,x):
+            if (x.s20sdd<0) and (x.s20lastang>0) :
+                  return 1
+            elif (x.s20sdd<0) and (x.s20lasttmacd>0) :
+                  return 2
+            else:
+                  return 0
+ 
+      def getgp(self):
+            try:
+                  db=self.getexdb()
+                  #gp6=self.creatgp6(db)
+                  gp=self.creatgp(db)
+                  gp['sn']=self.sn
+                  gp.loc[:,'MLevel0']=gp.apply(self.Level0,axis=1)
+                  return gp[['s20startdate','s20sdd','s20minc','s20lastc','s20len','MLevel0','s20lastdate']]
+
+            except:
+                  #print('get gp failure')
+                  return None
+            
 class ANALYSIS:
       def __init__(self):
             self.speciallist=[]

@@ -227,7 +227,7 @@ class STWTB(STDTB):
             wdb=exdb.resample('w').last()
             wdb.h=exdb.h.resample('w').max()
             wdb.o=exdb.o.resample('w').first()
-            wdb.c=exdb.c.resample('w').min()
+            wdb.l=exdb.l.resample('w').min()
             wdb.v=exdb.v.resample('w').sum()
             #wdb=wdb[wdb.o.notnull()]
             wdb=wdb.dropna(axis=0) 
