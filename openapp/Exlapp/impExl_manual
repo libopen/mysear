@@ -1,3 +1,6 @@
 python3.4 imp900score.py 9/9/score4rj2.xlsx
 stuinf.txt 导出信息需要用到学生的班级专业信息，要事先准备好在导出部分的学生信息
+格式：
+STUDENTCODE,STUDENTID,LEARNINGCENTERCODE,CLASSCODE,SPYCODE
+SQL 
 support/stuinfo.sql 
