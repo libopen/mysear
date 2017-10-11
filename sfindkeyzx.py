@@ -632,7 +632,7 @@ class STWTB(object):
                   exdb['dif'],exdb['dea'],exdb['macd']=talib.MACD(np.array(exdb.c),10,20,6) # change
                   exdb['trixl']=talib.TRIX(np.array(exdb.c),12) 
                   exdb['trixs']=talib.SMA(np.array(exdb.trixl),9)
-                  exdb['tmacd']=exdb.trixl-exdb.trixs                  
+                  exdb['tmacd']=exdb.apply(lambda x :1 if x.trixl>=x.trixs else 0 ,axis=1)
                   exdb.loc[:,'id']=exdb.index
                   exdb.loc[:,'dmzu']=exdb.apply(lambda x:-x.macd if (x.macd<0)&(x.dif>0)&(x.dea>0) else 0 ,axis=1) #zero axis down macd
                   exdb.loc[:,'dmzd']=exdb.apply(lambda x:-x.macd if (x.macd<0)&(x.dmzu==0) else 0 ,axis=1)
@@ -642,6 +642,7 @@ class STWTB(object):
                   exdb.loc[:,'idmzd']=exdb.apply(lambda x:1 if (x.macd<0)&(x.idmzu==0) else 0 ,axis=1)
                   exdb.loc[:,'iumzu']=exdb.apply(lambda x:1 if (x.macd>0)&(x.dif>0)&(x.dea>0) else 0 ,axis=1)
                   exdb.loc[:,'iumzd']=exdb.apply(lambda x:1 if (x.macd>0)&(x.iumzu==0) else 0 ,axis=1)
+                  
                   exdb.loc[:,'ang']= talib.LINEARREG_ANGLE(np.array(exdb.macd),3)
                   z20=peak_valley_pivots(np.array(exdb.c),0.20,-0.20)
                   z20mode=pivots_to_modes(z20)  
@@ -667,13 +668,13 @@ class STWTB(object):
                   gp24=db.groupby('gpid').min()[['c',]]
                   gp24.columns=['s20minc']                  
                   idx=db.groupby('gpid')['id'].transform(min)==db['id']
-                  gp3=db[idx][['gpid','date','c','macd']]
-                  gp3.columns=['gpid','s20startdate','s20startc','s20startmacd']
+                  gp3=db[idx][['gpid','date'        ,'c'        ,'macd'        ,'dea']]
+                  gp3.columns=['gpid','s20startdate','s20startc','s20startmacd','s20startdea']
                   gp3=gp3.fillna(0)
                   gp3=gp3.set_index('gpid')
                   idx2=db.groupby('gpid')['id'].transform(max)==db['id']
-                  gp32=db[idx2][['gpid','date'     ,'c'      ,'s20id','macd','ang','tmacd']]
-                  gp32.columns=['gpid','s20lastdate','s20lastc','s20id','s20lastmacd','s20lastang','s20lasttmacd']
+                  gp32=db[idx2][['gpid','date'     ,'c'        ,'s20id','macd'       ,'ang'       ,'tmacd'       ,'idmzu'      ,'dea']]
+                  gp32.columns=['gpid','s20lastdate','s20lastc','s20id','s20lastmacd','s20lastang','s20lasttmacd','s20lastdmzu','s20lastdea']
                   gp32=gp32.fillna(0)
                   gp32=gp32.set_index('gpid')
                   
@@ -730,21 +731,48 @@ class STWTB(object):
                   
                   return gp  
       def Level0(self,x):
-            if (x.s20sdd<0) and (x.s20lastang>0) :
-                  return 1
-            elif (x.s20sdd<0) and (x.s20lasttmacd>0) :
-                  return 2
+            # zua :s20lastang>0 and s20lastdmzu 1 ---up zero and ang turn
+            # zum:s20lastmacd>0 and s20lastdmzu 1 --up zero and macd turn 
+            # zda :s20lastang>0 and s20lastdmzu 0 ---down zero and ang turn
+            # zdm:s20lastmacd>0 and s20lastdmzd 0 --down zero and macd turn
+            #     s20lasttmacd 1  ---trix as long index ,long trend  is up 
+            #        zua -> zum, zda-> zdm       
+            #     s20lasttmacd 0->1 --trend is turning down to up 
+            #        zua -> zum, zda-> zdm
+            if x.s20lasttmacd==1:
+                  if (x.s20sdd<0)  and (x.s20lastmacd<0) and (x.s20lastdmzu==0) and (x.s20lastc>x.s20minc):
+                        return '1zda'
+                  elif (x.s20sdd<0) and  (x.s20lastmacd>0) and (x.s20lastdmzu==0):
+                        return '1zda2'
+                  else:
+                        return 0  
             else:
-                  return 0   
+                  if (x.s20sdd<0)  and (x.s20lastmacd<0) and (x.s20lastdmzu==0) and (x.s20lastc>x.s20minc):
+                        return '0zda'
+                  elif (x.s20sdd<0) and  (x.s20lastmacd>0) and (x.s20lastdmzu==0):
+                        return '0zda2'
+                  elif (x.s20sdd>0)  and (x.s20lastmacd>0 and x.s20lastang>0):
+                        return '0uweak'
+                  else :
+                        return 0
+      def Level1(self,x):
+            # s20sdd1>0 s20startdea1 s20sdd<0 s20lastdea if s20lastdea>s20startdea1 
+            if (x.s20sdd<0) and (x.s20lastdea>x.s20startdea1):
+                  return 1
+            else :
+                  return 0
       CONf=['s20startdate','s20sdd','s20minc','s20lastc','s20len','Level0','s20lastdate']
-      CONf1=['s20startdate','s20sdd','s20minc','s20lastc','s20len','s20lastang','s20lasttmacd','s20lastdate']
+      CONf1=['s20startdate','s20sdd','s20minc','s20lastc','s20len','s20lastang','s20lastmacd','s20lasttmacd','s20lastdmzu','s20lastdate','Level1','Level0']
+      
       def getgp(self):
             try:
                   db=self.getexdb()
                   #gp6=self.creatgp6(db)
                   gp=self.creatgp(db)
                   gp['sn']=self.sn
+                  gp.loc[:,'s20startdea1']=gp.s20startdea.shift(1)
                   gp.loc[:,'Level0']=gp.apply(self.Level0,axis=1)
+                  gp.loc[:,'Level1']=gp.apply(self.Level1,axis=1)
                   gp=np.round(gp,decimals=3)
                   return gp
                   
