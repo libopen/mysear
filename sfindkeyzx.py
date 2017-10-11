@@ -85,6 +85,9 @@ class STDTB(object):
                   exdb=self.db
                   #print(time.time())
                   exdb['dif'],exdb['dea'],exdb['macd']=talib.MACD(np.array(exdb.c),10,20,6) # change
+                  exdb['trixl']=talib.TRIX(np.array(exdb.c),12) 
+                  exdb['trixs']=talib.SMA(np.array(exdb.trixl),9)
+                  exdb['tmacd']=exdb.apply(lambda x :1 if x.trixl>=x.trixs else 0 ,axis=1)                  
                   exdb['sma5']=talib.SMA(np.array(exdb.c),5)
                   exdb['sma10']=talib.SMA(np.array(exdb.c),10)
                   exdb.loc[:,'acd']=exdb['macd']
@@ -140,12 +143,14 @@ class STDTB(object):
                   
                   #gp23=db.groupby('gpid')
                   idx=db.groupby('gpid')['id'].transform(min)==db['id']
-                  gp3=db[idx][['gpid','date','c']]
-                  gp3.columns=['gpid','s13startdate','s13startc']
+                  gp3=db[idx][['gpid','date','c','dea']]
+                  gp3.columns=['gpid','s13startdate','s13startc','s13startdea']
+                  gp3=gp3.fillna(0)
                   gp3=gp3.set_index('gpid')
                   idx2=db.groupby('gpid')['id'].transform(max)==db['id']  #the current and the last position
-                  gp32=db[idx2][['gpid','date','c','s13id']]
-                  gp32.columns=['gpid','s13lastdate','s13lastc','s13id']
+                  gp32=db[idx2][['gpid','date','c','s13id' , 'dea']]
+                  gp32.columns=['gpid','s13lastdate','s13lastc','s13id','s13lastdea']
+                  gp32=gp32.fillna(0)
                   gp32=gp32.set_index('gpid')
                   s6=db.groupby('gpid').gpid6.nunique()
                   gp6=pd.DataFrame(s6)
@@ -265,8 +270,8 @@ class STDTB(object):
                   gp24=db.groupby('gpid6').min()[['c',]]
                   gp24.columns=['s6minc']                  
                   idx=db.groupby('gpid6')['id'].transform(min)==db['id']
-                  gp3=db[idx][['gpid6','date','c','macd']]
-                  gp3.columns=['gpid6','s6startdate','s6startc','s6startmacd']
+                  gp3=db[idx][['gpid6','date','c','macd', 'dea']]
+                  gp3.columns=['gpid6','s6startdate','s6startc','s6startmacd','s6startdea']
                   gp3=gp3.fillna(0)
                   gp3=gp3.set_index('gpid6')
                   idx2=db.groupby('gpid6')['id'].transform(max)==db['id']
