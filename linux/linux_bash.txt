@@ -1,0 +1,20 @@
+1 循环目录下文件
+FILES=/home/lib/mypyth/export/*
+for f in FILES
+do
+   lines=$(wc -l< $f)    # 文件行数赋变更
+   if [ $lines -lt 200 ];then   #小于 -lt  
+      rm $f
+   elif [ $lines -gt 400 ];then
+      tail -400 $f > oldf
+         mv oldf $f
+   fi
+done 
+
+
+2 文件是否存在
+if [ -e export/data_el*csv ];then
+   cat export/data_el*csv > export/total_elc.csv
+else
+   echo "data_elc*csv is not exists"
+fi

@@ -729,15 +729,25 @@ class STWTB(object):
                   
                   
                   return gp  
-   
+      def Level0(self,x):
+            if (x.s20sdd<0) and (x.s20lastang>0) :
+                  return 1
+            elif (x.s20sdd<0) and (x.s20lasttmacd>0) :
+                  return 2
+            else:
+                  return 0   
+      CONf=['s20startdate','s20sdd','s20minc','s20lastc','s20len','Level0','s20lastdate']
+      CONf1=['s20startdate','s20sdd','s20minc','s20lastc','s20len','s20lastang','s20lasttmacd','s20lastdate']
       def getgp(self):
             try:
                   db=self.getexdb()
                   #gp6=self.creatgp6(db)
                   gp=self.creatgp(db)
                   gp['sn']=self.sn
+                  gp.loc[:,'Level0']=gp.apply(self.Level0,axis=1)
+                  gp=np.round(gp,decimals=3)
+                  return gp
                   
-                  return gp['']
             except:
                   #print('get gp failure')
                   return None
@@ -760,26 +770,9 @@ class STMTB(STWTB):
             
             self.db=wdb.set_index('id')
             self.db.date=pd.to_datetime(self.db.date)
-      def Level0(self,x):
-            if (x.s20sdd<0) and (x.s20lastang>0) :
-                  return 1
-            elif (x.s20sdd<0) and (x.s20lasttmacd>0) :
-                  return 2
-            else:
-                  return 0
- 
-      def getgp(self):
-            try:
-                  db=self.getexdb()
-                  #gp6=self.creatgp6(db)
-                  gp=self.creatgp(db)
-                  gp['sn']=self.sn
-                  gp.loc[:,'MLevel0']=gp.apply(self.Level0,axis=1)
-                  return gp[['s20startdate','s20sdd','s20minc','s20lastc','s20len','MLevel0','s20lastdate']]
 
-            except:
-                  #print('get gp failure')
-                  return None
+ 
+  
             
 class ANALYSIS:
       def __init__(self):
