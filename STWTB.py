@@ -60,8 +60,19 @@ class STWTB(object):
             exdb.loc[:,'idmzd']=exdb.apply(lambda x:1 if (x.macd<0)&(x.idmzu==0) else 0 ,axis=1)
             exdb.loc[:,'iumzu']=exdb.apply(lambda x:1 if (x.macd>0)&(x.dif>0)&(x.dea>0) else 0 ,axis=1)
             exdb.loc[:,'iumzd']=exdb.apply(lambda x:1 if (x.macd>0)&(x.iumzu==0) else 0 ,axis=1)
-
+            
             exdb.loc[:,'ang']= talib.LINEARREG_ANGLE(np.array(exdb.macd),3)
+            
+            exdb.loc[:,'se']= exdb.apply(lambda x:1 if (x.c<x.o) and (x.idmzd==1)  else 0,axis=1)
+            exdb.loc[:,'se1']= exdb.se.shift(1)
+            exdb.loc[:,'se2']= exdb.se.shift(2)
+            exdb.loc[:,'buy']= exdb.apply(lambda x:1 if (x.c>x.o)&(x.o>x.l) and (x.idmzd==1)  else 0,axis=1)
+            exdb.loc[:,'buy1']=exdb.buy.shift(1)
+            exdb.loc[:,'buy2']=exdb.buy.shift(2)
+            exdb.loc[:,'buycintue']=exdb.apply(lambda x:1 if (x.se2==1)&(x.buy1==1)&(x.buy==1) else 0,axis=1)
+            exdb=exdb.fillna(0)
+            
+            
             z20=peak_valley_pivots(np.array(exdb.c),0.20,-0.20)
             z20mode=pivots_to_modes(z20)  
             exdb.loc[:,'z20mode']=pd.Series(z20mode,index=exdb.index)
@@ -70,6 +81,8 @@ class STWTB(object):
             exdb.loc[:,'gpid']=0
             exdd=self.regroup(exdb)
             exdb.loc[:,'s20id']=exdb.id-exdb.gpid+1
+            exdb.loc[:,'pd']=talib.PLUS_DI(np.array(exdb.h),np.array(exdb.l),np.array(exdb.c))
+            exdb.loc[:,'stddev']=talib.STDDEV(np.array(exdb.c))
             return exdb
         except:
             pass
@@ -78,8 +91,8 @@ class STWTB(object):
     def creatgp(self,db):
                 # group by gpid get sum of md and gpred
         if db.empty==False and len(db)>20:
-            gp22=db.groupby('gpid').sum()[['z20mode','idmzu','idmzd','iumzu','iumzd']]
-            gp22.columns=['s20len','s20sumdmzu','s20sumdmzd','s20sumumzu','s20sumumzd'] #len6 :seg6 
+            gp22=db.groupby('gpid').sum()[['z20mode','idmzu','idmzd','iumzu','iumzd','buycintue']]
+            gp22.columns=['s20len','s20sumdmzu','s20sumdmzd','s20sumumzu','s20sumumzd','s20buy'] #len6 :seg6 
             #gp23=db.groupby('gpid')
             gp23=db.groupby('gpid').max()[['dmzu','umzu','umzd','dmzd']]
             gp23.columns=['s20maxdmzu','s20maxumzu','s20maxumzd','s20maxdmzd']                  
@@ -179,7 +192,7 @@ class STWTB(object):
         else :
             return 0
     CONf=['s20startdate','s20sdd','s20minc','s20lastc','s20len','Level0','s20lastdate']
-    CONf1=['s20startdate','s20sdd','s20minc','s20lastc','s20len','s20lastang','s20lastmacd','s20lasttmacd','s20lastdmzu','s20lastdate','Level1','Level0']
+    CONf1=['s20startdate','s20sdd','s20minc','s20lastc','s20len','s20lastang','s20lastmacd','s20lasttmacd','s20lastdmzu','s20lastdate','Level1','Level0','s20buy']
 
     def getgp(self):
         try:

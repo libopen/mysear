@@ -44,6 +44,7 @@ class STDTB(object):
             
             #print(time.time())
             exdb['dif'],exdb['dea'],exdb['macd']=talib.MACD(np.array(exdb.c),10,20,6) # change
+            
             exdb['trixl']=talib.TRIX(np.array(exdb.c),12) 
             exdb['trixs']=talib.SMA(np.array(exdb.trixl),9)
             exdb['tmacd']=exdb.apply(lambda x :1 if x.trixl>=x.trixs else 0 ,axis=1)                  

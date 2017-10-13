@@ -107,6 +107,7 @@ class STDTB(object):
             exdb.loc[:,'s6id']=exdb.id-exdb.gpid6+1 #use for get the current position in current seg
             exdb.loc[:,'s13id']=exdb.id-exdb.gpid+1
             #print(time.time())
+            exdb.loc[:,'stddev']=talib.STDDEV(np.array(exdb.c))
             return exdb
         except:
             pass
