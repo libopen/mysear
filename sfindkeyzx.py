@@ -746,23 +746,22 @@ class STWTB(object):
             #        zua -> zum, zda-> zdm
             if x.s20lasttmacd==1:
                   if (x.s20sdd<0)  and (x.s20lastmacd<0) and (x.s20lastdmzu==0) and (x.s20lastc>x.s20minc):
-                        return '1zda'
-                  elif (x.s20sdd<0) and  (x.s20lastmacd>0) and (x.s20lastdmzu==0):
-                        return '1zda2'
+                        return '1_zd_m<0'
+                  elif (x.s20sdd<0) and  (x.s20lastmacd>0) and (x.s20lastdmzu==0) :
+                        return '1_zd_m>0'
                   else:
                         return 0  
             else:
                   if (x.s20sdd<0)  and (x.s20lastmacd<0) and (x.s20lastdmzu==0) and (x.s20lastc>x.s20minc):
-                        return '0zda'
-                  elif (x.s20sdd<0) and  (x.s20lastmacd>0) and (x.s20lastdmzu==0):
-                        return '0zda2'
-                  elif (x.s20sdd>0)  and (x.s20lastmacd>0 and x.s20lastang>0):
-                        return '0uweak'
+                        return '0_zd_m<0'
+                  elif (x.s20sdd<0) and  (x.s20lastmacd>0) and (x.s20lastdmzu==0) :
+                        return '0_zd_m>0'
+                  
                   else :
                         return 0
       def Level1(self,x):
-            # s20sdd1>0 s20startdea1 s20sdd<0 s20lastdea if s20lastdea>s20startdea1 
-            if (x.s20sdd<0) and (x.s20lastdea>x.s20startdea1):
+            # s20sdd1>0 s20startdea1 s20sdd<0 s20lastdea if s20lastdea>s20startdea1 or s20minc>s20minc1
+            if (x.s20sdd<0) and (x.s20minc>x.s20minc1):
                   return 1
             else :
                   return 0
@@ -775,7 +774,7 @@ class STWTB(object):
                   #gp6=self.creatgp6(db)
                   gp=self.creatgp(db)
                   gp['sn']=self.sn
-                  gp.loc[:,'s20startdea1']=gp.s20startdea.shift(1)
+                  gp.loc[:,'s20minc1']=gp.s20minc.shift(1)
                   gp.loc[:,'Level0']=gp.apply(self.Level0,axis=1)
                   gp.loc[:,'Level1']=gp.apply(self.Level1,axis=1)
                   gp=np.round(gp,decimals=3)
