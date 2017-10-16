@@ -108,6 +108,7 @@ class STDTB(object):
             exdb.loc[:,'s13id']=exdb.id-exdb.gpid+1
             #print(time.time())
             exdb.loc[:,'stddev']=talib.STDDEV(np.array(exdb.c))
+            exdb.loc[:,'variance']=talib.VAR(np.array(exdb.c))
             return exdb
         except:
             pass

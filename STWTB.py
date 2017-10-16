@@ -4,6 +4,7 @@ import talib
 import csv
 from talib import MA_Type
 from zigzag import *
+import os
 ROOTPATH='/home/lib/mypython/export/'
 class STWTB(object):
     def regroup(self,db):
@@ -51,6 +52,7 @@ class STWTB(object):
             exdb['trixl']=talib.TRIX(np.array(exdb.c),12) 
             exdb['trixs']=talib.SMA(np.array(exdb.trixl),9)
             exdb['tmacd']=exdb.apply(lambda x :1 if x.trixl>=x.trixs else 0 ,axis=1)
+            exdb['k'],exdb['d']=talib.STOCHF(np.array(exdb.h),np.array(exdb.l),np.array(exdb.l))
             exdb.loc[:,'id']=exdb.index
             exdb.loc[:,'dmzu']=exdb.apply(lambda x:-x.macd if (x.macd<0)&(x.dif>0)&(x.dea>0) else 0 ,axis=1) #zero axis down macd
             exdb.loc[:,'dmzd']=exdb.apply(lambda x:-x.macd if (x.macd<0)&(x.dmzu==0) else 0 ,axis=1)
@@ -63,13 +65,10 @@ class STWTB(object):
             
             exdb.loc[:,'ang']= talib.LINEARREG_ANGLE(np.array(exdb.macd),3)
             
-            exdb.loc[:,'se']= exdb.apply(lambda x:1 if (x.c<x.o) and (x.idmzd==1)  else 0,axis=1)
-            exdb.loc[:,'se1']= exdb.se.shift(1)
-            exdb.loc[:,'se2']= exdb.se.shift(2)
-            exdb.loc[:,'buy']= exdb.apply(lambda x:1 if (x.c>x.o)&(x.o>x.l) and (x.idmzd==1)  else 0,axis=1)
-            exdb.loc[:,'buy1']=exdb.buy.shift(1)
-            exdb.loc[:,'buy2']=exdb.buy.shift(2)
-            exdb.loc[:,'buycintue']=exdb.apply(lambda x:1 if (x.se2==1)&(x.buy1==1)&(x.buy==1) else 0,axis=1)
+            exdb.loc[:,'kd']= exdb.apply(lambda x:1 if (x.k>x.d) and (x.idmzd==1)  else 0,axis=1)
+            exdb.loc[:,'kd1']= exdb.kd.shift(1)
+            exdb.loc[:,'kd2']= exdb.kd.shift(2)
+            exdb.loc[:,'kdkey']= exdb.apply(lambda x: 1 if(x.kd2==0) and (x.kd1==0) and (x.kd==1) else 0,axis=1)
             exdb=exdb.fillna(0)
             
             
@@ -81,8 +80,6 @@ class STWTB(object):
             exdb.loc[:,'gpid']=0
             exdd=self.regroup(exdb)
             exdb.loc[:,'s20id']=exdb.id-exdb.gpid+1
-            exdb.loc[:,'pd']=talib.PLUS_DI(np.array(exdb.h),np.array(exdb.l),np.array(exdb.c))
-            exdb.loc[:,'stddev']=talib.STDDEV(np.array(exdb.c))
             return exdb
         except:
             pass
@@ -91,11 +88,11 @@ class STWTB(object):
     def creatgp(self,db):
                 # group by gpid get sum of md and gpred
         if db.empty==False and len(db)>20:
-            gp22=db.groupby('gpid').sum()[['z20mode','idmzu','idmzd','iumzu','iumzd','buycintue']]
-            gp22.columns=['s20len','s20sumdmzu','s20sumdmzd','s20sumumzu','s20sumumzd','s20buy'] #len6 :seg6 
+            gp22=db.groupby('gpid').sum()[['z20mode','idmzu','idmzd','iumzu','iumzd','kdkey']]
+            gp22.columns=['s20len','s20sumdmzu','s20sumdmzd','s20sumumzu','s20sumumzd','s20kdkey'] #len6 :seg6 
             #gp23=db.groupby('gpid')
-            gp23=db.groupby('gpid').max()[['dmzu','umzu','umzd','dmzd']]
-            gp23.columns=['s20maxdmzu','s20maxumzu','s20maxumzd','s20maxdmzd']                  
+            gp23=db.groupby('gpid').max()[['dmzu','umzu','umzd','dmzd','c']]
+            gp23.columns=['s20maxdmzu','s20maxumzu','s20maxumzd','s20maxdmzd','s20maxc']                  
             gp24=db.groupby('gpid').min()[['c',]]
             gp24.columns=['s20minc']                  
             idx=db.groupby('gpid')['id'].transform(min)==db['id']
@@ -161,38 +158,31 @@ class STWTB(object):
 
 
             return gp  
-    def Level0(self,x):
-        # zua :s20lastang>0 and s20lastdmzu 1 ---up zero and ang turn
-        # zum:s20lastmacd>0 and s20lastdmzu 1 --up zero and macd turn 
-        # zda :s20lastang>0 and s20lastdmzu 0 ---down zero and ang turn
-        # zdm:s20lastmacd>0 and s20lastdmzd 0 --down zero and macd turn
-        #     s20lasttmacd 1  ---trix as long index ,long trend  is up 
-        #        zua -> zum, zda-> zdm       
-        #     s20lasttmacd 0->1 --trend is turning down to up 
-        #        zua -> zum, zda-> zdm
-        if x.s20lasttmacd==1:
-            if (x.s20sdd<0)  and (x.s20lastmacd<0) and (x.s20lastdmzu==0) and (x.s20lastc>x.s20minc):
-                return '1_zd_m<0'
-            elif (x.s20sdd<0) and  (x.s20lastmacd>0) and (x.s20lastdmzu==0) :
-                return '1_zd_m>0'
-            else:
-                return 0  
-        else:
-            if (x.s20sdd<0)  and (x.s20lastmacd<0) and (x.s20lastdmzu==0) and (x.s20lastc>x.s20minc):
-                return '0_zd_m<0'
-            elif (x.s20sdd<0) and  (x.s20lastmacd>0) and (x.s20lastdmzu==0) :
-                return '0_zd_m>0'
 
-            else :
-                return 0
-    def Level1(self,x):
-        # s20sdd1>0 s20startdea1 s20sdd<0 s20lastdea if s20lastdea>s20startdea1 or s20minc>s20minc1
-        if (x.s20sdd<0) and (x.s20minc>x.s20minc1):
+    def Levelk(self,x):
+        # week k>d =1 and macd<0 and below zero  
+        if (x.s20sdd<0) and (x.s20kdkey>0):
             return 1
         else :
             return 0
-    CONf=['s20startdate','s20sdd','s20minc','s20lastc','s20len','Level0','s20lastdate']
-    CONf1=['s20startdate','s20sdd','s20minc','s20lastc','s20len','s20lastang','s20lastmacd','s20lasttmacd','s20lastdmzu','s20lastdate','Level1','Level0','s20buy']
+
+    def Levelm(self,x):
+        # macd <0 and macd below zero and s20lastc>s20minc  
+        
+        if (x.s20sdd<0)  and (x.s20lastmacd<0) and (x.s20lastdmzu==0) and (x.s20lastc>x.s20minc):
+                return  1
+        else:
+                return  0  
+    def Levelt(self,x):
+         # trix is last index 
+        if (x.s20sdd<0)  and (x.s20lasttmacd>0) and (x.s20lastdmzu==0):
+                return  1
+        else:
+                return  0  
+
+    
+    CONf= ['s20startdate','s20sdd','s20minc','s20lastc','s20len','kmt','s20lastdate']
+    CONf1=['s20startdate','s20sdd','s20minc','s20lastc','s20maxc','s20len','s20lastang','s20lastmacd','s20lasttmacd','s20lastdmzu','s20lastdate']
 
     def getgp(self):
         try:
@@ -201,8 +191,11 @@ class STWTB(object):
             gp=self.creatgp(db)
             gp['sn']=self.sn
             gp.loc[:,'s20minc1']=gp.s20minc.shift(1)
-            gp.loc[:,'Level0']=gp.apply(self.Level0,axis=1)
-            gp.loc[:,'Level1']=gp.apply(self.Level1,axis=1)
+            
+            gp.loc[:,'Levelk']=gp.apply(self.Levelk,axis=1)
+            gp.loc[:,'Levelm']=gp.apply(self.Levelm,axis=1)
+            gp.loc[:,'Levelt']=gp.apply(self.Levelt,axis=1)
+            gp.loc[:,'kmt']=gp.apply(lambda x:'{Levelk}-{Levelm}-{Levelt}'.format(**x),axis=1)
             gp=np.round(gp,decimals=3)
             return gp
 
