@@ -42,7 +42,7 @@ class STWTB(object):
 
         self.db=wdb.set_index('id')
         self.db.date=pd.to_datetime(self.db.date)
-
+    DBF=['date','c','macd','tmacd','kdkey']
     def getexdb(self):
         try:
             self.load()
@@ -52,7 +52,7 @@ class STWTB(object):
             exdb['trixl']=talib.TRIX(np.array(exdb.c),12) 
             exdb['trixs']=talib.SMA(np.array(exdb.trixl),9)
             exdb['tmacd']=exdb.apply(lambda x :1 if x.trixl>=x.trixs else 0 ,axis=1)
-            exdb['k'],exdb['d']=talib.STOCHF(np.array(exdb.h),np.array(exdb.l),np.array(exdb.l))
+            exdb['k'],exdb['d']=talib.STOCHF(np.array(exdb.h),np.array(exdb.l),np.array(exdb.c))
             exdb.loc[:,'id']=exdb.index
             exdb.loc[:,'dmzu']=exdb.apply(lambda x:-x.macd if (x.macd<0)&(x.dif>0)&(x.dea>0) else 0 ,axis=1) #zero axis down macd
             exdb.loc[:,'dmzd']=exdb.apply(lambda x:-x.macd if (x.macd<0)&(x.dmzu==0) else 0 ,axis=1)
@@ -170,9 +170,11 @@ class STWTB(object):
         # macd <0 and macd below zero and s20lastc>s20minc  
         
         if (x.s20sdd<0)  and (x.s20lastmacd<0) and (x.s20lastdmzu==0) and (x.s20lastc>x.s20minc):
-                return  1
+            return  2
+        elif (x.s20sdd<0) and (x.s20lastmacd>0):
+            return  1
         else:
-                return  0  
+            return 0
     def Levelt(self,x):
          # trix is last index 
         if (x.s20sdd<0)  and (x.s20lasttmacd>0) and (x.s20lastdmzu==0):
@@ -181,7 +183,9 @@ class STWTB(object):
                 return  0  
 
     
-    CONf= ['s20startdate','s20sdd','s20minc','s20lastc','s20len','kmt','s20lastdate']
+    CONf= ['sn','s20startdate','s20sdd','s20minc','s20lastc','s20len','kmt','s20lastdate']
+    CONfm= ['sn','mstartdate','msdd','mminc','mlastc','mlen','mkmt','mlastdate']
+    CONfw= ['sn','wstartdate','wsdd','wminc','wlastc','wlen','wkmt','wlastdate']
     CONf1=['s20startdate','s20sdd','s20minc','s20lastc','s20maxc','s20len','s20lastang','s20lastmacd','s20lasttmacd','s20lastdmzu','s20lastdate']
 
     def getgp(self):

@@ -37,7 +37,7 @@ class STDTB(object):
             db.loc[index,'gpid6']=curid6
             db.loc[index,'gpid']=curid13
         return db 
-
+    DBF=['date','c','macd','tmacd','ang','k','d','kd']
     def getexdb(self):
         try:
             self.load()
@@ -49,7 +49,9 @@ class STDTB(object):
             exdb['trixl']=talib.TRIX(np.array(exdb.c),12) 
             exdb['trixs']=talib.SMA(np.array(exdb.trixl),9)
             exdb['tmacd']=exdb.apply(lambda x :1 if x.trixl>=x.trixs else 0 ,axis=1)                  
-            exdb['k'],exdb['d']=talib.STOCHF(np.array(exdb.h),np.array(exdb.l),np.array(exdb.l))
+            exdb['k'],exdb['d']=talib.STOCHF(np.array(exdb.h),np.array(exdb.l),np.array(exdb.c))
+            #exdb['k1'],exdb['d1']=talib.STOCH(np.array(exdb.h),np.array(exdb.l),np.array(exdb.l))
+            #exdb['k2'],exdb['d2']=talib.STOCH(np.array(exdb.h),np.array(exdb.l),np.array(exdb.c))
             exdb.loc[:,'id']=exdb.index
             #exdb.set_index('id')
             exdb.loc[:,'ang']= talib.LINEARREG_ANGLE(np.array(exdb.macd),3)
@@ -61,13 +63,17 @@ class STDTB(object):
             exdb.loc[:,'idmzd']=exdb.apply(lambda x:1 if (x.macd<0)&(x.idmzu==0) else 0 ,axis=1)
             exdb.loc[:,'iumzu']=exdb.apply(lambda x:1 if (x.macd>0)&(x.dif>0)&(x.dea>0) else 0 ,axis=1)
             exdb.loc[:,'iumzd']=exdb.apply(lambda x:1 if (x.macd>0)&(x.iumzu==0) else 0 ,axis=1)
-            exdb.loc[:,'kd']= exdb.apply(lambda x:1 if (x.k>x.d) and (x.idmzd==1)  else 0,axis=1)
+            exdb.loc[:,'kd']= exdb.apply(lambda x:1 if (x.k>x.d) and (x.idmzd==1) and (x.k<20) and (x.d<20) else 0,axis=1)
+            #exdb.loc[:,'kd1']= exdb.apply(lambda x:1 if (x.k1>x.d1) and (x.idmzd==1)  else 0,axis=1)
+            #exdb.loc[:,'kd2']= exdb.apply(lambda x:1 if (x.k2>x.d2) and (x.idmzd==1)  else 0,axis=1)
             exdb.loc[:,'kd1']= exdb.kd.shift(1)
             exdb.loc[:,'kd2']= exdb.kd.shift(2)
             exdb.loc[:,'kdkey']= exdb.apply(lambda x: 1 if(x.kd2==0) and (x.kd1==0) and (x.kd==1) else 0,axis=1)
+            
+            exdb=np.round(exdb,decimals=3)
             exdb=exdb.fillna(0)
         
-            z6=peak_valley_pivots(np.array(exdb.c),0.13,-0.13)
+            z6=peak_valley_pivots(np.array(exdb.c),0.10,-0.10)
             z13=peak_valley_pivots(np.array(exdb.c),0.20,-0.20)
             z6mode=pivots_to_modes(z6)
             z13mode=pivots_to_modes(z13)
@@ -174,8 +180,8 @@ class STDTB(object):
             gp3=gp3.fillna(0)
             gp3=gp3.set_index('gpid6')
             idx2=db.groupby('gpid6')['id'].transform(max)==db['id']
-            gp32=db[idx2][['gpid6','date'     ,'c'      ,'gpid','s6id','macd'      ,'ang'       ,'tmacd'       ,'idmzu'      ,'dea']]
-            gp32.columns=['gpid6','s6lastdate','s6lastc','gpid','s6id','s6lastmacd','s6lastang','s6lasttmacd','s6lastdmzu','s6lastdea']
+            gp32=db[idx2][['gpid6','date'     ,'c'      ,'gpid','s6id','macd'      ,'ang'       ,'tmacd'       ,'idmzu'      ,'dea','kdkey']]
+            gp32.columns=['gpid6','s6lastdate','s6lastc','gpid','s6id','s6lastmacd','s6lastang','s6lasttmacd','s6lastdmzu','s6lastdea','s6lastkdkey']
             gp32=gp32.fillna(0)
             gp32=gp32.set_index('gpid6')
             gp=pd.concat([gp22,gp23,gp24,gp3,gp32],axis=1,join="inner")
@@ -189,7 +195,7 @@ class STDTB(object):
             gp['s6len2']=gp.s6len.shift(2)
             gp['s6len3']=gp.s6len.shift(3)
             gp['s6len4']=gp.s6len.shift(4)
-            p6=peak_valley_pivots(np.array(db['c']),0.13,-0.13)
+            p6=peak_valley_pivots(np.array(db['c']),0.10,-0.10)
             #segdrawdown: sdd6
             s6sdd=compute_segment_returns(np.array(db['c']),p6)
             #segdrawdown=np.insert(segdrawdown,0,0)
@@ -250,8 +256,31 @@ class STDTB(object):
         return db             
 
 
+    CONfmore=['sn','s13startdate','s13sdd','s6startdate','s6maxc','s6sdd','s6minc','s13minc','s6lastc','gp6no','kmt','s6lastdate'] 
+    CONf=['sn','s6startdate','s6sdd','s6minc','s6lastc','gp6no','kmt','s6lastdate']
+    #CONf= ['sn','s20startdate','s20sdd','s20minc','s20lastc','s20len','kmt','s20lastdate']
+    def Levelk(self,x):
+        # week k>d =1 and macd<0 and below zero  
+        if  (x.s6kdkey>0) :
+            return 1
+        else :
+            return 0
+
+    def Levelm(self,x):
+        # macd <0 and macd below zero and s20lastc>s20minc  
+        
+        #if (x.s13sdd<0)  and (x.s13lastmacd>0) and (x.s13lastdmzu==0) and (x.s13lastc>x.s13minc):
+        if  (x.s13lastmacd>0) and (x.s13lastdmzu==0) and (x.s13lastc>x.s13minc):
+                return  1
+        else:
+                return  0  
+    def Levelt(self,x):
+         # trix is last index 
+        if  (x.s13lasttmacd>0) and (x.s13lastdmzu==0):
+                return  1
+        else:
+                return  0  
   
-    CONf=['sn','s13sdd','gp6no','s13startdate','s6segs','s6startdate','s6sdd','Level1','Level0','kmt','s13minc','s13lastc']
     def getgp(self):
         exdb=self.getexdb()
         gp6=self.creatgp6(exdb)
@@ -264,8 +293,7 @@ class STDTB(object):
         gpn['gp6no1']=gpn.gp6no.shift(1)
         gpn['gpid1']=gpn.gpid.shift(1)
         gpn.loc[:,'s13minc1']=gpn.s13minc.shift(1)
-        gpn.loc[:,'Level0']=gpn.apply(self.Level0,axis=1)
-        gpn.loc[:,'Level1']=gpn.apply(self.Level1,axis=1)
+       
         gpn.loc[:,'Levelk']=gpn.apply(self.Levelk,axis=1)
         gpn.loc[:,'Levelm']=gpn.apply(self.Levelm,axis=1)
         gpn.loc[:,'Levelt']=gpn.apply(self.Levelt,axis=1)
@@ -274,58 +302,9 @@ class STDTB(object):
         gpn=np.round(gpn,decimals=3)
         gpn['sn']=self.sn
         return gpn
-    def Levelk(self,x):
-        # week k>d =1 and macd<0 and below zero  
-        if (x.s13sdd<0) and (x.s13kdkey>0):
-            return 1
-        else :
-            return 0
-
-    def Levelm(self,x):
-        # macd <0 and macd below zero and s20lastc>s20minc  
-        
-        if (x.s13sdd<0)  and (x.s13lastmacd<0) and (x.s13lastdmzu==0) and (x.s13lastc>x.s13minc):
-                return  1
-        else:
-                return  0  
-    def Levelt(self,x):
-         # trix is last index 
-        if (x.s13sdd<0)  and (x.s13lasttmacd>0) and (x.s13lastdmzu==0):
-                return  1
-        else:
-                return  0  
-
+  
     
-    def Level0(self,x):
-        # zua :s20lastang>0 and s20lastdmzu 1 ---up zero and ang turn
-        # zum:s20lastmacd>0 and s20lastdmzu 1 --up zero and macd turn 
-        # zda :s20lastang>0 and s20lastdmzu 0 ---down zero and ang turn
-        # zdm:s20lastmacd>0 and s20lastdmzd 0 --down zero and macd turn
-        #     s20lasttmacd 1  ---trix as long index ,long trend  is up 
-        #        zua -> zum, zda-> zdm       
-        #     s20lasttmacd 0->1 --trend is turning down to up 
-        #        zua -> zum, zda-> zdm
-        if x.s6lasttmacd==1:
-            if (x.s6sdd<0)  and (x.s6lastmacd<0) and (x.s6lastdmzu==0) and (x.s6lastc>x.s13minc):
-                return '1_zd_m<0'
-            elif (x.s6sdd<0) and  (x.s6lastmacd>0) and (x.s6lastdmzu==0) :
-                return '1_zd_m>0'
-            else:
-                return 0  
-        else:
-            if (x.s6sdd<0)  and (x.s6lastmacd<0) and (x.s6lastdmzu==0) and (x.s6lastc>x.s6minc):
-                return '0_zd_m<0'
-            elif (x.s6sdd<0) and  (x.s6lastmacd>0) and (x.s6lastdmzu==0) :
-                return '0_zd_m>0'
-
-            else :
-                return 0
-    def Level1(self,x):
-        # s20sdd1>0 s20startdea1 s20sdd<0 s20lastdea if s20lastdea>s20startdea1 or s20minc>s20minc1
-        if (x.s13sdd<0) and (x.s13minc>x.s13minc1):
-            return 1
-        else :
-            return 0
+    
     
     def indicator6(self):
         try:

@@ -59,7 +59,7 @@ class STDTB(object):
             db.loc[index,'gpid6']=curid6
             db.loc[index,'gpid']=curid13
         return db 
-
+    DBF=['date','c','macd','tmacd']
     def getexdb(self):
         try:
             self.load()
@@ -364,7 +364,7 @@ class STDTB(object):
             #print('get gp failure')
             return None
 
-    CONf6=['sn','s13sdd','gp6no','s13sdd1','s6segs','s6startdate','s6sdd','s6sumdmzd','s6sumdmzu','s6sumumzd1','s6sumdmzu1']
+    CONfmore=['sn','s13sdd','gp6no','s13sdd1','s6segs','s6startdate','s6sdd','s6sumdmzd','s6sumdmzu','s6sumumzd1','s6sumdmzu1','s13minc','s6minc']
     def getgp6(self):
         exdb=self.getexdb()
         gp6=self.creatgp6(exdb)
