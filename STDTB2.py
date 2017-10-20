@@ -50,39 +50,32 @@ class STDTB(object):
             else:
                 return 4
             
-    DBF=['date','c','macd','tmacd','ang','k','d','kd','posmacd']
+    DBF=['date','c','macd','tmacd','k','d','kd4','kd1','posmacd']
     def getexdb(self):
         try:
             self.load()
             exdb=self.db
-            
-            #print(time.time())
+            #macd
             exdb['dif'],exdb['dea'],exdb['macd']=talib.MACD(np.array(exdb.c),10,20,6) # change
-            
-            exdb.loc[:,'dmzu']=exdb.apply(lambda x:-x.macd if (x.macd<0)&(x.dif>0)&(x.dea>0) else 0 ,axis=1) #zero axis down macd
-            exdb.loc[:,'dmzd']=exdb.apply(lambda x:-x.macd if (x.macd<0)&(x.dmzu==0) else 0 ,axis=1)
-            exdb.loc[:,'umzu']=exdb.apply(lambda x:x.macd if (x.macd>0)&(x.dif>0)&(x.dea>0) else 0 ,axis=1)
-            exdb.loc[:,'umzd']=exdb.apply(lambda x:x.macd if (x.macd>0)&(x.umzu==0) else 0 ,axis=1)
-            
+            exdb.loc[:,'posmacd']=exdb.apply(self.posmacd,axis=1)
+            #trix
             exdb['trixl']=talib.TRIX(np.array(exdb.c),12) 
             exdb['trixs']=talib.SMA(np.array(exdb.trixl),9)
-            exdb['tmacd']=exdb.apply(lambda x :1 if x.trixl>=x.trixs else 0 ,axis=1)                  
-            exdb['k'],exdb['d']=talib.STOCHF(np.array(exdb.h),np.array(exdb.l),np.array(exdb.c))
-            #exdb['k1'],exdb['d1']=talib.STOCH(np.array(exdb.h),np.array(exdb.l),np.array(exdb.l))
-            #exdb['k2'],exdb['d2']=talib.STOCH(np.array(exdb.h),np.array(exdb.l),np.array(exdb.c))
+            exdb['tmacd']=exdb.apply(lambda x :1 if (x.trixl>=x.trixs)and (x.posmacd==1) else 0 ,axis=1)  
+            #kdj
+            exdb['k'],exdb['d']=talib.STOCH(np.array(exdb.h),np.array(exdb.l),np.array(exdb.c),9)
+            exdb.loc[:,'kd4']= exdb.apply(lambda x:1 if (x.k>x.d) and (x.posmacd==4)  else 0,axis=1)
+            exdb.loc[:,'kd1']= exdb.apply(lambda x:1 if (x.k>x.d) and (x.posmacd==1)  else 0,axis=1)
+            #my para
             exdb.loc[:,'id']=exdb.index
-            #exdb.set_index('id')
+            exdb.loc[:,'dmzu']=exdb.apply(lambda x:-x.macd if (x.posmacd==3) else 0 ,axis=1) #zero axis down macd
+            exdb.loc[:,'dmzd']=exdb.apply(lambda x:-x.macd if (x.posmacd==4) else 0 ,axis=1)
+            exdb.loc[:,'umzu']=exdb.apply(lambda x:x.macd if (x.posmacd==2) else 0 ,axis=1)
+            exdb.loc[:,'umzd']=exdb.apply(lambda x:x.macd if (x.posmacd==1) else 0 ,axis=1)
+            exdb.loc[:,'posm4']=exdb.apply(lambda x:1 if (x.posmacd==4) else 0 ,axis=1)
+            exdb.loc[:,'posm1']=exdb.apply(lambda x:1 if (x.posmacd==1) else 0 ,axis=1)
             exdb.loc[:,'ang']= talib.LINEARREG_ANGLE(np.array(exdb.macd),3)
-            exdb.loc[:,'posmacd']=exdb.apply(self.posmacd,axis=1)
-            #exdb.loc[:,'kd']= exdb.apply(lambda x:1 if (x.k>x.d) and (x.k<50) else 0,axis=1)
-            exdb.loc[:,'kd']= exdb.apply(lambda x:1 if (x.k>x.d) and (x.posmacd==4) else 0,axis=1)
-            #exdb.loc[:,'kd1']= exdb.apply(lambda x:1 if (x.k1>x.d1) and (x.idmzd==1)  else 0,axis=1)
-            #exdb.loc[:,'kd2']= exdb.apply(lambda x:1 if (x.k2>x.d2) and (x.idmzd==1)  else 0,axis=1)
-            exdb.loc[:,'kd1']= exdb.kd.shift(1)
-            exdb.loc[:,'kd2']= exdb.kd.shift(2)
-            exdb.loc[:,'kdkey']= exdb.apply(lambda x: 1 if(x.kd2==0) and (x.kd1==0) and (x.kd==1) else 0,axis=1)
-            
-            exdb=np.round(exdb,decimals=3)
+            exdb=np.round(exdb,decimals=2)
             exdb=exdb.fillna(0)
         
             z6=peak_valley_pivots(np.array(exdb.c),0.10,-0.10)
@@ -117,10 +110,10 @@ class STDTB(object):
     def creatgp13(self,db):
             # group by gpid get sum of md and gpred
         if db.empty==False and len(db)>60:
-            gp22=db.groupby('gpid').sum()[['z13mode','kdkey']]
-            gp22.columns=['s13len','s13kdkey']
-            gp23=db.groupby('gpid').max()[['dmzu','umzu','umzd','dmzd']]
-            gp23.columns=['s13maxdmzu','s13maxumzu','s13maxumzd','s13maxdmzd']
+            gp22=db.groupby('gpid').sum()[['z13mode','kd4'   ,'kd1'   ,'tmacd'   ,'posm4'   ,'posm1']]
+            gp22.columns=['s13len'                  ,'s13kd4','s13kd1','s13tmacd','s13posm4','s13posm1']
+            gp23=db.groupby('gpid').max()[['dmzu','umzu','umzd','dmzd','c']]
+            gp23.columns=['s13maxdmzu','s13maxumzu','s13maxumzd','s13maxdmzd','s13maxc']
             gp24=db.groupby('gpid').min()[['c']]
             gp24.columns=['s13minc'] 
             #gp23=db.groupby('gpid')
@@ -165,6 +158,8 @@ class STDTB(object):
             gp['s13startdate3']=gp.s13startdate.shift(3)
             gp['s13startdate4']=gp.s13startdate.shift(4)
             gp['gpid']=gp.index
+            gp=np.round(gp,decimals=2)
+            gp.loc[:,'kmt']=gp.apply(lambda x:'[{s13kd4},{s13kd1}]-[{s13posm4},{s13posm1}]-[{s13tmacd}]'.format(**x),axis=1)
             return gp        
 
     
@@ -241,26 +236,13 @@ class STDTB(object):
 
     CONfmore=['sn','s13startdate','s13sdd','s6startdate','s6maxc','s6sdd','s6minc','s13minc','s6lastc','gp6no','kmt','s6lastdate'] 
     CONf=['sn','s6startdate','s6sdd','s6minc','s6lastc','gp6no','kmt','s6lastdate']
-    #CONf= ['sn','s20startdate','s20sdd','s20minc','s20lastc','s20len','kmt','s20lastdate']
-    def Levelk(self,x):
-        # week k>d =1 and macd<0 and below zero  
-        if  (x.s6kdkey>0) :
-            return 1
-        else :
-            return 0
-
-    def Levelm(self,x):
-        # macd >0 and macd below zero and s20lastc>s20minc  
-        
-        #if (x.s13sdd<0)  and (x.s13lastmacd>0) and (x.s13lastdmzu==0) and (x.s13lastc>x.s13minc):
-        return x.s6lastposmacd 
-    def Levelt(self,x):
-         # trix is last index 
-        if  (x.s6lasttmacd>0) and (x.s6lastposmacd==1):
-            return  '1'
-        else:
-            return  '0'  
-  
+    CONf13= ['sn','s13startdate','s13sdd','s13minc','s13maxc','s13lastc','s13len','kmt','s6segs','s13lastdate']
+    def getgp13(self):
+        exdb=self.getexdb()
+        gp13=self.creatgp13(exdb) 
+        gp13['sn']=self.sn
+        return gp13
+    
     def getgp(self):
         exdb=self.getexdb()
         gp6=self.creatgp6(exdb)
