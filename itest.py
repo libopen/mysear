@@ -18,12 +18,16 @@ def mgp():
     gp=s.getgp()[s.CONf]
     return gp[-10:],s.CONfm
 
-def dexdb(sn):
+def dexdb():
     imp.reload(STDTB2)
-    s=STDTB2.STDTB(sn)
+    s=STDTB2.STDTB('ss123456')
     exdb=s.getexdb()[s.DBF]
     return exdb
-
+def wexdb():
+    imp.reload(STWTB)
+    s=STWTB.STWTB('ss123456')
+    exdb=s.getexdb()[s.DBF]
+    return exdb
 CONf1=['mstartdate','msdd','mkmt','wstartdate','wsdd','wkmt','s13startdate','s13sdd','gp6no','s13lastdate','kmt'] 
 def detail1():
     _mgp,fm=mgp() 

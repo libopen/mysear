@@ -37,7 +37,20 @@ class STDTB(object):
             db.loc[index,'gpid6']=curid6
             db.loc[index,'gpid']=curid13
         return db 
-    DBF=['date','c','macd','tmacd','ang','k','d','kd']
+    
+    def posmacd(self,x):
+        if (x.macd>0):
+            if (x.dif<0)&(x.dea<0):
+                return 1
+            else :
+                return 2
+        else:
+            if (x.dif>0)&(x.dea>0):
+                return 3
+            else:
+                return 4
+            
+    DBF=['date','c','macd','tmacd','ang','k','d','kd','posmacd']
     def getexdb(self):
         try:
             self.load()
@@ -45,6 +58,11 @@ class STDTB(object):
             
             #print(time.time())
             exdb['dif'],exdb['dea'],exdb['macd']=talib.MACD(np.array(exdb.c),10,20,6) # change
+            
+            exdb.loc[:,'dmzu']=exdb.apply(lambda x:-x.macd if (x.macd<0)&(x.dif>0)&(x.dea>0) else 0 ,axis=1) #zero axis down macd
+            exdb.loc[:,'dmzd']=exdb.apply(lambda x:-x.macd if (x.macd<0)&(x.dmzu==0) else 0 ,axis=1)
+            exdb.loc[:,'umzu']=exdb.apply(lambda x:x.macd if (x.macd>0)&(x.dif>0)&(x.dea>0) else 0 ,axis=1)
+            exdb.loc[:,'umzd']=exdb.apply(lambda x:x.macd if (x.macd>0)&(x.umzu==0) else 0 ,axis=1)
             
             exdb['trixl']=talib.TRIX(np.array(exdb.c),12) 
             exdb['trixs']=talib.SMA(np.array(exdb.trixl),9)
@@ -55,15 +73,9 @@ class STDTB(object):
             exdb.loc[:,'id']=exdb.index
             #exdb.set_index('id')
             exdb.loc[:,'ang']= talib.LINEARREG_ANGLE(np.array(exdb.macd),3)
-            exdb.loc[:,'dmzu']=exdb.apply(lambda x:-x.macd if (x.macd<0)&(x.dif>0)&(x.dea>0) else 0 ,axis=1) #zero axis down macd
-            exdb.loc[:,'dmzd']=exdb.apply(lambda x:-x.macd if (x.macd<0)&(x.dmzu==0) else 0 ,axis=1)
-            exdb.loc[:,'umzu']=exdb.apply(lambda x:x.macd if (x.macd>0)&(x.dif>0)&(x.dea>0) else 0 ,axis=1)
-            exdb.loc[:,'umzd']=exdb.apply(lambda x:x.macd if (x.macd>0)&(x.umzu==0) else 0 ,axis=1)
-            exdb.loc[:,'idmzu']=exdb.apply(lambda x:1 if (x.macd<0)&(x.dif>0)&(x.dea>0) else 0 ,axis=1)
-            exdb.loc[:,'idmzd']=exdb.apply(lambda x:1 if (x.macd<0)&(x.idmzu==0) else 0 ,axis=1)
-            exdb.loc[:,'iumzu']=exdb.apply(lambda x:1 if (x.macd>0)&(x.dif>0)&(x.dea>0) else 0 ,axis=1)
-            exdb.loc[:,'iumzd']=exdb.apply(lambda x:1 if (x.macd>0)&(x.iumzu==0) else 0 ,axis=1)
-            exdb.loc[:,'kd']= exdb.apply(lambda x:1 if (x.k>x.d) and (x.idmzd==1) and (x.k<20) and (x.d<20) else 0,axis=1)
+            exdb.loc[:,'posmacd']=exdb.apply(self.posmacd,axis=1)
+            #exdb.loc[:,'kd']= exdb.apply(lambda x:1 if (x.k>x.d) and (x.k<50) else 0,axis=1)
+            exdb.loc[:,'kd']= exdb.apply(lambda x:1 if (x.k>x.d) and (x.posmacd==4) else 0,axis=1)
             #exdb.loc[:,'kd1']= exdb.apply(lambda x:1 if (x.k1>x.d1) and (x.idmzd==1)  else 0,axis=1)
             #exdb.loc[:,'kd2']= exdb.apply(lambda x:1 if (x.k2>x.d2) and (x.idmzd==1)  else 0,axis=1)
             exdb.loc[:,'kd1']= exdb.kd.shift(1)
@@ -105,8 +117,8 @@ class STDTB(object):
     def creatgp13(self,db):
             # group by gpid get sum of md and gpred
         if db.empty==False and len(db)>60:
-            gp22=db.groupby('gpid').sum()[['z13mode','idmzu','idmzd','iumzu','iumzd','kdkey']]
-            gp22.columns=['s13len','s13sumdmzu','s13sumdmzd','s13sumumzu','s13sumumzd','s13kdkey']
+            gp22=db.groupby('gpid').sum()[['z13mode','kdkey']]
+            gp22.columns=['s13len','s13kdkey']
             gp23=db.groupby('gpid').max()[['dmzu','umzu','umzd','dmzd']]
             gp23.columns=['s13maxdmzu','s13maxumzu','s13maxumzd','s13maxdmzd']
             gp24=db.groupby('gpid').min()[['c']]
@@ -118,8 +130,8 @@ class STDTB(object):
             gp3=gp3.fillna(0)
             gp3=gp3.set_index('gpid')
             idx2=db.groupby('gpid')['id'].transform(max)==db['id']  #the current and the last position
-            gp32=db[idx2][['gpid','date'       ,'c'       ,'s13id','macd'       ,'ang'       ,'tmacd'       ,'idmzu'      ,'dea']]
-            gp32.columns=['gpid' ,'s13lastdate','s13lastc','s13id','s13lastmacd','s13lastang','s13lasttmacd','s13lastdmzu','s20lastdea']
+            gp32=db[idx2][['gpid','date'       ,'c'       ,'s13id','macd'       ,'ang'       ,'tmacd'       ,'dea']]
+            gp32.columns=['gpid' ,'s13lastdate','s13lastc','s13id','s13lastmacd','s13lastang','s13lasttmacd','s20lastdea']
             gp32=gp32.fillna(0)
             gp32=gp32.set_index('gpid')
             s6=db.groupby('gpid').gpid6.nunique()
@@ -141,14 +153,7 @@ class STDTB(object):
             gp['s13sdd2']=gp.s13sdd.shift(2)
             gp['s13sdd3']=gp.s13sdd.shift(3)
             gp['s13sdd4']=gp.s13sdd.shift(4)
-            gp['s13sumumzu1']=gp.s13sumumzu.shift(1)
-            gp['s13sumumzd1']=gp.s13sumumzd.shift(1)
-            gp['s13maxumzu1']=gp.s13maxumzu.shift(1)
-            gp['s13maxumzd1']=gp.s13maxumzd.shift(1)
-            gp['s13maxdmzu2']=gp.s13maxdmzu.shift(2)
-            gp['s13maxdmzd2']=gp.s13maxdmzd.shift(2)
-            gp['s13sumdmzu2']=gp.s13sumumzu.shift(2)
-            gp['s13sumdmzd2']=gp.s13sumumzd.shift(2)                  
+                        
             gp['s6segs1']=gp.s6segs.shift(1)
             gp['s6segs2']=gp.s6segs.shift(2)
             gp['s6segs3']=gp.s6segs.shift(3)
@@ -167,8 +172,8 @@ class STDTB(object):
     def creatgp6(self,db):
             # group by gpid get sum of md and gpred
         if db.empty==False and len(db)>60:
-            gp22=db.groupby('gpid6').sum()[['z6mode','idmzu','idmzd','iumzu','iumzd','kdkey']]
-            gp22.columns=['s6len','s6sumdmzu','s6sumdmzd','s6sumumzu','s6sumumzd','s6kdkey'] #len6 :seg6 
+            gp22=db.groupby('gpid6').sum()[['z6mode','kdkey']]
+            gp22.columns=['s6len','s6kdkey'] #len6 :seg6 
             #gp23=db.groupby('gpid')
             gp23=db.groupby('gpid6').max()[['dmzu','umzu','umzd','dmzd','c']]
             gp23.columns=['s6maxdmzu','s6maxumzu','s6maxumzd','s6maxdmzd','s6maxc']                  
@@ -180,8 +185,8 @@ class STDTB(object):
             gp3=gp3.fillna(0)
             gp3=gp3.set_index('gpid6')
             idx2=db.groupby('gpid6')['id'].transform(max)==db['id']
-            gp32=db[idx2][['gpid6','date'     ,'c'      ,'gpid','s6id','macd'      ,'ang'       ,'tmacd'       ,'idmzu'      ,'dea','kdkey']]
-            gp32.columns=['gpid6','s6lastdate','s6lastc','gpid','s6id','s6lastmacd','s6lastang','s6lasttmacd','s6lastdmzu','s6lastdea','s6lastkdkey']
+            gp32=db[idx2][['gpid6','date'     ,'c'      ,'gpid','s6id','macd'      ,'ang'       ,'tmacd'       ,'posmacd'      ,'kdkey']]
+            gp32.columns=['gpid6','s6lastdate','s6lastc','gpid','s6id','s6lastmacd','s6lastang','s6lasttmacd','s6lastposmacd','s6lastkdkey']
             gp32=gp32.fillna(0)
             gp32=gp32.set_index('gpid6')
             gp=pd.concat([gp22,gp23,gp24,gp3,gp32],axis=1,join="inner")
@@ -205,28 +210,6 @@ class STDTB(object):
             gp['s6sdd3']=gp.s6sdd.shift(3)
             gp['s6sdd4']=gp.s6sdd.shift(4)
             # seg3 up seg seg2 down seg seg1 up seg seg current seg is also key entry               
-            gp['s6sumdmzu1']=gp.s6sumdmzu.shift(1) #down and zero 
-            gp['s6sumdmzd1']=gp.s6sumdmzd.shift(1)
-            gp['s6maxumzu1']=gp.s6maxumzu.shift(1)
-            gp['s6maxumzd1']=gp.s6maxumzd.shift(1)
-            gp['s6sumumzu1']=gp.s6sumumzu.shift(1) # up and zero 
-            gp['s6sumumzd1']=gp.s6sumumzd.shift(1)
-            gp['s6maxdmzu1']=gp.s6maxdmzu.shift(1)
-            gp['s6maxdmzd1']=gp.s6maxdmzd.shift(1) 
-
-            gp['s6sumdmzu2']=gp.s6sumdmzu.shift(2)
-            gp['s6sumdmzd2']=gp.s6sumdmzd.shift(2)
-            gp['s6sumumzu2']=gp.s6sumumzu.shift(2)
-            gp['s6sumumzd2']=gp.s6sumumzd.shift(2)
-            gp['s6maxumzu2']=gp.s6maxumzu.shift(2)
-            gp['s6maxumzd2']=gp.s6maxumzd.shift(2)
-            gp['s6maxdmzu2']=gp.s6maxdmzu.shift(2)
-            gp['s6maxdmzd2']=gp.s6maxdmzd.shift(2) 
-
-            gp['s6sumdmzu3']=gp.s6sumdmzu.shift(3)
-            gp['s6sumdmzd3']=gp.s6sumdmzd.shift(3)
-            gp['s6maxdmzu3']=gp.s6maxdmzu.shift(3)
-            gp['s6maxdmzd3']=gp.s6maxdmzd.shift(3)
             gp['s6startdate1']=gp.s6startdate.shift(1)
             gp['s6startdate2']=gp.s6startdate.shift(2)
             gp['s6startdate3']=gp.s6startdate.shift(3)
@@ -267,19 +250,16 @@ class STDTB(object):
             return 0
 
     def Levelm(self,x):
-        # macd <0 and macd below zero and s20lastc>s20minc  
+        # macd >0 and macd below zero and s20lastc>s20minc  
         
         #if (x.s13sdd<0)  and (x.s13lastmacd>0) and (x.s13lastdmzu==0) and (x.s13lastc>x.s13minc):
-        if  (x.s13lastmacd>0) and (x.s13lastdmzu==0) and (x.s13lastc>x.s13minc):
-                return  1
-        else:
-                return  0  
+        return x.s6lastposmacd 
     def Levelt(self,x):
          # trix is last index 
-        if  (x.s13lasttmacd>0) and (x.s13lastdmzu==0):
-                return  1
+        if  (x.s6lasttmacd>0) and (x.s6lastposmacd==1):
+            return  '1'
         else:
-                return  0  
+            return  '0'  
   
     def getgp(self):
         exdb=self.getexdb()
