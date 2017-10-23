@@ -54,7 +54,7 @@ class STWTB(object):
                 return 3
             else:
                 return 4    
-    DBF=['date','c','macd','tmacd','k','d','kd4','kd1','posmacd']
+    DBF=['date','c','k','d','j','kd4','kd1','posmacd','macd','tmacd']
     def getexdb(self):
         try:
             self.load()
@@ -67,6 +67,7 @@ class STWTB(object):
             exdb['tmacd']=exdb.apply(lambda x :1 if (x.trixl>=x.trixs) and (x.posmacd==1) else 0 ,axis=1)
             #exdb['k'],exdb['d']=talib.STOCHF(np.array(exdb.h),np.array(exdb.l),np.array(exdb.c))
             exdb['k'],exdb['d']=talib.STOCH(np.array(exdb.h),np.array(exdb.l),np.array(exdb.c),9)
+            exdb.loc[:,'j']=exdb.k*3-exdb.d*2
             exdb.loc[:,'kd4']= exdb.apply(lambda x:1 if (x.k>x.d) and (x.posmacd==4)  else 0,axis=1)
             exdb.loc[:,'kd1']= exdb.apply(lambda x:1 if (x.k>x.d) and (x.posmacd==1)  else 0,axis=1)
             
