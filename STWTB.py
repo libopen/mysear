@@ -54,7 +54,7 @@ class STWTB(object):
                 return 3
             else:
                 return 4    
-    DBF=['date','c','k','d','j','kd4','kd1','posmacd','macd','tmacd']
+    DBF=['date','c','k','d','j','kd4','kd1','posmacd','macd','tmacd','angflag','ang0id','ang1id']
     def getexdb(self):
         try:
             self.load()
@@ -79,6 +79,10 @@ class STWTB(object):
             exdb.loc[:,'posm4']=exdb.apply(lambda x:1 if (x.posmacd==4) else 0 ,axis=1)
             exdb.loc[:,'posm1']=exdb.apply(lambda x:1 if (x.posmacd==1) else 0 ,axis=1)
             exdb.loc[:,'ang']= talib.LINEARREG_ANGLE(np.array(exdb.macd),3)
+            exdb.loc[:,'angflag']= exdb.apply(lambda x :1 if x.ang>0 else 0 ,axis=1)
+            exdb.loc[:,'ang1id']= exdb.apply(lambda x :x.id if x.ang>0 else 0 ,axis=1)
+            exdb.loc[:,'ang0id']= exdb.apply(lambda x :x.id if x.ang<0 else 0 ,axis=1)
+            #exdb.loc[:,'ang']= talib.LINEARREG_ANGLE(np.array(exdb.dea),3)
             exdb=exdb.fillna(0)
             
             
@@ -103,8 +107,8 @@ class STWTB(object):
             gp22=db.groupby('gpid').sum()[['z20mode','kd4'   ,'kd1'   ,'tmacd'   ,'posm4'   ,'posm1']]
             gp22.columns=['s20len'                  ,'s20kd4','s20kd1','s20tmacd','s20posm4','s20posm1'] #len6 :seg6 
             #gp23=db.groupby('gpid')
-            gp23=db.groupby('gpid').max()[['dmzu','umzu','umzd','dmzd','c']]
-            gp23.columns=['s20maxdmzu','s20maxumzu','s20maxumzd','s20maxdmzd','s20maxc']                  
+            gp23=db.groupby('gpid').max()[['dmzu','umzu','umzd','dmzd','c','ang1id','ang0id']]
+            gp23.columns=['s20maxdmzu','s20maxumzu','s20maxumzd','s20maxdmzd','s20maxc','s20ang1id','s20ang0id']                  
             gp24=db.groupby('gpid').min()[['c',]]
             gp24.columns=['s20minc']                  
             idx=db.groupby('gpid')['id'].transform(min)==db['id']
@@ -113,8 +117,8 @@ class STWTB(object):
             gp3=gp3.fillna(0)
             gp3=gp3.set_index('gpid')
             idx2=db.groupby('gpid')['id'].transform(max)==db['id']
-            gp32=db[idx2][['gpid','date'     ,'c'        ,'s20id','macd'       ,'ang'       ,'tmacd'       ,'posmacd'      ]]
-            gp32.columns=['gpid','s20lastdate','s20lastc','s20id','s20lastmacd','s20lastang','s20lasttmacd','s20lastposmacd']
+            gp32=db[idx2][['gpid','date'     ,'c'        ,'s20id','macd'       ,'angflag'       ,'tmacd'       ,'posmacd'      ]]
+            gp32.columns=['gpid','s20lastdate','s20lastc','s20id','s20lastmacd','s20lastangflag','s20lasttmacd','s20lastposmacd']
             gp32=gp32.fillna(0)
             gp32=gp32.set_index('gpid')
 
@@ -144,16 +148,17 @@ class STWTB(object):
             gp['s20startdate4']=gp.s20startdate.shift(4)
 
             gp['gpid']=gp.index
+            gp.loc[:,'lastangflag']=gp.s20ang1id-gp.s20ang0id
             gp.loc[:,'kmt']=gp.apply(lambda x:'[{s20kd4},{s20kd1}]-[{s20posm4},{s20posm1}]-[{s20tmacd}]'.format(**x),axis=1)
 
             return gp  
 
     
     
-    CONf= ['sn','s20startdate','s20sdd','s20minc','s20lastc','s20len','kmt','s20lastdate']
-    CONfm= ['sn','mstartdate','msdd','mminc','mlastc','mlen','mkmt','mlastdate']
-    CONfw= ['sn','wstartdate','wsdd','wminc','wlastc','wlen','wkmt','wlastdate']
-    CONf1=['s20startdate','s20sdd','s20minc','s20lastc','s20maxc','s20len','s20lastang','s20lastmacd','s20lasttmacd','s20lastdmzu','s20lastdate']
+    CONf= ['sn','s20startdate','s20sdd','s20minc','s20lastc','s20len','kmt','s20lastdate','s20lastangflag','lastangflag']
+    CONfm= ['sn','mstartdate','msdd','mminc','mlastc','mlen','mkmt','mlastdate','mlastangflag']
+    CONfw= ['sn','wstartdate','wsdd','wminc','wlastc','wlen','wkmt','wlastdate','wlastangflag']
+    CONf1=['s20startdate','s20sdd','s20minc','s20lastc','s20maxc','s20len','s20lastangflag','s20lastmacd','s20lasttmacd','s20lastdmzu','s20lastdate']
 
     def getgp(self):
         try:

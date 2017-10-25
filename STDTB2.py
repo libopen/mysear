@@ -50,7 +50,7 @@ class STDTB(object):
             else:
                 return 4
             
-    DBF=['date','c','k','d','j','kd4','kd1','posmacd','macd','tmacd']
+    DBF=['date','c','k','d','j','kd4','kd1','posmacd','macd','tmacd','angflag']
     def getexdb(self):
         try:
             self.load()
@@ -75,7 +75,8 @@ class STDTB(object):
             exdb.loc[:,'umzd']=exdb.apply(lambda x:x.macd if (x.posmacd==1) else 0 ,axis=1)
             exdb.loc[:,'posm4']=exdb.apply(lambda x:1 if (x.posmacd==4) else 0 ,axis=1)
             exdb.loc[:,'posm1']=exdb.apply(lambda x:1 if (x.posmacd==1) else 0 ,axis=1)
-            exdb.loc[:,'ang']= talib.LINEARREG_ANGLE(np.array(exdb.macd),3)
+            exdb.loc[:,'ang']= talib.LINEARREG_ANGLE(np.array(exdb.dea),3)
+            exdb.loc[:,'angflag']= exdb.apply(lambda x :1 if x.ang>0 else 0 ,axis=1)
             exdb=np.round(exdb,decimals=2)
             exdb=exdb.fillna(0)
         
@@ -124,8 +125,8 @@ class STDTB(object):
             gp3=gp3.fillna(0)
             gp3=gp3.set_index('gpid')
             idx2=db.groupby('gpid')['id'].transform(max)==db['id']  #the current and the last position
-            gp32=db[idx2][['gpid','date'       ,'c'       ,'s13id','macd'       ,'ang'       ,'tmacd'       ,'dea']]
-            gp32.columns=['gpid' ,'s13lastdate','s13lastc','s13id','s13lastmacd','s13lastang','s13lasttmacd','s20lastdea']
+            gp32=db[idx2][['gpid','date'       ,'c'       ,'s13id','macd'       ,'angflag'       ,'tmacd'       ,'dea']]
+            gp32.columns=['gpid' ,'s13lastdate','s13lastc','s13id','s13lastmacd','s13lastangflag','s13lasttmacd','s20lastdea']
             gp32=gp32.fillna(0)
             gp32=gp32.set_index('gpid')
             s6=db.groupby('gpid').gpid6.nunique()
@@ -237,7 +238,7 @@ class STDTB(object):
 
     CONfmore=['sn','s13startdate','s13sdd','s6startdate','s6maxc','s6sdd','s6minc','s13minc','s6lastc','gp6no','kmt','s6lastdate'] 
     CONf=['sn','s6startdate','s6sdd','s6minc','s6lastc','gp6no','kmt','s6lastdate']
-    CONf13= ['sn','s13startdate','s13sdd','s13minc','s13maxc','s13lastc','s13len','kmt','s6segs','s13lastdate']
+    CONf13= ['sn','s13startdate','s13sdd','s13minc','s13maxc','s13lastc','s13len','kmt','s6segs','s13lastdate','s13lastangflag']
     def getgp13(self):
         exdb=self.getexdb()
         gp13=self.creatgp13(exdb) 
