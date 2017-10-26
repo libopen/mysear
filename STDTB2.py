@@ -50,7 +50,7 @@ class STDTB(object):
             else:
                 return 4
             
-    DBF=['date','c','k','d','j','kd4','kd1','posmacd','macd','tmacd','angflag']
+    DBF=['date','c','k','d','j','kd4','kd1','posmacd','macd','tmacd','angflag','kdj']
     def getexdb(self):
         try:
             self.load()
@@ -67,7 +67,10 @@ class STDTB(object):
             exdb.loc[:,'j']=exdb.k*3-exdb.d*2
             exdb.loc[:,'kd4']= exdb.apply(lambda x:1 if (x.k>x.d) and (x.posmacd==4)  else 0,axis=1)
             exdb.loc[:,'kd1']= exdb.apply(lambda x:1 if (x.k>x.d) and (x.posmacd==1)  else 0,axis=1)
+            exdb.loc[:,'kdj']= exdb.apply(lambda x:1 if (x.j<x.k) and (x.j<x.d) and (x.k<x.d) and (x.tmacd==1)  else 0 ,axis=1)
             #my para
+            exdb.loc[:,'tmacd1']=exdb.tmacd.shift(1)
+            exdb.loc[:,'kdkey']=exdb.apply(lambda x:1 if (x.posmacd==1) and (x.tmacd==1) and (x.tmacd1==1) and (x.kd4==0) and (x.kd1==0) else 0,axis=1)
             exdb.loc[:,'id']=exdb.index
             exdb.loc[:,'dmzu']=exdb.apply(lambda x:-x.macd if (x.posmacd==3) else 0 ,axis=1) #zero axis down macd
             exdb.loc[:,'dmzd']=exdb.apply(lambda x:-x.macd if (x.posmacd==4) else 0 ,axis=1)
@@ -169,21 +172,21 @@ class STDTB(object):
     def creatgp6(self,db):
             # group by gpid get sum of md and gpred
         if db.empty==False and len(db)>60:
-            gp22=db.groupby('gpid6').sum()[['z6mode','kdkey']]
-            gp22.columns=['s6len','s6kdkey'] #len6 :seg6 
+            gp22=db.groupby('gpid6').sum()[['z6mode']]
+            gp22.columns=['s6len'] #len6 :seg6 
             #gp23=db.groupby('gpid')
             gp23=db.groupby('gpid6').max()[['dmzu','umzu','umzd','dmzd','c']]
             gp23.columns=['s6maxdmzu','s6maxumzu','s6maxumzd','s6maxdmzd','s6maxc']                  
             gp24=db.groupby('gpid6').min()[['c']]
             gp24.columns=['s6minc']                  
             idx=db.groupby('gpid6')['id'].transform(min)==db['id']
-            gp3=db[idx][['gpid6','date','c','macd', 'dea']]
-            gp3.columns=['gpid6','s6startdate','s6startc','s6startmacd','s6startdea']
+            gp3=db[idx][['gpid6','date','c','macd', 'dea','tmacd']]
+            gp3.columns=['gpid6','s6startdate','s6startc','s6startmacd','s6startdea','s6starttmacd']
             gp3=gp3.fillna(0)
             gp3=gp3.set_index('gpid6')
             idx2=db.groupby('gpid6')['id'].transform(max)==db['id']
-            gp32=db[idx2][['gpid6','date'     ,'c'      ,'gpid','s6id','macd'      ,'ang'       ,'tmacd'       ,'posmacd'      ,'kdkey']]
-            gp32.columns=['gpid6','s6lastdate','s6lastc','gpid','s6id','s6lastmacd','s6lastang','s6lasttmacd','s6lastposmacd','s6lastkdkey']
+            gp32=db[idx2][['gpid6','date'     ,'c'      ,'gpid','s6id','macd'      ,'ang'       ,'tmacd'       ,'posmacd'      ,'dea']]
+            gp32.columns=['gpid6','s6lastdate','s6lastc','gpid','s6id','s6lastmacd','s6lastang','s6lasttmacd','s6lastposmacd','s6lastdea']
             gp32=gp32.fillna(0)
             gp32=gp32.set_index('gpid6')
             gp=pd.concat([gp22,gp23,gp24,gp3,gp32],axis=1,join="inner")
@@ -236,7 +239,7 @@ class STDTB(object):
         return db             
 
 
-    CONfmore=['sn','s13startdate','s13sdd','s6startdate','s6maxc','s6sdd','s6minc','s13minc','s6lastc','gp6no','kmt','s6lastdate'] 
+    CONfmore=['sn','s13startdate','s13sdd','s6startdate','s6maxc','s6sdd','s6minc','s13minc','s6lastc','gp6no','s6lastdate'] 
     CONf=['sn','s6startdate','s6sdd','s6minc','s6lastc','gp6no','kmt','s6lastdate']
     CONf13= ['sn','s13startdate','s13sdd','s13minc','s13maxc','s13lastc','s13len','kmt','s6segs','s13lastdate','s13lastangflag']
     def getgp13(self):
@@ -254,14 +257,7 @@ class STDTB(object):
         gpn=pd.merge(gp6,gp13 ,left_on='gpid',right_on='gpid') 
         gpn['id']=gpn.index
         gpn=self.sortgpid6(gpn)
-        gpn['gp6no1']=gpn.gp6no.shift(1)
-        gpn['gpid1']=gpn.gpid.shift(1)
-        gpn.loc[:,'s13minc1']=gpn.s13minc.shift(1)
-       
-        gpn.loc[:,'Levelk']=gpn.apply(self.Levelk,axis=1)
-        gpn.loc[:,'Levelm']=gpn.apply(self.Levelm,axis=1)
-        gpn.loc[:,'Levelt']=gpn.apply(self.Levelt,axis=1)
-        gpn.loc[:,'kmt']=gpn.apply(lambda x:'{Levelk}-{Levelm}-{Levelt}'.format(**x),axis=1)
+        
         
         gpn=np.round(gpn,decimals=3)
         gpn['sn']=self.sn

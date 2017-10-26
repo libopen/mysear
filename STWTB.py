@@ -174,7 +174,31 @@ class STWTB(object):
             #print('get gp failure')
             return None
 
-
+    def keypos(self,x):
+        if x.ang1id>x.ang0id and x.trixs1>x.trixs0 :
+            return "{}-{}".format(int(x.posmacd0),int(x.posmacd1))
+        elif x.ang0id>x.ang1id and x.trixs0>x.trixs1:
+            return "{}-{}".format(int(x.posmacd1),int(x.posmacd0))
+        else :
+            return 0
+    def curstate(self):
+        db=self.getexdb()
+        lastang0id=db.max(axis=0)['ang0id']
+        lastang1id=db.max(axis=0)['ang1id']
+        _dbang0=db[(db.index==lastang0id)][['tmacd','trixs','posmacd','id']]
+        
+        _dbang0.columns=['tmacd0','trixs0','posmacd0','ang0id']
+        _dbang0.loc[:,'newid']='1'
+        _dbang0=_dbang0.set_index('newid')
+        _dbang1=db[(db.index==lastang1id)][['tmacd','trixs','posmacd','id']]
+        _dbang1.columns=['tmacd1','trixs1','posmacd1','ang1id']
+        _dbang1.loc[:,'newid']='1'
+        _dbang1=_dbang1.set_index('newid')        
+        gp= pd.concat([_dbang0,_dbang1],axis=1)
+        gp['key']=gp.apply(lambda x: x.ang1id-x.ang0id if x.ang1id>x.ang0id else x.ang1id-x.ang0id,axis=1)
+        gp['keypos']=gp.apply(self.keypos,axis=1)
+        
+        return gp
 class STMTB(STWTB):
     def load(self):
         exdb=pd.read_csv(self.snpath,header=None,names=['date','o','h','l','c','v','m'])
