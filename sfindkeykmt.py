@@ -53,136 +53,40 @@ class ANALYSIS:
             return resultlist
       
        
-      def save6(self,pat,yourtype='pass'):
+      def save6(self,pat):
             snlist=self.getallfile(ROOTPATH,pat)
             i=0
             j=0 
             result=pd.DataFrame()
-            #result1=pd.DataFrame()            
             gp=pd.DataFrame()
             for path in snlist:
-                              dbcurrent=result
-                              #db1=result1
-                              _std=STDTB(path)
-                              
-                              
-                              if yourtype=='pass':
-                                    gp=stobj.mainindicator6()    
-                              else :
-                                    df=stobj.indicator6() 
-                                    #only get the last row
-                                    if df is not None:
-                                          df=df.tail(1)
-                                          gp=df[(df.Level0==1)&(df.Level3!=0)&(df.curno<=4)]
-                                    else:
-                                          gp=pd.DataFrame()
-                              if gp is not None and len(gp)>0:
-                                    try:
-                                          #print(stobj.sn)
-                                          result=dbcurrent.append(gp)
-                                          i=i+1
+                  try:
+                        dbcurrent=result
+                        #db1=result1
+                        _std=STDTB(path)
+                        _stw=STWTB(path)
+                        if _stw.curstate() is not None:
+                              gp=_stw.curstate()[['sn','totalkey','keypos']]
+                              gp['seed']=0
+                              if _std.getseed() is not None:
+                                    gp['seed']=1
+                        result=dbcurrent.append(gp)
+                        i=i+1
                                           #print(i)
-                                    except:
-                                          print(gp.sn)
+                  except:
+                                          #print(path)
+                                          j=j+1  
                                           continue 
-                              else:
-                                    j=j+1                              
+                             
+                                                                
             if result.empty == False:
                   result=result.sort_values('sn')
                   print("{}total:{} ,failure:{}".format(pat,i,j))
-                  result.to_csv("gp6{}{}.csv".format(pat,yourtype))        
+                  result[(result.totalkey>0)|(result.seed==1)].to_csv("gp6{}.csv".format(pat))        
                   #result1.to_csv("gp6{}{}last.csv".format(pat,yourtype))       
                   return result                                    
                               
-      def batsavegp(self,pat,cyctype='D',angtype='z',usemyfind='n'):
-            alllist=self.getallfile(ROOTPATH,pat)
-            snlist=[]
-            if usemyfind=='y':
-                  for sn in alllist:
-                        for row in self.speciallist:
-                              if row in sn:
-                                    snlist.append(sn)
-            else:
-                  snlist=alllist
-            
-            result=pd.DataFrame()
-            result1=pd.DataFrame()
-            i=0
-            j=0
-            gp=pd.DataFrame()
-            for path in snlist:
-                  dbcurrent=result
-                  db1=result1
-                  if cyctype=='D':
-                        stobj=STDTB(path,angtype)
-                        gp=stobj.selftest()
-                  else:
-                        stobj=STWTB(path,angtype)
-                        gp = stobj.getgp()
-                  
-                  if gp is not None:
-                              try:
-                                    
-                                    result=dbcurrent.append(gp)
-                                    if cyctype=='D':
-                                          result1=db1.append(gp.tail(1))
-                                    else:
-                                          result1=db1.append(gp.tail(1))
-                                    i=i+1
-                              except:
-                                    print(gp.sn)
-                                    continue
-                  else:
-                        j=j+1
-                        
-                  #if i>3:
-                        #break
-            if result.empty == False:
-                  print("{}{}{}total:{} ,failure:{}".format(pat,angtype,cyctype,i,j))
-                  result.to_csv("gp{}{}{}.csv".format(pat,angtype,cyctype))        
-                  result1.to_csv("gp{}{}{}last.csv".format(pat,angtype,cyctype))       
-                  return result1
-            
-   
- 
-      
-                                       
-
-    
   
-  
-            
-            #return db[(db.lastdate==curdate)&(db.lastc>db.)][['startdate','sn','len','len1','segdrawdown','segdrawdown1','segdrawdown2']]
-      
-      def dgp(self,sn):
-            s=STDTB(sn)
-            gp=s.getgp()[s.CONfmore]
-            return gp[-5:],s.CONf
-      
-      def wgp(self,sn):
-            s=STWTB(sn)
-            gp=s.getgp()[s.CONf]
-            return gp[-3:],s.CONfw      
-      def mgp(self,sn):
-            s=STMTB(sn)
-            gp=s.getgp()[s.CONf]
-            return gp[-3:],s.CONfm   
-      
-      #w: ktm 1-2-0 ,1-1-0 d: 0-1-0 if d 0-1-0->0-1-1(t:0->1) then up else down
-      CONf=['sn','startdate','sdd','minc','lastc','len','kmt','lastdate']   
-      def singlefindwd(self,sn):
-            
-            _wgp,fw=self.wgp(sn)
-            _wgp=_wgp[-1:]
-            _wgp.columns=self.CONf
-            _wgp=_wgp.set_index('sn')
-            _dgp,fd=self.dgp(sn)
-            _dgp=_dgp[-1:][fd]
-            _dgp.columns=self.CONf
-            _dgp=_dgp.set_index('sn')
-            gp= pd.concat([_wgp,_dgp],axis=0)
-            return gp            
-            
             
             
 
@@ -197,7 +101,7 @@ def main():
       
       a=ANALYSIS()
       #a.batsavegp(pat=sys.argv[1],angtype=sys.argv[2],usemyfind=sys.argv[3])
-      a.save6(pat=sys.argv[1],yourtype=sys.argv[2])
+      a.save6(pat=sys.argv[1])
       #if (sys.argv[2]=='t'):
             #a.batsavegp(pat=sys.argv[1],angtype=sys.argv[2],cyctype='W')
       

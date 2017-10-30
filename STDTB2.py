@@ -112,6 +112,40 @@ class STDTB(object):
             pass
             #print (self.sn)
 
+    def getexdbforseed(self):
+        try:
+            self.load()
+            exdb=self.db
+            #macd
+            exdb['dif'],exdb['dea'],exdb['macd']=talib.MACD(np.array(exdb.c),10,20,6) # change
+            exdb.loc[:,'posmacd']=exdb.apply(self.posmacd,axis=1)
+            #trix
+            exdb['trixl']=talib.TRIX(np.array(exdb.c),12) 
+            exdb['trixs']=talib.SMA(np.array(exdb.trixl),9)
+            exdb['tmacd']=exdb.apply(lambda x :1 if (x.trixl>=x.trixs)and (x.posmacd==1) else 0 ,axis=1)  
+            #kdj
+            exdb['k'],exdb['d']=talib.STOCH(np.array(exdb.h),np.array(exdb.l),np.array(exdb.c),9)
+            exdb.loc[:,'j']=exdb.k*3-exdb.d*2
+            exdb.loc[:,'kd4']= exdb.apply(lambda x:1 if (x.k>x.d) and (x.posmacd==4)  else 0,axis=1)
+            exdb.loc[:,'kd1']= exdb.apply(lambda x:1 if (x.k>x.d) and (x.posmacd==1)  else 0,axis=1)
+            exdb.loc[:,'trixang']=talib.LINEARREG_ANGLE(np.array(exdb.trixs),3)
+            exdb.loc[:,'trixangflag']=exdb.apply(lambda x :1 if x.trixang>0 else 0 ,axis=1)
+            exdb.loc[:,'seed']= exdb.apply(lambda x:1 if (x.j<x.k) and (x.j<x.d) and (x.k<x.d) and (x.tmacd==1) and (x.trixangflag==1)  else 0 ,axis=1)
+            exdb.loc[:,'ang']= talib.LINEARREG_ANGLE(np.array(exdb.dea),3)
+            exdb.loc[:,'angflag']= exdb.apply(lambda x :1 if x.ang>0 else 0 ,axis=1)            #my para
+          
+            exdb=exdb.fillna(0)
+        
+   
+            #print(time.time())
+            #exdb=self.regroup13(exdb)
+            #exdb=self.regroup6(exdb)
+            #print(time.time())
+            return exdb
+        except:
+            pass
+            #print (self.sn)
+
 
 
     def creatgp13(self,db):
@@ -268,168 +302,15 @@ class STDTB(object):
     
     
     
-    def indicator6(self):
+    def getseed(self):
         try:
-            #exdb=self.getexdb()
-            #gp=self.creatgp6(exdb)
-            gp=self.getgp6()
-            if gp is not None:
-                gp.loc[:,'nid']=pd.Series(range(len(gp)),index=gp.index)
-
-
-                #gp=gp.set_index('nid')
-                df=gp[(gp.s6sdd<0)&(gp.s6sumdmzd>gp.s6sumdmzu)&(gp.s6sumdmzu<3)
-                      &(gp.s6sumumzu1<3)&(gp.s6sumumzd1>gp.s6sumumzu1)
-                      #&(gp.s6maxdmzu3>gp.s6maxdmzd1)
-                      #&(gp.s6sumzmzd>0)
-                      ]
-                #df['g12']=df.apply(lambda x :max(x.s6g1,x.s6g2),axis=1) is not currect is use below
-                df.loc[:,'proh']=df.apply(lambda x:x.s6g1 if x.s6g1>x.s6g0 else x.s6g0,axis=1)
-                df.loc[:,'prol']=df.apply(lambda x:x.s6d1 if x.s6d1<x.s6d2 else x.s6d2,axis=1)
-                #suppose s6sdd1 is up and current is s6sdd is down
-                df.loc[:,'pronumredfr']=df['s6sumumzd1']
-                df.loc[:,'pronumredwa']=df['s6sumumzu1']
-                df.loc[:,'curnumgrefr']=df['s6sumdmzd']
-                df.loc[:,'curnumgrewa']=df['s6sumdmzu']
-                df.loc[:,'propowredfr']=df['s6maxumzd1'] #compose same state below zero line pronumredfr & curnumgrefr  propowredfr & curpowgrefr ppropowgrnfr & curpowfrnfr
-                df.loc[:,'curpowgrefr']=df['s6maxdmzd']
-                df.loc[:,'ppropowgrefr']=df['s6maxdmzd2']
-                df.loc[:,'ppronumgrefr']=df['s6sumdmzd2']
-                df.loc[:,'Level1']=df.apply(lambda x:1 if (x.s6sumumzd1>x.s6sumdmzd)&(x.s6maxumzd1>x.s6maxdmzd) else 0 ,axis=1)
-                df.loc[:,'pre13rat']=df['s13sdd1']
-                df.loc[:,'cur13rat']=df['s13sdd']
-                df.loc[:,'pre13segs']=df['s6segs1']
-                df.loc[:,'cur13segs']=df['s6segs']  
-                # current state
-                df.loc[:,'lastid']=gp[-1:]['nid'].values[0]
-                df.loc[:,'lastsdd']=gp[-1:]['s6sdd'].values[0]
-                df.loc[:,'lastc']=gp[-1:]['s6lastc'].values[0]
-                df.loc[:,'lastu510']=gp[-1:]['s6lastu510'].values[0]
-                df.loc[:,'curno']=df['lastid']-df['nid']
-                df.loc[:,'currat']=df.apply(lambda x :x.lastc/x.prol-1 if x.lastc>x.prol else -x.lastc/x.prol,axis=1)
-                #df.iloc[-1,df.columns.get_loc('lastid')]=gp[-1:]['nid'].values[0]
-                #:wdf.loc[df.index[-1],'lastid']=gp[-1,]['nid']
-                df.loc[:,'s6w1']=df['s6len1']/5
-                df.loc[:,'s6w']=-df['s6len']/5
-
-                df=np.round(df,decimals=2)
-                df.loc[:,'Level0data']=df.apply(lambda x:'p13rat{pre13rat}[{s6segs1}]，c13rat{cur13rat}'.format(**x),axis=1)
-                df.loc[:,'Level0']=df.apply(lambda x:1 if (x.pre13rat>0)&(x.pre13rat>=-x.cur13rat)&(x.pre13rat/2>(x.pre13rat+x.cur13rat)) else 0 ,axis=1)
-                df.loc[:,'Level1data']=df.apply(lambda x:'pow[{ppropowgrefr}-{propowredfr}-{curpowgrefr}]num[{ppronumgrefr}-{pronumredfr}-{curnumgrefr}]'.format(**x),axis=1)
-                df.loc[:,'Level1']=df.apply(self.Level1,axis=1)
-                df.loc[:,'pprat']=df['s6sdd2']
-                df.loc[:,'prat']=df['s6sdd1']
-                df.loc[:,'currat']=df['s6sdd']
-                df.loc[:,'Level2data']=df.apply(lambda x:'pow[{pprat}，{prat}，{currat}]num[{ppronumgrefr}-{pronumredfr}-{curnumgrefr}]'.format(**x),axis=1)
-                df.loc[:,'Level2']=df.apply(self.Level2,axis=1)
-                df.loc[:,'progp6no']=df['gp6no1']
-                df.loc[:,'curgp6no']=df['gp6no']
-                df.loc[:,'Level3data']=df.apply(lambda x:'rat[{prat}，{currat}]gno[{progp6no}-{curgp6no}]'.format(**x),axis=1)
-                df.loc[:,'Level3']=df.apply(self.Level3,axis=1)
-                df.loc[:,'Level4data']=df.apply(lambda x:'h{proh}-c{s6d0}，{s6d1}-l{prol}'.format(**x),axis=1)
-                df.loc[:,'Level4']=df.apply(lambda x:1 if (x.s6d0>=x.prol)&(x.s6d1>=x.prol) else 0 ,axis=1)
-
-                df.loc[:,'ppgpid']=df['gpid2']
-                df.loc[:,'pgpid']=df['gpid1']
-                df.loc[:,'cgpid']=df['gpid']
-                df.loc[:,'s6same']=df.apply(self.Level5,axis=1)
-                df.loc[:,'pos']=df.apply(lambda x:'curr:{nid}，last{lastid}，pass{curno}'.format(**x),axis=1)
-
-
-
-                return df[self.CURRCONf]
+            exdb=self.getexdbforseed()[-1:]
+            if len(exdb[(exdb.seed==1)])==1:
+                return self.sn
+            else:
+                return None
 
         except:
             pass
 
-    #freeze below zero warm up zero
-    MAINCONf=['sn','Level0','Level0data','s13sdd','s6segs','s6startdate','s6len','s6sdd','gp6no','progp6no','curgp6no','Level1data','Level1','Level2data','Level2','Level3data','Level3','Level4data','Level4','s6same']      
-    def mainindicator6(self):
-        #for gp6 the most import indicator is the seg1,seg2 and seg3 seg3 is down 
-        # 1.s6sdd3>s6sdd1
-        # 2.s6sdd1' sumdmzd1>sumdmzu1 and no sumdmzu1<2 
-        # 3.s6sdd2>0' sumumzu<2 and sumumzd is main
-        # 4.s6sdd3<0 sumdmzd3>sumdmzd1 that is time compare maxdmzu3>maxdmzu1 that is power compare
-        # 5 s6sdd    sumumzd>sumdmzd
-        try:
-            #exdb=self.getexdb()
-            #gp=self.creatgp6(exdb)
-            gp=self.getgp6()
-            if gp is not None:
-                #image s6sdd2 is up but it is below zero so sumumzd2>sumumzu2 
-                df=gp[(gp.s6sdd1<0)&(gp.s6sumdmzd1>gp.s6sumdmzu1)&(gp.s6sumdmzu1<3)
-                      &(gp.s6sumumzu2<3)&(gp.s6sumumzd2>gp.s6sumumzu2)
-                      #&(gp.s6maxdmzu3>gp.s6maxdmzd1)
-                      #&(gp.s6sumzmzd>0)
-                      ]
-                #df['g12']=df.apply(lambda x :max(x.s6g1,x.s6g2),axis=1) is not currect is use below
-                df.loc[:,'proh']=df.apply(lambda x:x.s6g1 if x.s6g1>x.s6g2 else x.s6g2,axis=1)
-                df.loc[:,'prol']=df.apply(lambda x:x.s6d2 if x.s6d2<x.s6d3 else x.s6d3,axis=1)
-                # suppose  s6sdd3 is down  s6sdd2 is up s6sdd1 is down 
-                df.loc[:,'pronumredfr']=df['s6sumumzd2']
-                df.loc[:,'pronumredwa']=df['s6sumumzu2']
-                df.loc[:,'curnumgrefr']=df['s6sumdmzd1']
-                df.loc[:,'curnumgrewa']=df['s6sumdmzu1']
-                df.loc[:,'propowredfr']=df['s6maxumzd2'] #compose same state below zero line pronumredfr & curnumgrefr  propowredfr & curpowgrefr ppropowgrnfr & curpowfrnfr
-                df.loc[:,'curpowgrefr']=df['s6maxdmzd1']
-                df.loc[:,'ppropowgrefr']=df['s6maxdmzd3']
-                df.loc[:,'ppronumgrefr']=df['s6sumdmzd3']
-                df.loc[:,'pre13rat']=df['s13sdd2']   # s6sdd2 is up so maybe it's in 
-                df.loc[:,'cur13rat']=df['s13sdd1']
-                df.loc[:,'pre13segs']=df['s6segs2']
-                df.loc[:,'cur13segs']=df['s6segs1']                        
-
-                df=np.round(df,decimals=2)
-                df.loc[:,'Level0data']=df.apply(lambda x:'p13rat{pre13rat}[{pre13segs}],c13rat{cur13rat}[{cur13segs}]'.format(**x),axis=1)
-                df.loc[:,'Level0']=df.apply(lambda x:1 if (x.pre13rat>0)&(x.pre13rat>=-x.cur13rat)&(x.pre13rat/2>(x.pre13rat+x.cur13rat)) else 0 ,axis=1)
-                df.loc[:,'Level1data']=df.apply(lambda x:'pow[{ppropowgrefr}-{propowredfr}-{curpowgrefr}]num[{ppronumgrefr}-{pronumredfr}-{curnumgrefr}]'.format(**x),axis=1)
-                df.loc[:,'Level1']=df.apply(self.Level1,axis=1)
-                df.loc[:,'pprat']=df['s6sdd3']
-                df.loc[:,'prat']=df['s6sdd2']
-                df.loc[:,'currat']=df['s6sdd1']
-                df.loc[:,'Level2data']=df.apply(lambda x:'pow[{pprat},{prat},{currat}]num[{ppronumgrefr}-{pronumredfr}-{curnumgrefr}]'.format(**x),axis=1)
-                df.loc[:,'Level2']=df.apply(self.Level2,axis=1)
-                df.loc[:,'progp6no']=df['gp6no2']
-                df.loc[:,'curgp6no']=df['gp6no1']
-                df.loc[:,'Level3data']=df.apply(lambda x:'rat[{prat},{currat}]gno[{progp6no}-{curgp6no}]'.format(**x),axis=1)
-                df.loc[:,'Level3']=df.apply(lambda x:1 if (x.progp6no==1)&(x.curgp6no==1) else 0,axis=1)
-                df.loc[:,'Level4data']=df.apply(lambda x:'h{proh}-c{s6d0},{s6d1}-l{prol}'.format(**x),axis=1)
-                df.loc[:,'Level4']=df.apply(lambda x:1 if (x.s6d0>=x.prol)&(x.s6d1>=x.prol) else 0 ,axis=1)
-                df.loc[:,'ppgpid']=df['gpid3']
-                df.loc[:,'pgpid']=df['gpid2']
-                df.loc[:,'cgpid']=df['gpid1']
-                df.loc[:,'s6same']=df.apply(self.Level5,axis=1)
-
-                return df[self.MAINCONf]
-
-        except:
-            pass
-
-
-   
-    def selftest(self):
-        gp=self.getgp()
-        #exdb=self.getexdb()
-        #gp=self.creatgp13(exdb)
-        gp['nid']=pd.Series(range(len(gp)),index=gp.index)
-        gp=gp.set_index('nid')
-        #df=gp[(gp.s6sdd<0)&(gp.um==1)]
-        # 1.s1sdd1 standard: 1. both umzd1 and umzu1 and umzd1>umzu1 2.power maxumzu1>maxdmzu and maxdmzu>maxdmzd
-        df=gp[((gp.s13g1<gp.s13g2)|(gp.s13g1<gp.s13g3))&(gp.s13sdd1>0)&(gp.s13sumumzu1>0)&(gp.s13sumumzd1>0)&(gp.s13sumumzd1>=gp.s13sumumzu1)&(gp.s13maxumzu1>gp.s13maxdmzu)&(gp.s13maxdmzu>gp.s13maxdmzd)]
-        if len(df)>0:
-            gp1=gp.loc[df.index]
-            gp1['s13lenf1']=gp['s13len'].ix[df.index+1].values
-            gp1['s13sddf1']=gp['s13sdd'].ix[df.index+1].values
-            gp1['s6segsf1']=gp['s6segs'].ix[df.index+1].values
-            gp1['d02d1']=gp1.s13d0/gp1.s13d1
-            gp1['d02d2']=gp1.s13d0/gp1.s13d2
-            gp1['new2d0']=gp1.s13lastc/gp1.s13d0
-            gp1=np.round(gp1,decimals=2)
-            gp1['d123']=gp1.apply(lambda x:'{s13d1}:{s13d2}-{d02d1}:{d02d2}-{new2d0}'.format(**x),axis=1)
-            gp1['seg1']=gp1.apply(lambda x:'{s13len1}-{s6segs1}[{s13sdd1}]'.format(**x),axis=1)
-            gp1['seg0']=gp1.apply(lambda x:'{s13len}-{s6segs}[{s13sdd}]'.format(**x),axis=1)
-            gp1['segf']=gp1.apply(lambda x:'{s13lenf1}-{s6segsf1}[{s13sddf1}]'.format(**x),axis=1)
-
-            return gp1.sort_values(by=['s13startdate'],ascending=True)[self.CONf]
-        else:
-            return None
+ 
