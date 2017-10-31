@@ -70,8 +70,8 @@ class ANALYSIS:
                               gp['seed']=0
                               if _std.getseed() is not None:
                                     gp['seed']=1
-                        result=dbcurrent.append(gp)
-                        i=i+1
+                              result=dbcurrent.append(gp)
+                              i=i+1
                                           #print(i)
                   except:
                                           #print(path)

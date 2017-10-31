@@ -124,10 +124,11 @@ class STDTB(object):
             exdb['trixs']=talib.SMA(np.array(exdb.trixl),9)
             exdb['tmacd']=exdb.apply(lambda x :1 if (x.trixl>=x.trixs)and (x.posmacd==1) else 0 ,axis=1)  
             #kdj
+            exdb.loc[:,'id']=exdb.index
             exdb['k'],exdb['d']=talib.STOCH(np.array(exdb.h),np.array(exdb.l),np.array(exdb.c),9)
             exdb.loc[:,'j']=exdb.k*3-exdb.d*2
-            exdb.loc[:,'kd4']= exdb.apply(lambda x:1 if (x.k>x.d) and (x.posmacd==4)  else 0,axis=1)
-            exdb.loc[:,'kd1']= exdb.apply(lambda x:1 if (x.k>x.d) and (x.posmacd==1)  else 0,axis=1)
+            exdb.loc[:,'kd4']= exdb.apply(lambda x:x.id if (x.k<x.d)   else 0,axis=1)
+            exdb.loc[:,'kd1']= exdb.apply(lambda x:x.id if (x.k>x.d)   else 0,axis=1)
             exdb.loc[:,'trixang']=talib.LINEARREG_ANGLE(np.array(exdb.trixs),3)
             exdb.loc[:,'trixangflag']=exdb.apply(lambda x :1 if x.trixang>0 else 0 ,axis=1)
             exdb.loc[:,'seed']= exdb.apply(lambda x:1 if (x.j<x.k) and (x.j<x.d) and (x.k<x.d) and (x.tmacd==1) and (x.trixangflag==1)  else 0 ,axis=1)
