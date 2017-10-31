@@ -303,7 +303,7 @@ class STDTB(object):
     
     
     
-    def getseed(self):
+    def getseed1(self):
         try:
             exdb=self.getexdbforseed()[-1:]
             if len(exdb[(exdb.seed==1)])==1:
@@ -314,4 +314,29 @@ class STDTB(object):
         except:
             pass
 
- 
+    def keypos(self,x):
+        if x.kd1id>x.kd4id  :
+            return "{}{}".format(int(x.posmacd4),int(x.posmacd1))
+        else :
+            return "{}{}".format(int(x.posmacd1),int(x.posmacd4))
+    def getseed(self):
+        db=self.getexdbforseed()
+        try:
+            lastkd4id=db.max(axis=0)['kd4']
+            lastkd1id=db.max(axis=0)['kd1']
+            _db4=db[(db.index==lastkd4id)][['posmacd','id']]
+    
+            _db4.columns=['posmacd4','kd4id']
+            _db4.loc[:,'newid']='1'
+            _db4=_db4.set_index('newid')
+            _db1=db[(db.index==lastkd1id)][['posmacd','id']]
+            _db1.columns=['posmacd1','kd1id']
+            _db1.loc[:,'newid']='1'
+            _db1=_db1.set_index('newid')        
+            gp= pd.concat([_db1,_db4],axis=1)
+            gp['totalkey']=gp.apply(lambda x:  x.kd1id-x.kd4id if x.kd1id>x.kd4id else -(x.kd4id-x.kd1id),axis=1)
+            gp['keypos']=gp.apply(self.keypos,axis=1)
+            gp['sn']=self.sn
+            return gp['keypos'].values[0]
+        except:
+            return None

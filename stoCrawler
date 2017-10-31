@@ -41,7 +41,7 @@ class StockInfo:
            upgraderate=(float(nowprice)-float(yesterdayendprice))/float(yesterdayendprice)
            upgraderate=round(upgraderate *100,2)
            dateandtime=slist[30]+' ' + slist[31]
-           print('t %s, c %s, l %s   %s '%(ti,nowprice,todaylowprice,upgraderate))
+           print('t %s, c %s, l %s h %s  %s '%(ti,nowprice,todaylowprice,todayhighprice,upgraderate))
 
       def GetStockInfo(num):
            str=StockInfo.GetStockStrByNum(num)

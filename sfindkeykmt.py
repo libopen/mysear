@@ -68,7 +68,8 @@ class ANALYSIS:
                         if _stw.curstate() is not None:
                               gp=_stw.curstate()[['sn','totalkey','keypos']]
                               gp['seed']=0
-                              if _std.getseed() is not None:
+                              seed=_std.getseed()
+                              if seed is not None and seed=='42':
                                     gp['seed']=1
                               result=dbcurrent.append(gp)
                               i=i+1
