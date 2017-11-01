@@ -66,9 +66,9 @@ class ANALYSIS:
                         _std=STDTB(path)
                         _stw=STWTB(path)
                         if _stw.curstate() is not None:
-                              gp=_stw.curstate()[['sn','totalkey','keypos']]
+                              gp=_stw.seed1()[['sn','totalkey','keypos']]
                               gp['seed']=0
-                              seed=_std.getseed()
+                              seed=_std.getseed1()
                               if seed is not None  :
                                     gp['seed']=seed
                               result=dbcurrent.append(gp)

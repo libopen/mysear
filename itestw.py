@@ -5,9 +5,18 @@ def wexdb(sn='ss123456'):
     s=STWTB.STWTB(sn)
     exdb=s.getexdb()[s.DBF]
     return exdb
-
-def wcurstate(sn='ss123456'):
+def wexdb1(sn='ss123456'):
     imp.reload(STWTB)
     s=STWTB.STWTB(sn)
-    db=s.curstate()
+    exdb=s.getexdb1()[s.DBF]
+    return exdb
+def wseed(sn='ss123456'):
+    imp.reload(STWTB)
+    s=STWTB.STWTB(sn)
+    db=s.seed()
+    return db
+def wseed1(sn='ss123456'):
+    imp.reload(STWTB)
+    s=STWTB.STWTB(sn)
+    db=s.seed1()
     return db

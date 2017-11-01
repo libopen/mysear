@@ -39,25 +39,43 @@ class STDTB(object):
         return db 
     
     def posmacd(self,x):
-        if (x.macd>0):
-            if (x.dif<0)&(x.dea<0):
+        if (x.dif<0)&(x.dea<0):
+            if x.macd>0:
                 return 1
             else :
+                return 4
+        else:
+            if x.macd>0:
+                return 2
+            else:
+                return 3
+    def fnpos(self,macd,dif,dea):
+        if (macd>0):
+            if dif<0 & dea<0:
+                return 1
+            else:
                 return 2
         else:
-            if (x.dif>0)&(x.dea>0):
+            if dif>0 & dea>0:
                 return 3
             else:
                 return 4
             
-    DBF=['date','c','k','d','j','kd4','kd1','posmacd','macd','tmacd','angflag','seed']
+    def posmacd2(self,db):
+        for index,row in db.iterrows():
+            row.loc[index,'posmacd']=self.fnpos(row['macd'],row['dif'],row['dea'])
+        return db         
+    DBF=['date','c','k','d','j','kd4','kd1','posmacd','macd','tmacd','angflag']
     def getexdb(self):
         try:
             self.load()
             exdb=self.db
             #macd
             exdb['dif'],exdb['dea'],exdb['macd']=talib.MACD(np.array(exdb.c),10,20,6) # change
+            
+            
             exdb.loc[:,'posmacd']=exdb.apply(self.posmacd,axis=1)
+            #exdb=self.posmacd2(exdb)
             #trix
             exdb['trixl']=talib.TRIX(np.array(exdb.c),12) 
             exdb['trixs']=talib.SMA(np.array(exdb.trixl),9)
@@ -112,13 +130,48 @@ class STDTB(object):
             pass
             #print (self.sn)
 
+    
+
+    def getexdb1(self):
+        try:
+            
+            exdb=self.db
+            #macd
+            exdb['dif'],exdb['dea'],exdb['macd']=talib.MACD(np.array(exdb.c),10,20,6) 
+            exdb=exdb.fillna(0)
+            a=exdb[['macd','dif','dea']].values
+            exdb['pos1']=np.where((a[:,0]>0) & (a[:,1]>0) & (a[:,2]>0),2,1)
+            exdb['pos4']=np.where((a[:,0]<0) & ((a[:,1]>0) & (a[:,2]>0)),3,4)
+            a=exdb[['macd','pos1','pos4']].values
+            exdb['posmacd']=np.where(a[:,0]<0 ,a[:,2],a[:,1])
+            #trix
+            exdb['trixl']=talib.TRIX(np.array(exdb.c),12) 
+            exdb['trixs']=talib.SMA(np.array(exdb.trixl),9)
+            a=exdb[['trixl','trixs','posmacd']].values
+            exdb['tmacd']= np.where(((a[:,0]>a[:,1])&(a[:,2]==1)),1,0)# exdb.apply(lambda x :1 if (x.trixl>=x.trixs)and (x.posmacd==1) else 0 ,axis=1)             
+            exdb.loc[:,'id']=exdb.index
+            exdb['k'],exdb['d']=talib.STOCH(np.array(exdb.h),np.array(exdb.l),np.array(exdb.c),9)
+            exdb.loc[:,'j']=exdb.k*3-exdb.d*2
+            a=exdb[['k','d','id']].values
+            exdb.loc[:,'kd4']= np.where(a[:,0]<a[:,1],a[:,2],0)   #exdb.apply(lambda x:x.id if (x.k<x.d)   else 0,axis=1)
+            exdb.loc[:,'kd1']= np.where(a[:,0]>a[:,1],a[:,2],0)   #exdb.apply(lambda x:x.id if (x.k>x.d)   else 0,axis=1)            
+            #exdb.loc[:,'trixang']=talib.LINEARREG_ANGLE(np.array(exdb.trixs),3)
+            #exdb.loc[:,'trixangflag']=exdb.apply(lambda x :1 if x.trixang>0 else 0 ,axis=1)
+            #exdb.loc[:,'seed']= exdb.apply(lambda x:1 if (x.j<x.k) and (x.j<x.d) and (x.k<x.d) and (x.tmacd==1) and (x.trixangflag==1)  else 0 ,axis=1)
+            exdb.loc[:,'ang']= talib.LINEARREG_ANGLE(np.array(exdb.dea),3)
+            a=exdb[['ang']].values
+            exdb.loc[:,'angflag']=np.where(a[:,0]>0,1,0)  #exdb.apply(lambda x :1 if x.ang>0 else 0 ,axis=1)            
+            return exdb
+        except:
+            return None
     def getexdbforseed(self):
         try:
-            self.load()
+            
             exdb=self.db
             #macd
             exdb['dif'],exdb['dea'],exdb['macd']=talib.MACD(np.array(exdb.c),10,20,6) # change
             exdb.loc[:,'posmacd']=exdb.apply(self.posmacd,axis=1)
+            #exdb=self.posmacd2(exdb)
             #trix
             exdb['trixl']=talib.TRIX(np.array(exdb.c),12) 
             exdb['trixs']=talib.SMA(np.array(exdb.trixl),9)
@@ -129,10 +182,11 @@ class STDTB(object):
             exdb.loc[:,'j']=exdb.k*3-exdb.d*2
             exdb.loc[:,'kd4']= exdb.apply(lambda x:x.id if (x.k<x.d)   else 0,axis=1)
             exdb.loc[:,'kd1']= exdb.apply(lambda x:x.id if (x.k>x.d)   else 0,axis=1)
-            exdb.loc[:,'trixang']=talib.LINEARREG_ANGLE(np.array(exdb.trixs),3)
-            exdb.loc[:,'trixangflag']=exdb.apply(lambda x :1 if x.trixang>0 else 0 ,axis=1)
-            exdb.loc[:,'seed']= exdb.apply(lambda x:1 if (x.j<x.k) and (x.j<x.d) and (x.k<x.d) and (x.tmacd==1) and (x.trixangflag==1)  else 0 ,axis=1)
+            #exdb.loc[:,'trixang']=talib.LINEARREG_ANGLE(np.array(exdb.trixs),3)
+            #exdb.loc[:,'trixangflag']=exdb.apply(lambda x :1 if x.trixang>0 else 0 ,axis=1)
+            #exdb.loc[:,'seed']= exdb.apply(lambda x:1 if (x.j<x.k) and (x.j<x.d) and (x.k<x.d) and (x.tmacd==1) and (x.trixangflag==1)  else 0 ,axis=1)
             exdb.loc[:,'ang']= talib.LINEARREG_ANGLE(np.array(exdb.dea),3)
+            
             exdb.loc[:,'angflag']= exdb.apply(lambda x :1 if x.ang>0 else 0 ,axis=1)            #my para
           
             exdb=exdb.fillna(0)
@@ -304,39 +358,69 @@ class STDTB(object):
     
     
     def getseed1(self):
+        db=self.getexdb1()
         try:
-            exdb=self.getexdbforseed()[-1:]
-            if len(exdb[(exdb.seed==1)])==1:
-                return self.sn
+            lastkd4id=db.max(axis=0)['kd4']
+            lastkd1id=db.max(axis=0)['kd1']
+            if lastkd4id>lastkd1id :
+                #kd4>kd1 so find the provious kd4's maxid
+                kd1proid=db[(db.index<lastkd1id)].max(axis=0)['kd4']
+                _dbpro=db[(db.index==kd1proid)][['posmacd','id']]
+                _dbpro.columns=['posmacdpro','kdproid']
+                _dbpro.loc[:,'newid']='1'
+                _dbpro=_dbpro.set_index('newid')                
+                _db4=db[(db.index==lastkd4id)][['posmacd','id']]
+        
+                _db4.columns=['posmacd4','kd4id']
+                _db4.loc[:,'newid']='1'
+                _db4=_db4.set_index('newid')
+                _db1=db[(db.index==lastkd1id)][['posmacd','id']]
+                _db1.columns=['posmacd1','kd1id']
+                _db1.loc[:,'newid']='1'
+                _db1=_db1.set_index('newid')        
+                gp= pd.concat([_dbpro,_db1,_db4],axis=1)
+                gp.loc[:,'totalkey']=gp.apply(lambda x:  x.kd1id-x.kd4id if x.kd1id>x.kd4id else -(x.kd4id-x.kd1id),axis=1)
+                gp.loc[:,'keypos']=gp.apply(self.keypos,axis=1)
+                gp.loc[:,'sn']=self.sn
+                return gp['keypos'].values[0]
             else:
                 return None
-
+            
         except:
-            pass
+            return None
 
     def keypos(self,x):
-        if x.kd1id>x.kd4id  :
-            return "{}{}".format(int(x.posmacd4),int(x.posmacd1))
-        else :
-            return "{}{}".format(int(x.posmacd1),int(x.posmacd4))
+        # if x.kd1id>x.kd4id  :
+        return "{}{}{}".format(int(x.posmacdpro),int(x.posmacd1),int(x.posmacd4))
+       
     def getseed(self):
         db=self.getexdbforseed()
         try:
             lastkd4id=db.max(axis=0)['kd4']
             lastkd1id=db.max(axis=0)['kd1']
-            _db4=db[(db.index==lastkd4id)][['posmacd','id']]
-    
-            _db4.columns=['posmacd4','kd4id']
-            _db4.loc[:,'newid']='1'
-            _db4=_db4.set_index('newid')
-            _db1=db[(db.index==lastkd1id)][['posmacd','id']]
-            _db1.columns=['posmacd1','kd1id']
-            _db1.loc[:,'newid']='1'
-            _db1=_db1.set_index('newid')        
-            gp= pd.concat([_db1,_db4],axis=1)
-            gp['totalkey']=gp.apply(lambda x:  x.kd1id-x.kd4id if x.kd1id>x.kd4id else -(x.kd4id-x.kd1id),axis=1)
-            gp['keypos']=gp.apply(self.keypos,axis=1)
-            gp['sn']=self.sn
-            return gp['keypos'].values[0]
+            if lastkd4id>lastkd1id :
+                #kd4>kd1 so find the provious kd4's maxid
+                kd1proid=db[(db.index<lastkd1id)].max(axis=0)['kd4']
+                _dbpro=db[(db.index==kd1proid)][['posmacd','id']]
+                _dbpro.columns=['posmacdpro','kdproid']
+                _dbpro.loc[:,'newid']='1'
+                _dbpro=_dbpro.set_index('newid')                
+                _db4=db[(db.index==lastkd4id)][['posmacd','id']]
+        
+                _db4.columns=['posmacd4','kd4id']
+                _db4.loc[:,'newid']='1'
+                _db4=_db4.set_index('newid')
+                _db1=db[(db.index==lastkd1id)][['posmacd','id']]
+                _db1.columns=['posmacd1','kd1id']
+                _db1.loc[:,'newid']='1'
+                _db1=_db1.set_index('newid')        
+                gp= pd.concat([_dbpro,_db1,_db4],axis=1)
+                gp['totalkey']=gp.apply(lambda x:  x.kd1id-x.kd4id if x.kd1id>x.kd4id else -(x.kd4id-x.kd1id),axis=1)
+                gp['keypos']=gp.apply(self.keypos,axis=1)
+                gp['sn']=self.sn
+                return gp['keypos'].values[0]
+            else:
+                return None
+            
         except:
             return None

@@ -57,7 +57,6 @@ class STWTB(object):
     DBF=['date','c','k','d','j','kd4','kd1','posmacd','macd','tmacd','angflag','ang0id','ang1id']
     def getexdb(self):
         try:
-            self.load()
             exdb=self.db
             #print(time.time())
             exdb['dif'],exdb['dea'],exdb['macd']=talib.MACD(np.array(exdb.c),10,20,6) # change
@@ -100,6 +99,41 @@ class STWTB(object):
         except:
             pass
             #print (self.sn)
+
+    def getexdb1(self):
+        try:
+
+            exdb=self.db
+            #macd
+            exdb['dif'],exdb['dea'],exdb['macd']=talib.MACD(np.array(exdb.c),10,20,6) 
+            exdb=exdb.fillna(0)
+            a=exdb[['macd','dif','dea']].values
+            exdb['pos1']=np.where((a[:,0]>0) & (a[:,1]>0) & (a[:,2]>0),2,1)
+            exdb['pos4']=np.where((a[:,0]<0) & ((a[:,1]>0) & (a[:,2]>0)),3,4)
+            a=exdb[['macd','pos1','pos4']].values
+            exdb['posmacd']=np.where(a[:,0]<0 ,a[:,2],a[:,1])
+            #trix
+            exdb['trixl']=talib.TRIX(np.array(exdb.c),12) 
+            exdb['trixs']=talib.SMA(np.array(exdb.trixl),9)
+            a=exdb[['trixl','trixs','posmacd']].values
+            exdb['tmacd']= np.where(((a[:,0]>a[:,1])&(a[:,2]==1)),1,0)# exdb.apply(lambda x :1 if (x.trixl>=x.trixs)and (x.posmacd==1) else 0 ,axis=1)             
+            exdb.loc[:,'id']=exdb.index
+            exdb['k'],exdb['d']=talib.STOCH(np.array(exdb.h),np.array(exdb.l),np.array(exdb.c),9)
+            exdb.loc[:,'j']=exdb.k*3-exdb.d*2
+            a=exdb[['k','d','id']].values
+            exdb.loc[:,'kd4']= np.where(a[:,0]<a[:,1],a[:,2],0)   #exdb.apply(lambda x:x.id if (x.k<x.d)   else 0,axis=1)
+            exdb.loc[:,'kd1']= np.where(a[:,0]>a[:,1],a[:,2],0)   #exdb.apply(lambda x:x.id if (x.k>x.d)   else 0,axis=1)            
+            #exdb.loc[:,'trixang']=talib.LINEARREG_ANGLE(np.array(exdb.trixs),3)
+            #exdb.loc[:,'trixangflag']=exdb.apply(lambda x :1 if x.trixang>0 else 0 ,axis=1)
+            #exdb.loc[:,'seed']= exdb.apply(lambda x:1 if (x.j<x.k) and (x.j<x.d) and (x.k<x.d) and (x.tmacd==1) and (x.trixangflag==1)  else 0 ,axis=1)
+            exdb.loc[:,'ang']= talib.LINEARREG_ANGLE(np.array(exdb.macd),3)
+            a=exdb[['ang','id']].values
+            exdb.loc[:,'angflag']=np.where(a[:,0]>0,1,0)  #exdb.apply(lambda x :1 if x.ang>0 else 0 ,axis=1) 
+            exdb.loc[:,'ang1id']= np.where(a[:,0]>0,a[:,1],0)  #exdb.apply(lambda x :x.id if x.ang>0 else 0 ,axis=1)
+            exdb.loc[:,'ang0id']= np.where(a[:,0]<0,a[:,1],0) #exdb.apply(lambda x :x.id if x.ang<0 else 0 ,axis=1)            
+            return exdb
+        except:
+            return None
 
     def creatgp(self,db):
                 # group by gpid get sum of md and gpred
@@ -175,13 +209,9 @@ class STWTB(object):
             return None
 
     def keypos(self,x):
-        if x.ang1id>x.ang0id and x.trixs1>x.trixs0 :
-            return "{}-{}".format(int(x.posmacd0),int(x.posmacd1))
-        elif x.ang0id>x.ang1id and x.trixs0>x.trixs1:
-            return "{}-{}".format(int(x.posmacd1),int(x.posmacd0))
-        else :
-            return 0
-    def curstate(self):
+        return "{}{}{}".format(int(x.posmacdp),int(x.posmacds),int(x.posmacdb))
+
+    def seed(self):
         db=self.getexdb()
         try:
             lastang0id=db.max(axis=0)['ang0id']
@@ -197,11 +227,44 @@ class STWTB(object):
             _dbang1=_dbang1.set_index('newid')        
             gp= pd.concat([_dbang0,_dbang1],axis=1)
             gp['totalkey']=gp.apply(lambda x: int (x.ang1id-x.ang0id) if x.ang1id>x.ang0id else int(x.ang1id-x.ang0id),axis=1)
-            gp['keypos']=gp.apply(self.keypos,axis=1)
+            #gp['keypos']=gp.apply(self.keypos,axis=1)
             gp['sn']=self.sn
             return gp
         except:
             return None
+    def seed1(self):
+            db=self.getexdb1()
+            try:
+                lastang0id=db.max(axis=0)['ang0id']
+                lastang1id=db.max(axis=0)['ang1id']
+                idsmall=min(lastang0id,lastang1id)
+                idbig  =max(lastang0id,lastang1id)
+                _dbSmall=db[(db.index==idsmall)][['tmacd','trixs','posmacd','id']]
+                _dbSmall.columns=['tmacds','trixss','posmacds','angsid']
+                _dbSmall.loc[:,'newid']='1'
+                _dbSmall=_dbSmall.set_index('newid')
+
+                _dbBig=db[(db.index==idbig)][['tmacd','trixs','posmacd','id']]
+                _dbBig.columns=['tmacdb','trixsb','posmacdb','angbid']
+                _dbBig.loc[:,'newid']='1'
+                _dbBig=_dbBig.set_index('newid')    
+                idpro=db[(db.index<idsmall)].max(axis=0)[['ang0id','ang1id']].max()
+                _dbpro=db[(db.index==idpro)][['tmacd','trixs','posmacd','id']]
+                _dbpro.columns=['tmacdp','trixsp','posmacdp','angpid']
+                _dbpro.loc[:,'newid']='1'
+                _dbpro=_dbpro.set_index('newid')                
+                    
+                gp= pd.concat([_dbSmall,_dbBig,_dbpro],axis=1)
+                if lastang0id>lastang1id:
+                    gp['totalkey']=idsmall-idbig
+                else:
+                    gp['totalkey']=-(idsmall-idbig)
+                
+                gp['keypos']=gp.apply(self.keypos,axis=1)
+                #gp['sn']=self.sn
+                return gp
+            except:
+                return None    
 class STMTB(STWTB):
     def load(self):
         exdb=pd.read_csv(self.snpath,header=None,names=['date','o','h','l','c','v','m'])
