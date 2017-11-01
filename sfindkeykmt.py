@@ -65,7 +65,7 @@ class ANALYSIS:
                         #db1=result1
                         _std=STDTB(path)
                         _stw=STWTB(path)
-                        if _stw.curstate() is not None:
+                        if _stw.seed1() is not None:
                               gp=_stw.seed1()[['sn','totalkey','keypos']]
                               gp['seed']=0
                               seed=_std.getseed1()
@@ -83,7 +83,7 @@ class ANALYSIS:
             if result.empty == False:
                   result=result.sort_values('sn')
                   print("{}total:{} ,failure:{}".format(pat,i,j))
-                  result[(result.totalkey>0)|((result.seed=='22')&(result.seed=='42'))].to_csv("gp6{}.csv".format(pat))        
+                  result[(result.totalkey>0)|((result.seed=='122')&(result.seed=='242'))].to_csv("gp6{}.csv".format(pat))        
                   #result1.to_csv("gp6{}{}last.csv".format(pat,yourtype))       
                   return result                                    
                               

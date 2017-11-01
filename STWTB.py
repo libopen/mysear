@@ -261,7 +261,7 @@ class STWTB(object):
                     gp['totalkey']=-(idsmall-idbig)
                 
                 gp['keypos']=gp.apply(self.keypos,axis=1)
-                #gp['sn']=self.sn
+                gp['sn']=self.sn
                 return gp
             except:
                 return None    
