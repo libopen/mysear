@@ -49,22 +49,7 @@ class STDTB(object):
                 return 2
             else:
                 return 3
-    def fnpos(self,macd,dif,dea):
-        if (macd>0):
-            if dif<0 & dea<0:
-                return 1
-            else:
-                return 2
-        else:
-            if dif>0 & dea>0:
-                return 3
-            else:
-                return 4
-            
-    def posmacd2(self,db):
-        for index,row in db.iterrows():
-            row.loc[index,'posmacd']=self.fnpos(row['macd'],row['dif'],row['dea'])
-        return db         
+    
     DBF=['date','c','k','d','j','kd4','kd1','kdj','posmacd','macd','tmacd','angflag']
     def getexdb(self):
         try:
@@ -129,8 +114,6 @@ class STDTB(object):
         except:
             pass
             #print (self.sn)
-
-    
 
     def getexdb1(self):
         try:

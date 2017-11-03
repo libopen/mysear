@@ -83,7 +83,7 @@ class ANALYSIS:
             if result.empty == False:
                   result=result.sort_values('sn')
                   print("{}total:{} ,failure:{}".format(pat,i,j))
-                  result[(result.totalkey>0)|((result.seed=='122')&(result.seed=='242'))].to_csv("gp6{}.csv".format(pat))        
+                  result[((result.totalkey>0)&(result.totalkey<4))].to_csv("gp6{}.csv".format(pat))        
                   #result1.to_csv("gp6{}{}last.csv".format(pat,yourtype))       
                   return result                                    
                               

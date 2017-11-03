@@ -1,0 +1,2 @@
+### splitstr
+select column_value from table(splitstr('1,2,2',','))
