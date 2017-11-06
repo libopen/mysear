@@ -54,7 +54,7 @@ class STWTB(object):
                 return 3
             else:
                 return 4    
-    DBF=['date','c','k','d','j','kd4','kd1','posmacd','macd','tmacd','angflag','ang0id','ang1id']
+    DBF=['date','c','k','d','j','kd4','kd1','posmacd','macd','tmacd','angflag','kd']
     def getexdb(self):
         try:
             exdb=self.db
@@ -123,9 +123,10 @@ class STWTB(object):
             exdb['k'],exdb['d']=talib.STOCH(np.array(exdb.h),np.array(exdb.l),np.array(exdb.c),9)
             exdb=exdb.fillna(0)
             exdb.loc[:,'j']=exdb.k*3-exdb.d*2
-            a=exdb[['k','d','id']].values
-            exdb.loc[:,'kd4']= np.where(a[:,0]<a[:,1],a[:,2],0)   #exdb.apply(lambda x:x.id if (x.k<x.d)   else 0,axis=1)
-            exdb.loc[:,'kd1']= np.where(a[:,0]>a[:,1],a[:,2],0)   #exdb.apply(lambda x:x.id if (x.k>x.d)   else 0,axis=1)            
+            a=exdb[['macd','id','k','d']].values
+            exdb.loc[:,'kd4']= np.where(a[:,0]<0,a[:,1],0)   #exdb.apply(lambda x:x.id if (x.k<x.d)   else 0,axis=1)
+            exdb.loc[:,'kd1']= np.where(a[:,0]>0,a[:,1],0)   #exdb.apply(lambda x:x.id if (x.k>x.d)   else 0,axis=1)            
+            exdb.loc[:,'kd']= np.where(a[:,2]>a[:,3],1,0)
             #exdb.loc[:,'trixang']=talib.LINEARREG_ANGLE(np.array(exdb.trixs),3)
             #exdb.loc[:,'trixangflag']=exdb.apply(lambda x :1 if x.trixang>0 else 0 ,axis=1)
             #exdb.loc[:,'seed']= exdb.apply(lambda x:1 if (x.j<x.k) and (x.j<x.d) and (x.k<x.d) and (x.tmacd==1) and (x.trixangflag==1)  else 0 ,axis=1)
@@ -135,7 +136,9 @@ class STWTB(object):
             exdb.loc[:,'angflag']=np.where(a[:,0]>0,1,0)  #exdb.apply(lambda x :1 if x.ang>0 else 0 ,axis=1) 
             exdb.loc[:,'ang1id']= np.where(a[:,0]>0,a[:,1],0)  #exdb.apply(lambda x :x.id if x.ang>0 else 0 ,axis=1)
             exdb.loc[:,'ang0id']= np.where(a[:,0]<0,a[:,1],0) #exdb.apply(lambda x :x.id if x.ang<0 else 0 ,axis=1)            
-            #exdb=np.round(exdb,decimals=2)
+            exdb=np.round(exdb,decimals=2)
+            cols=['kd4','kd1','posmacd','kd','ang0id','ang1id']
+            exdb[cols]=exdb[cols].applymap(np.int64)
             return exdb
         except:
             return None
@@ -214,29 +217,38 @@ class STWTB(object):
             return None
 
     def keypos(self,x):
-        return "{}{}{}".format(int(x.posmacdp),int(x.posmacds),int(x.posmacdb))
+        return "{}-{}-{}".format(int(x.seedmod),int(x.difang),int(x.changes))
 
     def seed(self):
-        db=self.getexdb()
+        db=self.getexdb1()
         try:
-            lastang0id=db.max(axis=0)['ang0id']
-            lastang1id=db.max(axis=0)['ang1id']
-            _dbang0=db[(db.index==lastang0id)][['tmacd','trixs','posmacd','id']]
-            
-            _dbang0.columns=['tmacd0','trixs0','posmacd0','ang0id']
+            lastang0id=db.max(axis=0)['kd4']
+            lastang1id=db.max(axis=0)['kd1']
+            _dbang0=db[(db.index==lastang0id)][['angflag','posmacd','id']]
+            _dbang0.columns=['angflag4','posmacd4','kd4id']
             _dbang0.loc[:,'newid']='1'
             _dbang0=_dbang0.set_index('newid')
-            _dbang1=db[(db.index==lastang1id)][['tmacd','trixs','posmacd','id']]
-            _dbang1.columns=['tmacd1','trixs1','posmacd1','ang1id']
+            _dbang1=db[(db.index==lastang1id)][['angflag','posmacd','id']]
+            _dbang1.columns=['angflag1','posmacd1','kd1id']
             _dbang1.loc[:,'newid']='1'
             _dbang1=_dbang1.set_index('newid')        
             gp= pd.concat([_dbang0,_dbang1],axis=1)
-            gp['totalkey']=gp.apply(lambda x: int (x.ang1id-x.ang0id) if x.ang1id>x.ang0id else int(x.ang1id-x.ang0id),axis=1)
-            #gp['keypos']=gp.apply(self.keypos,axis=1)
+            gp['changes']=gp.apply(lambda x: int (x.kd1id-x.kd4id) if x.kd1id>x.kd4id else -int(x.kd4id-x.kd1id),axis=1)
+            gp['difang']=gp.apply(lambda x: 1 if (x.kd4id>x.kd1id) and( x.angflag4==1) else 0,axis=1)
+            cols=['posmacd4','posmacd1']
+            gp[cols]=gp[cols].applymap(np.int64)
+            if lastang0id>lastang1id:
+               gp['seedmod']=gp.apply(lambda x:'{posmacd1}{posmacd4}{difang}'.format(**x),axis=1)
+            else:
+               gp['seedmod']=gp.apply(lambda x:'{posmacd4}{posmacd1}{difang}'.format(**x),axis=1)
+            gp['keypos']=gp.apply(self.keypos,axis=1)
+            
             gp['sn']=self.sn
             return gp
         except:
             return None
+    def keypos1(self,x):
+        return "{}-{}-{}".format(int(x.posmacdp),int(x.posmacds),int(x.posmacdb))
     def seed1(self):
             db=self.getexdb1()
             try:
@@ -265,7 +277,7 @@ class STWTB(object):
                 else:
                     gp['totalkey']=-(idsmall-idbig)
                 
-                gp['keypos']=gp.apply(self.keypos,axis=1)
+                gp['keypos']=gp.apply(self.keypos1,axis=1)
                 gp['sn']=self.sn
                 return gp
             except:

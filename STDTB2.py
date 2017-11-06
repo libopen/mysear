@@ -50,7 +50,7 @@ class STDTB(object):
             else:
                 return 3
     
-    DBF=['date','c','k','d','j','kd4','kd1','kdj','posmacd','macd','tmacd','angflag']
+    
     def getexdb(self):
         try:
             self.load()
@@ -114,7 +114,7 @@ class STDTB(object):
         except:
             pass
             #print (self.sn)
-
+    DBF=['date','c','up','down','posmacd','macd','tmacd']
     def getexdb1(self):
         try:
             
@@ -132,22 +132,20 @@ class STDTB(object):
             exdb['trixs']=talib.SMA(np.array(exdb.trixl),9)
             exdb=exdb.fillna(0)
             a=exdb[['trixl','trixs','posmacd']].values
-            exdb['tmacd']= np.where(((a[:,0]>a[:,1])&(a[:,2]==1)),1,0)# exdb.apply(lambda x :1 if (x.trixl>=x.trixs)and (x.posmacd==1) else 0 ,axis=1)             
+            exdb['tmacd']= np.where(a[:,0]>a[:,1],1,0)# exdb.apply(lambda x :1 if (x.trixl>=x.trixs)and (x.posmacd==1) else 0 ,axis=1)             
             exdb.loc[:,'id']=exdb.index
             exdb['k'],exdb['d']=talib.STOCH(np.array(exdb.h),np.array(exdb.l),np.array(exdb.c),9)
             exdb=exdb.fillna(0)
             exdb.loc[:,'j']=exdb.k*3-exdb.d*2
-            a=exdb[['k','d','id','j']].values
-            exdb.loc[:,'kd4']= np.where(a[:,0]<a[:,1],a[:,2],0)   #exdb.apply(lambda x:x.id if (x.k<x.d)   else 0,axis=1)
-            exdb.loc[:,'kd1']= np.where(a[:,0]>a[:,1],a[:,2],0)   #exdb.apply(lambda x:x.id if (x.k>x.d)   else 0,axis=1)            
-            exdb.loc[:,'kdj']= np.where((a[:,0]>a[:,3]) &(a[:,1]>a[:,3]),1,0)
-            #exdb.loc[:,'trixang']=talib.LINEARREG_ANGLE(np.array(exdb.trixs),3)
-            #exdb.loc[:,'trixangflag']=exdb.apply(lambda x :1 if x.trixang>0 else 0 ,axis=1)
-            #exdb.loc[:,'seed']= exdb.apply(lambda x:1 if (x.j<x.k) and (x.j<x.d) and (x.k<x.d) and (x.tmacd==1) and (x.trixangflag==1)  else 0 ,axis=1)
-            exdb.loc[:,'ang']= talib.LINEARREG_ANGLE(np.array(exdb.dea),3)
+            a=exdb[['tmacd','id']].values
+            exdb.loc[:,'up']  = np.where(a[:,0]>0,a[:,1],0)   #exdb.apply(lambda x:x.id if (x.k<x.d)   else 0,axis=1)
+            exdb.loc[:,'down']= np.where(a[:,0]==0,a[:,1],0)   #exdb.apply(lambda x:x.id if (x.k>x.d)   else 0,axis=1)            
             exdb=exdb.fillna(0)
-            a=exdb[['ang']].values
-            exdb.loc[:,'angflag']=np.where(a[:,0]>0,1,0)  #exdb.apply(lambda x :1 if x.ang>0 else 0 ,axis=1)            
+            exdb=np.round(exdb,decimals=2)
+            cols=['up','down','posmacd']
+            exdb[cols]=exdb[cols].applymap(np.int64)
+
+            
             return exdb
         except:
             return None
@@ -347,34 +345,53 @@ class STDTB(object):
     def getseed1(self):
         db=self.getexdb1()
         try:
-            lastkd4id=db.max(axis=0)['kd4']
-            lastkd1id=db.max(axis=0)['kd1']
-            if lastkd4id>lastkd1id :
-                #kd4>kd1 so find the provious kd4's maxid
-                kd1proid=db[(db.index<lastkd1id)].max(axis=0)['kd4']
-                _dbpro=db[(db.index==kd1proid)][['posmacd','id']]
-                _dbpro.columns=['posmacdpro','kdproid']
+            lastupid=db.max(axis=0)['up']
+            lastdownid=db.max(axis=0)['down']
+            if lastupid>lastdownid :
+                 #kd4>kd1 so find the provious kd4's maxid
+                proid=db[(db.index<lastdownid)].max(axis=0)['up']
+                _dbpro=db[(db.index==proid)][['posmacd','id']]
+                _dbpro.columns=['posmacdpro','proid']
                 _dbpro.loc[:,'newid']='1'
                 _dbpro=_dbpro.set_index('newid')                
-                _db4=db[(db.index==lastkd4id)][['posmacd','id']]
-        
-                _db4.columns=['posmacd4','kd4id']
-                _db4.loc[:,'newid']='1'
-                _db4=_db4.set_index('newid')
-                _db1=db[(db.index==lastkd1id)][['posmacd','id']]
-                _db1.columns=['posmacd1','kd1id']
-                _db1.loc[:,'newid']='1'
-                _db1=_db1.set_index('newid')        
-                gp= pd.concat([_dbpro,_db1,_db4],axis=1)
-                gp.loc[:,'totalkey']=gp.apply(lambda x:  x.kd1id-x.kd4id if x.kd1id>x.kd4id else -(x.kd4id-x.kd1id),axis=1)
-                gp.loc[:,'keypos']=gp.apply(self.keypos,axis=1)
+                _dbup=db[(db.index==lastupid)][['posmacd','id']]
+                _dbup.columns=['posmacdup','upid']
+                _dbup.loc[:,'newid']='1'
+                _dbup=_dbup.set_index('newid')
+                _dbdown=db[(db.index==lastdownid)][['posmacd','id']]
+                _dbdown.columns=['posmacddown','downid']
+                _dbdown.loc[:,'newid']='1'
+                _dbdown=_dbdown.set_index('newid')        
+                gp= pd.concat([_dbpro,_dbdown,_dbup],axis=1)
+                gp.loc[:,'changes']=gp.apply(lambda x:  x.upid-x.downid if x.upid>x.downid else 0,axis=1)
+                #gp.loc[:,'keypos']=gp.apply(self.keypos,axis=1)
+                gp['seed']=gp.apply(lambda x:'u{posmacdup}-{changes}'.format(**x),axis=1)
                 gp.loc[:,'sn']=self.sn
-                return gp['keypos'].values[0]
+                return gp['seed'].values[0]
             else:
-                return None
+                proid=db[(db.index<lastupid)].max(axis=0)['down']
+                _dbpro=db[(db.index==proid)][['posmacd','id']]
+                _dbpro.columns=['posmacdpro','proid']
+                _dbpro.loc[:,'newid']='1'
+                _dbpro=_dbpro.set_index('newid')                
+                _dbup=db[(db.index==lastupid)][['posmacd','id']]
+                _dbup.columns=['posmacdup','upid']
+                _dbup.loc[:,'newid']='1'
+                _dbup=_dbup.set_index('newid')
+                _dbdown=db[(db.index==lastdownid)][['posmacd','id']]
+                _dbdown.columns=['posmacddown','downid']
+                _dbdown.loc[:,'newid']='1'
+                _dbdown=_dbdown.set_index('newid')        
+                gp= pd.concat([_dbpro,_dbdown,_dbup],axis=1)
+                gp.loc[:,'changes']=gp.apply(lambda x:  x.downid-x.upid if x.downid>x.upid else 0,axis=1)
+                #gp.loc[:,'keypos']=gp.apply(self.keypos,axis=1)
+                gp['seed']=gp.apply(lambda x:'d{posmacddown}-{changes}'.format(**x),axis=1)
+                gp.loc[:,'sn']=self.sn
+                return gp['seed'].values[0]
+                
             
         except:
-            return None
+            return 'expt'
 
     def keypos(self,x):
         # if x.kd1id>x.kd4id  :

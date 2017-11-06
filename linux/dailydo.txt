@@ -1,0 +1,8 @@
+####从Excel 文件导出选课，报考，成绩信息
+目标：lib@lib-OptiPlex-7010:/media/lib/新加卷/ouchn/export/exp2017$
+     excel文件存放在此目录下9/9 目录内
+     选课表命名以elc***** .xls(xlxs)
+     报考表命名以signup4(5)***** .xls(xlxs) 根据试卷号长度
+     成绩表命名以score4(5)***** .xls(xlxs)
+     执行使用 Exp900.sh 文件名
+     导出文件存在export目录内 

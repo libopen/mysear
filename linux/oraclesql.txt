@@ -1,2 +1,5 @@
 ### splitstr
 select column_value from table(splitstr('1,2,2',','))
+行业学院导出有选课无报考，有成绩无报考，有成绩没选课
+900_3kind_export.sql
+

@@ -52,6 +52,7 @@ class ANALYSIS:
                               resultlist.append(path)
             return resultlist
       
+      
        
       def save6(self,pat):
             snlist=self.getallfile(ROOTPATH,pat)
@@ -65,11 +66,11 @@ class ANALYSIS:
                         #db1=result1
                         _std=STDTB(path)
                         _stw=STWTB(path)
-                        if _stw.seed1() is not None:
-                              gp=_stw.seed1()[['sn','totalkey','keypos']]
-                              gp['seed']=0
+                        if _stw.seed() is not None:
+                              gp=_stw.seed()[['sn','keypos','seedmod']]
+                              gp['seed']='0'
                               seed=_std.getseed1()
-                              if seed is not None  :
+                              if 'u' in seed   :
                                     gp['seed']=seed
                               result=dbcurrent.append(gp)
                               i=i+1
@@ -83,7 +84,7 @@ class ANALYSIS:
             if result.empty == False:
                   result=result.sort_values('sn')
                   print("{}total:{} ,failure:{}".format(pat,i,j))
-                  result[((result.totalkey>0)&(result.totalkey<4))].to_csv("gp6{}.csv".format(pat))        
+                  result[((result.seedmod=='231')|(result.seedmod=='241')|(result.seedmod=='420')|(result.seedmod=='410'))].to_csv("gp6{}.csv".format(pat))        
                   #result1.to_csv("gp6{}{}last.csv".format(pat,yourtype))       
                   return result                                    
                               
@@ -96,9 +97,7 @@ class ANALYSIS:
               
 
 def main():
-    #main1()
-      #dofindsh6(findtype='a1')
-      #dofindsh6(findtype='m4')
+
       
       a=ANALYSIS()
       #a.batsavegp(pat=sys.argv[1],angtype=sys.argv[2],usemyfind=sys.argv[3])
