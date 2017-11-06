@@ -5,4 +5,18 @@
      报考表命名以signup4(5)***** .xls(xlxs) 根据试卷号长度
      成绩表命名以score4(5)***** .xls(xlxs)
      执行使用 Exp900.sh 文件名
-     导出文件存在export目录内 
+     导出文件存在export目录内 使用verElc.sh verScore.sh verSignup.sh校验数据有效性，包括是否重复记录，
+     mkexec_ctl.sh 用于生成CTL文件文件位于export/目录下以exec_
+
+#### 行业学院文件导出，有选课没成绩，有成绩不报考
+     ftp: support/900score/export_900_3kind.sql 
+
+#### 数据迁移：专业规则模块课程表 
+     1.137 服务器data/split_tcp.sh 生成数据于eas_tcp_modulecourses1表中
+     2.临时表数据合并到正式表merge_tcp
+     3.重新计算指导性专业规则模块分部和总学分exec_rule.sql
+     wh17113467
+
+     
+
+

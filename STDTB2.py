@@ -114,7 +114,7 @@ class STDTB(object):
         except:
             pass
             #print (self.sn)
-    DBF=['date','c','up','down','posmacd','macd','tmacd']
+    DBF=['date','c','kd','up','down','posmacd','macd','tmacd']
     def getexdb1(self):
         try:
             
@@ -137,9 +137,10 @@ class STDTB(object):
             exdb['k'],exdb['d']=talib.STOCH(np.array(exdb.h),np.array(exdb.l),np.array(exdb.c),9)
             exdb=exdb.fillna(0)
             exdb.loc[:,'j']=exdb.k*3-exdb.d*2
-            a=exdb[['tmacd','id']].values
+            a=exdb[['tmacd','id','k','d']].values
             exdb.loc[:,'up']  = np.where(a[:,0]>0,a[:,1],0)   #exdb.apply(lambda x:x.id if (x.k<x.d)   else 0,axis=1)
             exdb.loc[:,'down']= np.where(a[:,0]==0,a[:,1],0)   #exdb.apply(lambda x:x.id if (x.k>x.d)   else 0,axis=1)            
+            exdb.loc[:,'kd']= np.where(a[:,2]<a[:,3],1,0)
             exdb=exdb.fillna(0)
             exdb=np.round(exdb,decimals=2)
             cols=['up','down','posmacd']
@@ -354,8 +355,8 @@ class STDTB(object):
                 _dbpro.columns=['posmacdpro','proid']
                 _dbpro.loc[:,'newid']='1'
                 _dbpro=_dbpro.set_index('newid')                
-                _dbup=db[(db.index==lastupid)][['posmacd','id']]
-                _dbup.columns=['posmacdup','upid']
+                _dbup=db[(db.index==lastupid)][['posmacd','id','kd']]
+                _dbup.columns=['posmacdup','upid','upkd']
                 _dbup.loc[:,'newid']='1'
                 _dbup=_dbup.set_index('newid')
                 _dbdown=db[(db.index==lastdownid)][['posmacd','id']]
@@ -365,7 +366,7 @@ class STDTB(object):
                 gp= pd.concat([_dbpro,_dbdown,_dbup],axis=1)
                 gp.loc[:,'changes']=gp.apply(lambda x:  x.upid-x.downid if x.upid>x.downid else 0,axis=1)
                 #gp.loc[:,'keypos']=gp.apply(self.keypos,axis=1)
-                gp['seed']=gp.apply(lambda x:'u{posmacdup}-{changes}'.format(**x),axis=1)
+                gp['seed']=gp.apply(lambda x:'u{posmacdup}-{changes}-{upkd}'.format(**x),axis=1)
                 gp.loc[:,'sn']=self.sn
                 return gp['seed'].values[0]
             else:
@@ -378,14 +379,14 @@ class STDTB(object):
                 _dbup.columns=['posmacdup','upid']
                 _dbup.loc[:,'newid']='1'
                 _dbup=_dbup.set_index('newid')
-                _dbdown=db[(db.index==lastdownid)][['posmacd','id']]
-                _dbdown.columns=['posmacddown','downid']
+                _dbdown=db[(db.index==lastdownid)][['posmacd','id','kd']]
+                _dbdown.columns=['posmacddown','downid','downkd']
                 _dbdown.loc[:,'newid']='1'
                 _dbdown=_dbdown.set_index('newid')        
                 gp= pd.concat([_dbpro,_dbdown,_dbup],axis=1)
                 gp.loc[:,'changes']=gp.apply(lambda x:  x.downid-x.upid if x.downid>x.upid else 0,axis=1)
                 #gp.loc[:,'keypos']=gp.apply(self.keypos,axis=1)
-                gp['seed']=gp.apply(lambda x:'d{posmacddown}-{changes}'.format(**x),axis=1)
+                gp['seed']=gp.apply(lambda x:'d{posmacddown}-{changes}-{downkd}'.format(**x),axis=1)
                 gp.loc[:,'sn']=self.sn
                 return gp['seed'].values[0]
                 
