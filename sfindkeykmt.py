@@ -6,8 +6,8 @@ import time
 import datetime
 import csv
 from datetime import timedelta
-from STWTB import STMTB,STWTB
-from STDTB2 import STDTB
+from STWTB2 import STMTB,STWTB
+from STDTB3 import STDTB
 #goodkey hope to slove 
 #1 the minl always lower startc
 #2 the maxh is not the starth
@@ -68,10 +68,8 @@ class ANALYSIS:
                         _stw=STWTB(path)
                         if _stw.seed() is not None:
                               gp=_stw.seed()[['sn','keypos','seedmod']]
-                              gp['seed']='0'
-                              seed=_std.getseed1()
-                              if 'u' in seed   :
-                                    gp['seed']=seed
+                              dseed=_std.getseed()[['seedmod']].values[0]
+                              gp['dseed']=dseed                              
                               result=dbcurrent.append(gp)
                               i=i+1
                                           #print(i)
@@ -84,8 +82,8 @@ class ANALYSIS:
             if result.empty == False:
                   result=result.sort_values('sn')
                   print("{}total:{} ,failure:{}".format(pat,i,j))
-                  result[((result.seedmod=='231')|(result.seedmod=='241')|(result.seedmod=='420')|(result.seedmod=='410'))].to_csv("gp6{}.csv".format(pat))        
-                  #result1.to_csv("gp6{}{}last.csv".format(pat,yourtype))       
+                  #result[((result.seedmod=='231')|(result.seedmod=='241')|(result.seedmod=='420')|(result.seedmod=='410'))].to_csv("gp6{}.csv".format(pat))        
+                  result.to_csv("gp6{}.csv".format(pat))       
                   return result                                    
                               
   

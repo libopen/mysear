@@ -17,7 +17,8 @@ DBNANJING={'uid':'sa','pwd':'!!!WKSdatatest!!!','dbid':'nanjing0721','host':'202
 DBJIANGSU={'uid':'sa','pwd':'!!!WKSdatatest!!!','dbid':'jiangsu0925','host':'202.205.160.183'}
 DBHENAN={'uid':'sa','pwd':'!!!WKSdatatest!!!','dbid':'henan20170523','host':'202.205.160.177'}
 DBMID={'uid':'jwc','pwd':' wangbin','dbid':'AcademicAdministration','host':'202.205.160.199'}
-DB234={'uid':'zx','pwd':' oOodVDunSuvkkyxF','dbid':'[20170921-zssj1]','host':'202.205.160.234'}
+DB234={'uid':'zx','pwd':' oOodVDunSuvkkyxF','dbid':'[20171026-zssj1]','host':'202.205.160.234'}
+DBZX={'uid':'zx','pwd':' oOodVDunSuvkkyxF','dbid':'[zx_zssj]','host':'202.205.160.234'}
 class doExpbatWorker(Thread):
       def __init__(self,queue):
           Thread.__init__(self)
@@ -49,6 +50,7 @@ def main(exp,expdb,targetcsvpath):
     bcppara['nanjing']=DBNANJING
     bcppara['jiangsu']=DBJIANGSU
     bcppara['zssj1']=DB234
+    bcppara['zssj']=DBZX
 	
 	
     ts = time.time()

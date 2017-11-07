@@ -114,7 +114,7 @@ class STDTB(object):
         except:
             pass
             #print (self.sn)
-    DBF=['date','c','kd','up','down','posmacd','macd','tmacd']
+    DBF=['date','c','k','d','kd','up','down','posmacd','macd','tmacd']
     def getexdb1(self):
         try:
             

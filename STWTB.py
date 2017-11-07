@@ -54,7 +54,7 @@ class STWTB(object):
                 return 3
             else:
                 return 4    
-    DBF=['date','c','k','d','j','kd4','kd1','posmacd','macd','tmacd','angflag','kd']
+    DBF=['date','c','k','d','j','kd4','kd1','posmacd','macd','tmacd','angflag','kd','pdif']
     def getexdb(self):
         try:
             exdb=self.db
@@ -123,10 +123,11 @@ class STWTB(object):
             exdb['k'],exdb['d']=talib.STOCH(np.array(exdb.h),np.array(exdb.l),np.array(exdb.c),9)
             exdb=exdb.fillna(0)
             exdb.loc[:,'j']=exdb.k*3-exdb.d*2
-            a=exdb[['macd','id','k','d']].values
+            a=exdb[['macd','id','k','d','posmacd','dif']].values
             exdb.loc[:,'kd4']= np.where(a[:,0]<0,a[:,1],0)   #exdb.apply(lambda x:x.id if (x.k<x.d)   else 0,axis=1)
             exdb.loc[:,'kd1']= np.where(a[:,0]>0,a[:,1],0)   #exdb.apply(lambda x:x.id if (x.k>x.d)   else 0,axis=1)            
             exdb.loc[:,'kd']= np.where(a[:,2]>a[:,3],1,0)
+            exdb.loc[:,'pdif']= np.where((a[:,4]==1)&(a[:,5]<0),a[:,1],0)   #posmacd==4 and dif>0 dea<0
             #exdb.loc[:,'trixang']=talib.LINEARREG_ANGLE(np.array(exdb.trixs),3)
             #exdb.loc[:,'trixangflag']=exdb.apply(lambda x :1 if x.trixang>0 else 0 ,axis=1)
             #exdb.loc[:,'seed']= exdb.apply(lambda x:1 if (x.j<x.k) and (x.j<x.d) and (x.k<x.d) and (x.tmacd==1) and (x.trixangflag==1)  else 0 ,axis=1)
@@ -137,7 +138,7 @@ class STWTB(object):
             exdb.loc[:,'ang1id']= np.where(a[:,0]>0,a[:,1],0)  #exdb.apply(lambda x :x.id if x.ang>0 else 0 ,axis=1)
             exdb.loc[:,'ang0id']= np.where(a[:,0]<0,a[:,1],0) #exdb.apply(lambda x :x.id if x.ang<0 else 0 ,axis=1)            
             exdb=np.round(exdb,decimals=2)
-            cols=['kd4','kd1','posmacd','kd','ang0id','ang1id']
+            cols=['kd4','kd1','posmacd','kd','ang0id','ang1id','pdif']
             exdb[cols]=exdb[cols].applymap(np.int64)
             return exdb
         except:
@@ -238,9 +239,9 @@ class STWTB(object):
             cols=['posmacd4','posmacd1']
             gp[cols]=gp[cols].applymap(np.int64)
             if lastang0id>lastang1id:
-               gp['seedmod']=gp.apply(lambda x:'{posmacd1}{posmacd4}{difang}'.format(**x),axis=1)
+                gp['seedmod']=gp.apply(lambda x:'{posmacd1}{posmacd4}{difang}'.format(**x),axis=1)
             else:
-               gp['seedmod']=gp.apply(lambda x:'{posmacd4}{posmacd1}{difang}'.format(**x),axis=1)
+                gp['seedmod']=gp.apply(lambda x:'{posmacd4}{posmacd1}{difang}'.format(**x),axis=1)
             gp['keypos']=gp.apply(self.keypos,axis=1)
             
             gp['sn']=self.sn

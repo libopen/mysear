@@ -1,35 +1,24 @@
 import pandas as pd
-import STWTB,imp,STDTB2
+import STWTB2,imp,STDTB3
 def wexdb(sn='ss123456'):
-    imp.reload(STWTB)
-    s=STWTB.STWTB(sn)
+    imp.reload(STWTB2)
+    s=STWTB2.STWTB(sn)
     exdb=s.getexdb()[s.DBF]
     return exdb
-def wexdb1(sn='ss123456'):
-    imp.reload(STWTB)
-    s=STWTB.STWTB(sn)
-    exdb=s.getexdb1()[s.DBF]
-    return exdb
+
 def wseed(sn='ss123456'):
-    imp.reload(STWTB)
-    s=STWTB.STWTB(sn)
+    imp.reload(STWTB2)
+    s=STWTB2.STWTB(sn)
     db=s.seed()
-    return db
-def wseed1(sn='ss123456'):
-    imp.reload(STWTB)
-    s=STWTB.STWTB(sn)
-    db=s.seed1()
     return db
 
 
 def testkmt(sn='ss123456'):
-    _std=STDTB2.STDTB(sn)
-    _stw=STWTB.STWTB(sn)
+    _std=STDTB3.STDTB(sn)
+    _stw=STWTB2.STWTB(sn)
     if _stw.seed() is not None:
         gp=_stw.seed()[['sn','keypos','seedmod']]
-        gp['seed']='0'
-        seed=_std.getseed1()
-        if 'u' in seed   :
-            gp['seed']=seed
+        dseed=_std.getseed()[['seedmod']].values[0]
+        gp['dseed']=dseed
         return gp
       
