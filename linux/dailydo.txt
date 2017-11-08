@@ -21,7 +21,7 @@
 ###  导入招生数据 --wh17103276,wh17113488 
      1 138 d:\support\impnewstudent2017 assemble_student.bat 导入CSV文件 mkexec_student.bat 生成ctl 
          (修改g:\migration\Pyexp\expCpsSingle.py 对应的数据库地址
-     2.CTL导入，导入后处理 
+     2.CTL导入，导入后处理 \oracle_sql\impnewstudent.sql
      
      
 
