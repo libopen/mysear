@@ -24,4 +24,7 @@
      2.CTL导入，导入后处理 \oracle_sql\impnewstudent.sql
      
      
-
+####  从CPS导出数据
+     1 183 d:/support/impseg/finish 包含所有CPS迁移过的角本
+     2.导出新生数据，d:/support/impnewstudent2017 
+    

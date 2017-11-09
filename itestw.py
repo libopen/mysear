@@ -21,4 +21,4 @@ def testkmt(sn='ss123456'):
         dseed=_std.getseed()[['seedmod']].values[0]
         gp['dseed']=dseed
         return gp
-      
+    

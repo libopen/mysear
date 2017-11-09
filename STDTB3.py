@@ -30,7 +30,7 @@ class STDTB(object):
     
     
    
-    DBF=['date','kd','segup','segdown','posmacd','macd','tmacd','difup1','ang','c','k','d']
+    DBF=['date','kd','segup','segdown','posmacd','macd','tmacd','ang','angflag','c','k','d']
     def getexdb(self):
         try:
             
@@ -56,7 +56,7 @@ class STDTB(object):
             a=exdb[['tmacd','id','k','d','posmacd','dif']].values
             exdb.loc[:,'segup']  = np.where(a[:,0]>0,a[:,1],0)   #exdb.apply(lambda x:x.id if (x.k<x.d)   else 0,axis=1)
             exdb.loc[:,'segdown']= np.where(a[:,0]==0,a[:,1],0)   #exdb.apply(lambda x:x.id if (x.k>x.d)   else 0,axis=1)            
-            exdb.loc[:,'kd']= np.where(a[:,2]<a[:,3],1,0)
+            exdb.loc[:,'kd']= np.where(a[:,2]>a[:,3],1,0)
             exdb.loc[:,'difup1']= np.where((a[:,4]==1)&(a[:,5]<0),a[:,1],0)   #posmacd==4 and dif>0 dea<0
             exdb.loc[:,'ang']= talib.LINEARREG_ANGLE(np.array(exdb.trixl),3)
             exdb=exdb.fillna(0)
