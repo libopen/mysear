@@ -6,8 +6,8 @@ import time
 import datetime
 import csv
 from datetime import timedelta
-from STWTB2 import STMTB,STWTB
-from STDTB3 import STDTB
+from STTB import STDTB,STWTB
+
 #goodkey hope to slove 
 #1 the minl always lower startc
 #2 the maxh is not the starth
@@ -67,9 +67,10 @@ class ANALYSIS:
                         _std=STDTB(path)
                         _stw=STWTB(path)
                         if _stw.seed() is not None:
-                              gp=_stw.seed()[['sn','keypos','seedmod']]
-                              dseed=_std.getseed()[['seedmod']].values[0]
-                              gp['dseed']=dseed                              
+                              _gp=_stw.seed()[['sn','seedmod','areamod','keymod']]
+                              _dgp=_std.seed()[['seedmod','areamod','keymod']]
+                              _dgp.columns=['dseedmod','dareamod','dkeymod']
+                              gp=pd.concat([_gp,_dgp],axis=1)[['sn','seedmod','areamod','keymod','dseedmod','dareamod','dkeymod']]                            
                               result=dbcurrent.append(gp)
                               i=i+1
                                           #print(i)
@@ -82,8 +83,8 @@ class ANALYSIS:
             if result.empty == False:
                   result=result.sort_values('sn')
                   print("{}total:{} ,failure:{}".format(pat,i,j))
-                  #result[((result.seedmod=='231')|(result.seedmod=='241')|(result.seedmod=='420')|(result.seedmod=='410'))].to_csv("gp6{}.csv".format(pat))        
-                  result.to_csv("gp6{}.csv".format(pat))       
+                  result[((result.seedmod=='411')|(result.seedmod=='230')|(result.seedmod=='231')|(result.seedmod=='410')|(result.seedmod=='120'))].to_csv("gp6{}.csv".format(pat))        
+                  #result.to_csv("gp6{}.csv".format(pat))       
                   return result                                    
                               
   
