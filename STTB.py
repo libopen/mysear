@@ -87,7 +87,7 @@ class STDTB(object):
             if preid==0:
                 preid=db[(db.index<lastupid)&(db.kdup!=0)].min(axis=0)['kdup']             
                 preid=preid-1
-            return "down{}-{}".format(int(lastupid-preid),int(lastdownid-lastupid))
+            return "do{}-{}".format(int(lastupid-preid),int(lastdownid-lastupid))
         else:
             headid=lastupid
             tailid=lastdownid
@@ -97,7 +97,7 @@ class STDTB(object):
                 preid=preid-1      
             return "up{}-{}".format(int(lastdownid-preid),int(lastupid-lastdownid))
     def keymod(self,x):
-        return "s{}-k{}".format(x.segchanges,x.kdchanges)      
+        return "{}{}:s{}-k{}".format(str(x.segchanges)[:2],str(x.kdchanges)[:2],x.segchanges,x.kdchanges)      
                     
     def getHeadTail(self,db,mod,headid,tailid,lastid):
         _dbhead=db[(db.index==headid)][['angflag','posmacd','id']]
@@ -158,7 +158,7 @@ class STDTB(object):
                 if preid==0:
                     preid=db[(db.index<lastupid)&(db.segup!=0)].min(axis=0)['segup']             
                     preid=preid-1
-                mod="down{}-{}".format(int(lastupid-preid),int(lastdownid-lastupid))
+                mod="do{}-{}".format(int(lastupid-preid),int(lastdownid-lastupid))
             else:
                 headid=lastupid
                 tailid=lastdownid
