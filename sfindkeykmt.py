@@ -71,7 +71,10 @@ class ANALYSIS:
                               _dgp=_std.seed()[['seedmod','areamod','keymod']]
                               _dgp.columns=['dseedmod','dareamod','dkeymod']
                               gp=pd.concat([_gp,_dgp],axis=1)[['sn','seedmod','areamod','keymod','dseedmod','dareamod','dkeymod']]                            
-                              result=dbcurrent.append(gp)
+                              gp['keymod_key']=gp['keymod'].str.split(':').str[0].astype(str)
+                              gp['dkeymod_key']=gp['dkeymod'].str.split(':').str[0].astype(str)
+                              cols=['sn','areamod','dareamod','seedmod','dseedmod','keymod_key','dkeymod_key','keymod','dkeymod']
+                              result=dbcurrent.append(gp[cols])
                               i=i+1
                                           #print(i)
                   except:
@@ -81,9 +84,9 @@ class ANALYSIS:
                              
                                                                 
             if result.empty == False:
-                  result=result.sort_values('sn')
+                  result=result.sort_values(['areamod','dareamod','seedmod','dseedmod'])
                   print("{}total:{} ,failure:{}".format(pat,i,j))
-                  result[((result.seedmod=='411')|(result.seedmod=='230')|(result.seedmod=='231')|(result.seedmod=='410')|(result.seedmod=='120'))].to_csv("gp6{}.csv".format(pat))        
+                  result[((result.seedmod=='411')|(result.seedmod=='231'))].to_csv("gp6{}.csv".format(pat))        
                   #result.to_csv("gp6{}.csv".format(pat))       
                   return result                                    
                               

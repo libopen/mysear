@@ -32,5 +32,8 @@ def testkmt(sn='ss123456'):
         _dgp=_std.seed()[['seedmod','areamod','keymod']]
         _dgp.columns=['dseedmod','dareamod','dkeymod']
         gp=pd.concat([_gp,_dgp],axis=1)[['sn','seedmod','areamod','keymod','dseedmod','dareamod','dkeymod']]
-        return gp
+        gp['keymod_key']=gp['keymod'].str.split(':').str[0].astype(str)
+        gp['dkeymod_key']=gp['dkeymod'].str.split(':').str[0].astype(str)
+        cols=['sn','areamod','dareamod','seedmod','dseedmod','keymod_key','dkeymod_key','keymod','dkeymod']
+        return gp[cols]
     
