@@ -86,7 +86,7 @@ class ANALYSIS:
             if result.empty == False:
                   result=result.sort_values(['areamod','dareamod','seedmod','dseedmod'])
                   print("{}total:{} ,failure:{}".format(pat,i,j))
-                  result[((result.seedmod=='411')|(result.seedmod=='231'))].to_csv("gp6{}.csv".format(pat))        
+                  result.to_csv("gp6{}.csv".format(pat))        
                   #result.to_csv("gp6{}.csv".format(pat))       
                   return result                                    
                               

@@ -13,16 +13,16 @@
      导出文件存在export目录内 使用verElc.sh verScore.sh verSignup.sh校验数据有效性，包括是否重复记录，
      mkexec_ctl.sh 用于生成CTL文件文件位于export/目录下以exec_
      数据文件导入临时表后的SQL计算角本
-     server135 \oracle_sql\merge_impstudentstudydata.sql 注意先替换导入的日期和对应的分部代码 
+     server135  注意先替换导入的日期和对应的分部代码 \oracle_sql\merge_impstudentstudydata
 
 #### 行业学院文件导出，有选课没成绩，有成绩不报考 --wh17113540
      ftp: support/900score/export_900_3kind.sql 
 
-#### 数据迁移：专业规则模块课程表 
+#### 数据迁移：专业规则模块课程表 wh17113467
      1.server137 服务器data/split_tcp.sh 生成数据于eas_tcp_modulecourses1表中
-     2.临时表数据合并到正式表merge_tcp
-     3.重新计算指导性专业规则模块分部和总学分exec_rule.sql
-     wh17113467
+     2.server135 临时表数据合并到正式表 \oracle_sql\imp_tcp_guidance.sql
+     3.server135 重新计算指导性专业规则模块分部和总学分\oracle_sql\imp_tcp_guidance2.sql
+       
 
      
 ###  导入招生数据 --wh17103276,wh17113488,wh17103174,wh17113557
@@ -31,14 +31,12 @@
      2.server135 CTL导入，导入后处理 \oracle_sql\impnewstudent.sql
      
      
-####  从CPS导出数据
-     1 server183 d:/support/impseg/finish 包含所有CPS迁移过的角本
-     2.导出新生数据，d:/support/impnewstudent2017 
-    
+####  从分部CPS数据迁移
+     1 server183 包含所有CPS迁移过的角本 d:/support/impseg/finish
 
-#### 从CPS导出统考成绩
-     1.server138 d:\support\impseg\finish\assemble_score.bat 
-     2.server137 /home/libin/data/split_allscore.sh 拆分各分部成绩角本生成CTL
-     3.server135 导入后的处理 \oracle_sql\merge_studystatusfromnetexamscore.sql
+     1.) 从CPS导出统考成绩
+         1.server138 d:\support\impseg\finish\assemble_score.bat 
+         2.server137 /home/libin/data/split_allscore.sh 拆分各分部成绩角本生成CTL
+         3.server135 导入后的处理 \oracle_sql\merge_studystatusfromnetexamscore.sql
      
 
