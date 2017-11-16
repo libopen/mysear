@@ -29,6 +29,11 @@
      1 server138 d:\support\impnewstudent2017 assemble_student.bat 导入CSV文件 mkexec_student.bat 生成ctl 
          (修改g:\migration\Pyexp\expCpsSingle.py 对应的数据库地址
      2.server135 CTL导入，导入后处理 \oracle_sql\impnewstudent.sql
+
+###  导入老系统学生，提供excel形式的xsb,xsjbqkb,bjxxb --wh17113577
+     1.server183 手工方式导入178 数据库CPS 建立同名表
+     2 server138 d:\support\impnewstudent2017 assemble_student.bat 导入CSV文件 mkexec_student.bat 生成ctl 
+     
      
      
 ####  从分部CPS数据迁移
@@ -38,5 +43,5 @@
          1.server138 d:\support\impseg\finish\assemble_score.bat 
          2.server137 /home/libin/data/split_allscore.sh 拆分各分部成绩角本生成CTL
          3.server135 导入后的处理 \oracle_sql\merge_studystatusfromnetexamscore.sql
-     
+     2.) 2.) 
 
