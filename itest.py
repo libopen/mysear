@@ -1,6 +1,5 @@
 import pandas as pd
-import STTB,imp,sys
-
+import STTB,imp
 def ddb(sn='ss123456'):
     imp.reload(STTB)
     s=STTB.STDTB(sn)
@@ -26,6 +25,7 @@ def wseed(sn='ss123456'):
     return gp
       
 def testkmt(sn='ss123456'):
+    imp.reload(STTB)
     _std=STTB.STDTB(sn)
     _stw=STTB.STWTB(sn)
     if _stw.seed() is not None:
@@ -36,17 +36,5 @@ def testkmt(sn='ss123456'):
         gp['keymod_key']=gp['keymod'].str.split(':').str[0].astype(str)
         gp['dkeymod_key']=gp['dkeymod'].str.split(':').str[0].astype(str)
         cols=['sn','areamod','dareamod','seedmod','dseedmod','keymod_key','dkeymod_key','keymod','dkeymod']
-        print(gp.to_csv(sep='\t'))
         return gp[cols]
-def main():
-
-
-   
-    #a.batsavegp(pat=sys.argv[1],angtype=sys.argv[2],usemyfind=sys.argv[3])
-    testkmt(sys.argv[1])
-    #if (sys.argv[2]=='t'):
-        #a.batsavegp(pat=sys.argv[1],angtype=sys.argv[2],cyctype='W')
-
-
-if __name__=="__main__":
-    main()    
+    

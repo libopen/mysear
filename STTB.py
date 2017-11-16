@@ -52,7 +52,7 @@ class STDTB(object):
         self.db.date=pd.to_datetime(self.db.date)
         self.addload()
     #DBF=['date','c','k','d','j','segdown','segup','posmacd','macd','tmacd','angflag','kd']
-    DBF=['date','kdup','kddown','segup','segdown','posmacd','macd','tmacd','ang','angflag','c','segdown55']
+    DBF=['date','kdup','kddown','segup','segdown','posmacd','macd','tmacd','ang','angflag','c','segdown55','segdown20']
     def getexdb(self):
         try:
   
@@ -110,7 +110,7 @@ class STDTB(object):
         _dbtail.loc[:,'newid']='1'
         _dbtail=_dbtail.set_index('newid')   
         _dbpre=pd.DataFrame()
-        if 'down' in mod: # current is down ,so get the current seg area 
+        if 'do' in mod: # current is down ,so get the current seg area 
             _dbpre =db[(db.index>tailid)].mean()[['segdown20','segdown55']]
         else:  # current is up get previous seg area
             _dbpre =db[(db.index>lastid)&(db.index<=tailid)].mean()[['segdown20','segdown55']]
