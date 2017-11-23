@@ -1,12 +1,4 @@
-1,603703,00,00,411,111,upup,updo,upup:sup26-22-kup6-1,updo:sup21-5-kdo7-4
-1,600556,00,00,411,111,upup,updo,upup:sup9-1-kup2-3,updo:sup2-10-kdo7-4
-1,002667,00,00,411,111,upup,updo,upup:sup13-24-kup3-1,updo:sup12-3-kdo2-1
-1,000409,00,00,411,111,upup,updo,upup:sup18-12-kup6-2,updo:sup20-3-kdo6-1
-1,002030,00,00,411,111,upup,updo,upup:sup3-1-kup6-1,updo:sup31-4-kdo8-2
-1,000971,00,00,411,111,upup,updo,upup:sup14-18-kup4-1,updo:sup15-5-kdo9-3
-1,002303,00,00,411,111,upup,updo,upup:sup8-21-kup4-1,updo:sup17-4-kdo6-4
-1,002058,00,00,411,111,upup,updo,upup:sup37-3-kup3-1,updo:sup6-7-kdo4-6
-1,300322,00,00,411,111,upup,updo,upup:sup1-3-kup3-1,updo:sup17-4-kdo5-3
-1,300118,00,00,411,111,upup,updo,upup:sup6-12-kup5-1,updo:sup28-5-kdo6-4
-1,300057,00,00,411,111,upup,updo,upup:sup10-12-kup5-1,updo:sup26-6-kdo8-3
-1,300345,00,00,411,111,upup,updo,upup:sup19-12-kup6-2,updo:sup19-5-kdo7-2
+600217 00 00 updo:sup18-5-kdo4-2
+603703 00 00 updo:sup21-7-kdo7-6
+000971 00 00 updo:sup15-5-kdo9-3
+000906 00 00 updo:sup17-7-kdo7-4
