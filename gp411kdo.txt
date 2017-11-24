@@ -1,4 +1,4 @@
-600217 00 00 updo:sup18-5-kdo4-2
-603703 00 00 updo:sup21-7-kdo7-6
 000971 00 00 updo:sup15-5-kdo9-3
-000906 00 00 updo:sup17-7-kdo7-4
+300322 00 00 updo:sup17-7-kdo1-1
+300020 00 00 updo:sup20-4-kdo4-1
+300478 00 00 updo:sup29-9-kdo3-1
