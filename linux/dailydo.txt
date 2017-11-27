@@ -3,6 +3,12 @@
 #### server138 202.205.160.138
 #### server136 202.205.161.136
 
+
+#### ER修改
+     虚拟机XP修改数据结构 导出所有结构为HTM格式，建立SQL文件压缩为w.zip 文件通过共享方式导到103服务器目录
+     1.发布ER SCP到108 /home/user/目录，执行w.sh 发布到WEB服务器
+     2.可以将w.zip CP到本地，再上传到FTP135 再传到177上用QQ交互。
+
 ####从Excel 文件导出选课，报考，成绩信息 --wh17113527 wh17113540
 目标：lib@lib-OptiPlex-7010:/media/lib/新加卷/ouchn/export/exp2017$
      excel文件存放在此目录下9/9 目录内
@@ -25,7 +31,7 @@
        
 
      
-###  导入招生数据 --wh17103276,wh17113488,wh17103174,wh17113557
+###  导入招生数据 --wh17103276,wh17113488,wh17103174,wh17113557,wh17113674
      1 server138 d:\support\impnewstudent2017 assemble_student.bat 导入CSV文件 mkexec_student.bat 生成ctl 
          (修改g:\migration\Pyexp\expCpsSingle.py 对应的数据库地址
      2.server135 CTL导入，导入后处理 \oracle_sql\impnewstudent.sql
