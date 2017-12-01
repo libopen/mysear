@@ -22,6 +22,7 @@ class STDTB(object):
     def addload(self):
         exdb=self.db
         exdb['dif'],exdb['dea'],exdb['macd']=talib.MACD(np.array(exdb.c),10,20,6) 
+        #exdb.loc[:,['dif','dea','macd']]=talib.MACD(np.array(exdb.c),10,20,6) 
         exdb['k'],exdb['d']=talib.STOCH(np.array(exdb.h),np.array(exdb.l),np.array(exdb.c),9)
         exdb.loc[:,'j']=exdb.k*3-exdb.d*2
         exdb['sma20']=talib.SMA(np.array(exdb.c),20)
@@ -48,11 +49,12 @@ class STDTB(object):
 
         self.db=exdb        
     def load(self):
-        self.db=pd.read_csv(self.snpath,header=None,names=['date','o','h','l','c','v','m'])
-        self.db.date=pd.to_datetime(self.db.date)
+        self.db=(pd.read_csv(self.snpath,header=None,names=['date','o','h','l','c','v','m'])
+                  .assign(date=lambda x:pd.to_datetime(x['date'])))
+        #self.db.date=pd.to_datetime(self.db.date)
         self.addload()
     #DBF=['date','c','k','d','j','segdown','segup','posmacd','macd','tmacd','angflag','kd']
-    DBF=['date','kdup','kddown','segup','segdown','posmacd','macd','tmacd','ang','angflag','c','segdown55','segdown20']
+    DBF=['date','kdup','kddown','segup','segdown','posmacd','macd','tmacd','ang','angflag','c','segdown55','segdown20','k','d','j']
     def getexdb(self):
         try:
   

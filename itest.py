@@ -4,7 +4,7 @@ def ddb(sn='ss123456'):
     imp.reload(STTB)
     s=STTB.STDTB(sn)
     gp=s.getexdb()[s.DBF]
-    print(gp[-20:].to_csv(sep='\t'))
+    #print(gp[-20:].to_csv(sep='\t'))
     return gp[-20:]
 
 def wdb(sn='ss123456'):
