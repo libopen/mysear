@@ -1119,7 +1119,6 @@ newid,sn,areamod,dareamod,seedmod,dseedmod,keymod_key,dkeymod_key,keymod,dkeymod
 1,601155,11,11,321,330,updo,doup,updo:sup4-5-kdo5-1,doup:sdo24-1-kup5-1
 1,601318,11,11,321,330,updo,dodo,updo:sup4-7-kdo6-2,dodo:sdo35-1-kdo3-6
 1,601100,11,11,321,330,updo,doup,updo:sup6-5-kdo5-2,doup:sdo27-7-kup4-1
-1,002658,00,00,140,110,dodo,doup,dodo:sdo7-5-kdo8-8,doup:sdo1-23-kup3-2
 1,002541,00,00,140,110,dodo,doup,dodo:sdo9-7-kdo5-11,doup:sdo1-9-kup3-2
 1,000561,00,00,140,110,dodo,dodo,dodo:sdo16-5-kdo1-1,dodo:sdo1-9-kdo3-1
 1,000901,00,00,140,111,doup,updo,doup:sdo16-5-kup5-2,updo:sup25-3-kdo4-3
@@ -2380,7 +2379,6 @@ newid,sn,areamod,dareamod,seedmod,dseedmod,keymod_key,dkeymod_key,keymod,dkeymod
 1,002311,11,11,321,330,updo,dodo,updo:sup3-7-kdo1-1,dodo:sdo9-1-kdo10-7
 1,002230,11,11,321,330,updo,doup,updo:sup7-3-kdo3-1,doup:sdo20-1-kup4-1
 1,002597,11,11,321,330,updo,doup,updo:sup9-8-kdo3-1,doup:sdo12-2-kup4-1
-1,300324,00,00,140,110,doup,upup,doup:sdo8-5-kup5-2,upup:sup3-7-kup4-1
 1,300533,00,00,140,110,dodo,doup,dodo:sdo10-5-kdo4-9,doup:sdo1-23-kup2-3
 1,300494,00,00,140,110,doup,dodo,doup:sdo18-5-kup7-2,dodo:sdo3-9-kdo6-2
 1,300058,00,00,140,111,doup,upup,doup:sdo13-5-kup3-2,upup:sup13-7-kup4-1
