@@ -22,7 +22,6 @@ class STDTB(object):
     def addload(self):
         exdb=self.db
         exdb['dif'],exdb['dea'],exdb['macd']=talib.MACD(np.array(exdb.c),10,20,6) 
-        #exdb.loc[:,['dif','dea','macd']]=talib.MACD(np.array(exdb.c),10,20,6) 
         exdb['k'],exdb['d']=talib.STOCH(np.array(exdb.h),np.array(exdb.l),np.array(exdb.c),9)
         exdb.loc[:,'j']=exdb.k*3-exdb.d*2
         exdb['sma20']=talib.SMA(np.array(exdb.c),20)
@@ -49,12 +48,11 @@ class STDTB(object):
 
         self.db=exdb        
     def load(self):
-        self.db=(pd.read_csv(self.snpath,header=None,names=['date','o','h','l','c','v','m'])
-                  .assign(date=lambda x:pd.to_datetime(x['date'])))
-        #self.db.date=pd.to_datetime(self.db.date)
+        self.db=pd.read_csv(self.snpath,header=None,names=['date','o','h','l','c','v','m'])
+        self.db.date=pd.to_datetime(self.db.date)
         self.addload()
     #DBF=['date','c','k','d','j','segdown','segup','posmacd','macd','tmacd','angflag','kd']
-    DBF=['date','kdup','kddown','segup','segdown','posmacd','macd','tmacd','ang','angflag','c','segdown55','segdown20','k','d','j']
+    DBF=['date','kdup','kddown','segup','segdown','posmacd','macd','tmacd','ang','angflag','c','segdown55','segdown20']
     def getexdb(self):
         try:
   
@@ -81,6 +79,7 @@ class STDTB(object):
     def getKDseg(self,db):
         lastdownid=db.max(axis=0)['kddown']
         lastupid=db.max(axis=0)['kdup'] 
+        goodkey='out'
         if lastdownid>lastupid : #current is down so preseg is up then preseg is down
             mod='down'
             headid=lastdownid
@@ -89,7 +88,11 @@ class STDTB(object):
             if preid==0:
                 preid=db[(db.index<lastupid)&(db.kdup!=0)].min(axis=0)['kdup']             
                 preid=preid-1
-            return "do{}-{}".format(int(lastupid-preid),int(lastdownid-lastupid))
+            sumlastposmacd=db.loc[tailid+1:headid]['posmacd'].sum()
+            
+            if (lastdownid-lastupid)==sumlastposmacd:
+                goodkey='in'
+            return "do{}-{}_do{}".format(int(lastupid-preid),int(lastdownid-lastupid),goodkey)
         else:
             headid=lastupid
             tailid=lastdownid
@@ -97,7 +100,10 @@ class STDTB(object):
             if preid==0:
                 preid=db[(db.index<lastdownid)&(db.kddown!=0)].min(axis=0)['kddown'] 
                 preid=preid-1      
-            return "up{}-{}".format(int(lastdownid-preid),int(lastupid-lastdownid))
+            sumlastposmacd=db.loc[tailid+1:headid]['posmacd'].sum()
+            if (lastupid-lastdownid)==sumlastposmacd:
+                goodkey='in'           
+            return "up{}-{}_up{}".format(int(lastdownid-preid),int(lastupid-lastdownid),goodkey)
     def keymod(self,x):
         return "{}{}:s{}-k{}".format(str(x.segchanges)[:2],str(x.kdchanges)[:2],x.segchanges,x.kdchanges)      
                     
