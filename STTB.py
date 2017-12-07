@@ -210,12 +210,14 @@ class STWTB(STDTB):
         wdb['date']=wdb.index
         self.db=wdb.set_index('id')
         self.db.date=pd.to_datetime(self.db.date)
-       
-        self.addload()
+        if len(wdb)>=40:
+            self.addload()
+        else:
+            self.db=None
   
     def getexdb(self):
         try:
-  
+            
             exdb=self.db
             #trix
             a=exdb[['macd','id',]].values
