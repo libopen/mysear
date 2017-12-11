@@ -1,4 +1,0 @@
-gp=pd.read_csv('gpSH6bD.csv')
-
-dff=gp[(gp.len<0)&(gp.len1<0)&(gp.minc>gp.minc1)&(gp.len.abs()<10)&(gp.len.abs()>4)&(gp.len1.abs()>15)][['startdate','len','len1','minl','minl1','minc','minc1','fulen1','sn']]
-dff[(dff.fulen1<5)]
