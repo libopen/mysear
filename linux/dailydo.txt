@@ -2,12 +2,16 @@
 #### server137 202.205.161.137
 #### server138 202.205.160.138
 #### server136 202.205.161.136
+#### server103 10 .96 .142.103
+#### server108 10 .96 .142.108 用于ER的发布服务器apache
 
 
 #### ER修改
-     虚拟机XP修改数据结构 导出所有结构为HTM格式，建立SQL文件压缩为w.zip 文件通过共享方式导到103服务器目录
-     1.发布ER SCP到108 /home/user/目录，执行w.sh 发布到WEB服务器
-     2.可以将w.zip CP到本地，再上传到FTP135 再传到177上用QQ交互。
+     虚拟机XP修改数据结构 导出所有结构为HTM格式，建立SQL文件 
+     1  server103 文件通过共享方式导到103服务器目录
+        server103 to7zw.bat 执行压缩ER到w.zip w2108 发布ER SCP到108 /home/user/目录，
+     2  server108 执行w.sh 发布到WEB服务器 重新启用apache sudo service httpd restart
+     3  server103 在103上打开ER 截图，并通过jira 上传截图和SQL角本 .
 
 ####从Excel 文件导出选课，报考，成绩信息 --wh17113527 wh17113540
 目标：lib@lib-OptiPlex-7010:/media/lib/新加卷/ouchn/export/exp2017$
@@ -51,3 +55,7 @@
          3.server135 导入后的处理 \oracle_sql\merge_studystatusfromnetexamscore.sql
      2.) 2.) 
 
+
+#### 国开学位
+    1.清理国开学位数据：  oracle_sql\merge_clearDeg.sql 
+    2.建立国开这位    ：  oracle_sql\merge_easdeg.sql
