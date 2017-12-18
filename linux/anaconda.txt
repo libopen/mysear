@@ -1,0 +1,14 @@
+1. 安装 anaconda 在redhat
+1.由于版本原因，在202.205.161.136上无法安装最新版本的anaconda3.5.0.1 (由于glic 版本只有2.5）
+rpm -qa|grep 'glibc'）
+选择安装 anaconda3-4.1.1-Linux-x86_64.sh
+在136上运行 bash anaconda3-4.1.1-Linux-x86_64.sh 
+默认安装 只到安装成功
+安装后也同时安装了jupyter 
+
+2.配置jupyter 可以远程访问 （本机为服务器，使用浏览器）
+运行jupyter notebook --generate-config
+配置ip port 
+
+运行
+

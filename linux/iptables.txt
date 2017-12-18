@@ -1,0 +1,18 @@
+清华开源镜像：https://mirrors.tuna.tsinghua.edu.cn/
+科技大：https://mirrors.ustc.edu.cn/
+
+1查看防火墙配置
+1.root: /etc/init.d/iptables status
+
+
+2.root: more /etc/sysconfig/iptables
+  iptables -nvL
+
+
+  1) 重启后生效
+        开启： chkconfig iptables on
+        关闭： chkconfig iptables off
+        2) 即时生效，重启后失效
+        开启： service iptables start
+        关闭： service iptables stop
+

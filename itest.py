@@ -1,5 +1,5 @@
 import pandas as pd
-import STS,imp,STFILE
+import STTB,STS,imp,STFILE
 import numpy as np
 def getposdf(datatype='day'):
     imp.reload(STS)
@@ -32,6 +32,7 @@ def getposdf(datatype='day'):
     return np.round(df1,decimals=2)
 
 def computeposmacd(df):
+    
     df.loc[df['posmacd']==1,'f1']=df.loc[df['posmacd']==1,'f1']+1
     df.loc[df['posmacd']==2,'f2']=df.loc[df['posmacd']==2,'f2']+1
     df.loc[df['posmacd']==3,'f3']=df.loc[df['posmacd']==3,'f3']+1
@@ -40,33 +41,35 @@ def computeposmacd(df):
     return df
 
 
-def ddb(sn='ss123456'):
-    imp.reload(STTB)
-    s=STTB.STDTB(sn)
-    gp=s.getexdb()[s.DBF]
-    #print(gp[-20:].to_csv(sep='\t'))
-    return gp[-20:]
 
-def wdb(sn='ss123456'):
+def ddb(sn='ss123456',datatype='day'):
     imp.reload(STTB)
-    s=STTB.STWTB(sn)
-    gp=s.getexdb()[s.DBF]
-    print(gp[-20:].to_csv(sep='\t'))
-    return gp[-20:]
+    if datatype=='day':
+        s=STTB.STDTB(sn)
+        gp=s.getexdb()[s.DBF]
+        #print(gp[-20:].to_csv(sep='\t'))
+        return gp[-20:]
+    elif datatype=='week':
+        s=STTB.STWTB(sn)
+        gp=s.getexdb()[s.DBF]
+        print(gp[-20:].to_csv(sep='\t'))
+        return gp[-20:]
 
 
-def dseed(sn='ss123456'):
+
+def dseed(sn='ss123456',datatype='day'):
     imp.reload(STTB)
-    s=STTB.STDTB(sn)
-    exdb=s.seed()
-    print(exdb.to_csv(sep='\t'))
-    return exdb
-def wseed(sn='ss123456'):
-    imp.reload(STTB)
-    s=STTB.STWTB(sn)
-    gp=s.seed()
-    print(gp.to_csv(sep='\t'))
-    return gp
+    if datatype=='day':
+        s=STTB.STDTB(sn)
+        exdb=s.seed()
+        print(exdb.to_csv(sep='\t'))
+        return exdb
+    elif datatype=='week':
+        s=STTB.STWTB(sn)
+        gp=s.seed()
+        print(gp.to_csv(sep='\t'))
+        return gp
+
       
 def testkmt(sn='ss123456'):
     imp.reload(STTB)
@@ -83,3 +86,16 @@ def testkmt(sn='ss123456'):
         print(gp.to_csv(sep='\t'))
         return gp[cols]
     
+
+def savedb(sn='ss123456',datatype='day',filename='d.csv'):
+    EXPFIED=['date','macd','sma20']
+    if datatype=='day':
+        s=STTB.STDTB(sn) 
+        gp=(s.getexdb()[EXPFIED]
+             .set_index('date'))
+        gp.to_csv(filename)
+    elif datatype=='week':
+        s=STTB.STWTB(sn)
+        gp=(s.getexdb()[EXPFIED]
+             .set_index('date'))
+        gp.to_csv(filename)
