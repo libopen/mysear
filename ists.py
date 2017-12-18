@@ -54,53 +54,47 @@ def saveIndexDetail(datatype='day'):
 
 
 
-#def gettmacddf():
-    #imp.reload(STS)
-    #df1=(STS.gettmacd('ss123456')
-            #.drop('tmacd',axis=1)
-            #.assign(f1=0)
-            #.assign(f2=0)
-            #.loc['2015-1-1':])
-    #a=STFILE.ANALYSIS()
-    #for sn in a.getallfile('SH8'):
-        #df2=STS.gettmacd(sn)
-        #df1=(pd.concat([df1,df2],axis=1,join='outer')
-               #.fillna(0)
-           #.pipe(computetmacd)
-           #.drop('tmacd',axis=1))
-      
-    ##cols=['f1','f2','f3','f4']
-    ##df1[cols]=df1[cols].applymap(np.int64)    
-    #return df1.to_csv('SH8t.csv')
+def get2055df(datatype='day'):
+    imp.reload(STS)
+    df1=(STS.get2055('ss123456',datatype)
+         .drop('segdown20',axis=1)
+         .drop('segdown55',axis=1)
+         .assign(f20=0)
+         .assign(f55=0)
+         .assign(ftotal=0)
+         .loc['2014-6-1':])
+    a=STFILE.ANALYSIS()
+    for sn in a.getallfile('SH8'):
+        df2=STS.get2055(sn,datatype)
+        if df2 is not None:
+            df1=(pd.concat([df1,df2],axis=1,join='outer')
+                 .fillna(0)
+                 .pipe(compute2055)
+                 .drop('segdown20',axis=1)
+                 .drop('segdown55',axis=1)
 
-#def computetmacd(df):
-    #df.loc[df['tmacd']==1,'f1']=df.loc[df['tmacd']==1,'f1']+1
-    #df.loc[df['tmacd']==0,'f2']=df.loc[df['tmacd']==0,'f2']+1
-    #return df
+                 )
 
-#def savesh8tmacdd():
-    #imp.reload(STS)
-    #a=STFILE.ANALYSIS()
-    #df=pd.DataFrame()
-    #for sn in a.getallfile('SH8'):
-        #df2=STS.getdtmacd(sn)
-        #df=df.append(df2)
-    #return df.to_csv('sh8dt.txt')
+        #cols=['f1','f2','f3','f4']
+        #df1[cols]=df1[cols].applymap(np.int64)  
+    df1=(df1.assign(ratf20=lambda x: x['f20']/x['ftotal'])
+         .assign(ratf55=lambda x: x['f55']/x['ftotal']))
+        
+    return np.round(df1,decimals=2).to_csv("s2055_{}.csv".format(datatype))
 
-#def savesh8tmacdw():
-    #imp.reload(STS)
-    #a=STFILE.ANALYSIS()
-    #df=pd.DataFrame()
-    #for sn in a.getallfile('SH8'):
-        #df2=STS.getwtmacd(sn)
-        #df=df.append(df2)
-    #return df.to_csv('sh8wt.txt')
+def compute2055(df):
+    df.loc[df['segdown20']==1,'f20']=df.loc[df['segdown20']==1,'f20']+1
+    df.loc[df['segdown55']==1,'f55']=df.loc[df['segdown55']==1,'f55']+1
+    df.loc[df['segdown20']>=0,'ftotal']=df.loc[df['segdown20']>0,'ftotal']+1
+    return df
 
 
 
 def getsh8():
     getposdf('day')
     getposdf('week')
+    get2055df('day')
+    get2055df('week')
    
     
     
