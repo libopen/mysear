@@ -10,6 +10,7 @@ ROOTPATH='/home/lib/mypython/export/'
 class STDTB(object):
     def __init__(self,file):
         self.name='STDTB'
+        self.clstype='D'
         if len(file)==8:
             self.sn=file[-6:]
             self.snpath="{}{}.txt".format(ROOTPATH,file)            
@@ -58,10 +59,11 @@ class STDTB(object):
   
             exdb=self.db
             #trix
-            a=exdb[['tmacd','id']].values
+            #a=exdb[['tmacd','id']].values
+            a=exdb[['macd','id']].values
             exdb.loc[:,'segup']  = np.where(a[:,0]>0,a[:,1],0)   #exdb.apply(lambda x:x.id if (x.k<x.d)   else 0,axis=1)
-            exdb.loc[:,'segdown']= np.where(a[:,0]==0,a[:,1],0)   #exdb.apply(lambda x:x.id if (x.k>x.d)   else 0,axis=1)            
-            cols=['segdown','segup','posmacd','segdown20','segdown55']
+            exdb.loc[:,'segdown']= np.where(a[:,0]<=0,a[:,1],0)   #exdb.apply(lambda x:x.id if (x.k>x.d)   else 0,axis=1)            
+            cols=['segdown','segup','posmacd','segdown20','segdown55','kdup','kddown']
             exdb[cols]=exdb[cols].applymap(np.int64)
             
             exdb.loc[:,'ang']= talib.LINEARREG_ANGLE(np.array(exdb.trixl),3)
@@ -78,108 +80,58 @@ class STDTB(object):
       
    
     
-    def getKDseg(self,db):
-        lastdownid=db.max(axis=0)['kddown']
-        lastupid=db.max(axis=0)['kdup'] 
-        goodkey='out'
-        if lastdownid>lastupid : #current is down so preseg is up then preseg is down
-            mod='down'
-            headid=lastdownid
-            tailid=lastupid
-            preid=db[(db.index<lastupid)].max(axis=0)['kddown']
-            if preid==0:
-                preid=db[(db.index<lastupid)&(db.kdup!=0)].min(axis=0)['kdup']             
-                preid=preid-1
-            sumlastposmacd=db.loc[tailid+1:headid]['posmacd'].sum()
-            
-            if (lastdownid-lastupid)==sumlastposmacd:
-                goodkey='in'
-            return "do{}-{}_do{}".format(int(lastupid-preid),int(lastdownid-lastupid),goodkey)
-        else:
-            headid=lastupid
-            tailid=lastdownid
-            preid=db[(db.index<lastdownid)].max(axis=0)['kdup']
-            if preid==0:
-                preid=db[(db.index<lastdownid)&(db.kddown!=0)].min(axis=0)['kddown'] 
-                preid=preid-1      
-            sumlastposmacd=db.loc[tailid+1:headid]['posmacd'].sum()
-            if (lastupid-lastdownid)==sumlastposmacd:
-                goodkey='in'           
-            return "up{}-{}_up{}".format(int(lastdownid-preid),int(lastupid-lastdownid),goodkey)
-    def keymod(self,x):
-        return "{}{}:s{}-k{}".format(str(x.segchanges)[:2],str(x.kdchanges)[:2],x.segchanges,x.kdchanges)      
-                    
-    def getHeadTail(self,db,mod,headid,tailid,lastid):
-        _dbhead=db[(db.index==headid)][['angflag','posmacd','id']]
-        _dbhead.columns=['anghead','posmacdhead','headid']
-        _dbhead.loc[:,'newid']='1'
-        _dbhead=_dbhead.set_index('newid') 
-
-        _dbtail=db[(db.index==tailid)][['angflag','posmacd','id']]
-        _dbtail.columns=['angtail','posmacdtail','tailid']
-        _dbtail.loc[:,'newid']='1'
-        _dbtail=_dbtail.set_index('newid')   
-        _dbpre=pd.DataFrame()
-        if 'do' in mod: # current is down ,so get the current seg area 
-            _dbpre =db[(db.index>tailid)].mean()[['segdown20','segdown55']]
-        else:  # current is up get previous seg area
-            _dbpre =db[(db.index>lastid)&(db.index<=tailid)].mean()[['segdown20','segdown55']]
-
-        #_dbpre=pd.DataFrame(_dbpre).applymap(np.int64)
-        gp= pd.concat([_dbhead,_dbtail],axis=1)
-        # seedmod first mode 
-        gp['seedmod']=gp.apply(lambda x:'{posmacdtail}{posmacdhead}{anghead}'.format(**x),axis=1)
-        if _dbpre.values[0]>0.5: #segdown20
-            gp['area20']=1
-        else:
-            gp['area20']=0
-        if _dbpre.values[1]>0.8:
-            gp['area55']=1
-        else:
-            gp['area55']=0
-        # areamod second mode 
-        gp['areamod']=gp.apply(lambda x:'{area55}{area20}'.format(**x),axis=1)
-        
-        gp['segchanges'] =mod
-        gp['kdchanges'] =self.getKDseg(db)
-        # keymod third mode 
-        gp['keymod']=gp.apply(self.keymod,axis=1)        
-        gp['sn']=self.sn
-        return gp[['sn','seedmod','areamod','keymod']]
+   
     
    
+   
     def seed(self):
-        db=self.getexdb()
-        if db.empty==False and len(db)>60:
-            lastdownid=db.max(axis=0)['segdown']
-            lastupid=db.max(axis=0)['segup']  
-            headid=0
-            tailid=0
-            preid=0
-            _dbhead=pd.DataFrame()
-            _dbtail=pd.DataFrame()
-            mod='up'
-            
-            if lastdownid>lastupid : #current is down so preseg is up then preseg is down
-                mod='down'
-                headid=lastdownid
-                tailid=lastupid
-                preid=db[(db.index<lastupid)].max(axis=0)['segdown']
-                if preid==0:
-                    preid=db[(db.index<lastupid)&(db.segup!=0)].min(axis=0)['segup']             
-                    preid=preid-1
-                mod="do{}-{}".format(int(lastupid-preid),int(lastdownid-lastupid))
+        #get big segment trend
+        def getSegMode(db):
+            #get posmacdtail-posmacdhead-anghead
+            _IdLastdown=db.max(axis=0)['segdown']
+            _IdLastup=db.max(axis=0)['segup'] 
+            _posmacdLastdown=db.loc[_IdLastdown]['posmacd']
+            _posmacdLastup=db.loc[_IdLastup]['posmacd']
+            if _IdLastdown>_IdLastup: 
+                return "S{}:{}{}{}".format(self.clstype,_posmacdLastup,_posmacdLastdown,db.loc[_IdLastdown]['angflag'])
             else:
-                headid=lastupid
-                tailid=lastdownid
-                preid=db[(db.index<lastdownid)].max(axis=0)['segup']
-                if preid==0:
-                    preid=db[(db.index<lastdownid)&(db.segdown!=0)].min(axis=0)['segdown'] 
-                    preid=preid-1
-                mod="up{}-{}".format(int(lastdownid-preid),int(lastupid-lastdownid))
-          
-            
-            return self.getHeadTail(db,mod,headid,tailid,preid) 
+                return "S{}:{}{}{}".format(self.clstype,_posmacdLastdown,_posmacdLastup,db.loc[_IdLastup]['angflag'])
+        #get kdj segemnt trend
+        def getKDseg(db):
+            def getSumPosmacd(startid,endid,db):
+                if (endid-startid)==db.loc[startid:endid]['posmacd'].sum():
+                    return 'in'
+                else:
+                    return 'out'
+                
+            _IdLastdown=db.max(axis=0)['kddown']
+            _IdLastup=db.max(axis=0)['kdup'] 
+            # id3--segPre ---id2 --segCur--id1
+            curkdjmod='up'
+            _id1,_id2,_id3=0,0,0
+            if _IdLastdown>_IdLastup : #current is down so preseg is up then preseg is down
+                _id1=_IdLastdown
+                _id2=_IdLastup
+                # kdj is down
+                _id3=db.loc[(db.index<_id2)].max(axis=0)['kddown']
+                if _id3==0:
+                    _id3=db[(db.index<_id2)&(db.kdup!=0)].min(axis=0)['kdup']             
+                    _id3=_id3-1
+                curkdjmod='do'
+            else: # lastupid>lastdownid
+                _id1=_IdLastup
+                _id2=_IdLastdown
+                _id3=db[(db.index<_IdLastdown)].max(axis=0)['kdup']
+                if _id3==0:
+                    _id3=db[(db.index<_IdLastdown)&(db.kddown!=0)].min(axis=0)['kddown'] 
+                    _id3=_id3-1      
+            return "{}[{}-{}]_{}{}{}".format(curkdjmod,int(_id2-_id3),int(_id1-_id2),curkdjmod,getSumPosmacd(_id3,_id2,db),getSumPosmacd(_id2,_id1,db))        
+        
+        db=self.getexdb()
+        if db is not None and len(db)>60:
+            return "{},{}".format(getSegMode(db),getKDseg(db))
+        else:
+            return None
     
    
     
@@ -187,6 +139,7 @@ class STWTB(STDTB):
 
     def __init__(self,file):
         self.name='STWTB'
+        self.clstype='W'
         if len(file)==8:
             self.sn=file[-6:]
             self.snpath="{}{}.txt".format(ROOTPATH,file)            

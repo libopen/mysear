@@ -6,7 +6,7 @@ import time
 import datetime
 import csv
 from datetime import timedelta
-from STTB import STDTB,STWTB
+import STS
 
 #goodkey hope to slove 
 #1 the minl always lower startc
@@ -49,7 +49,7 @@ class ANALYSIS:
                         # only get lines >60 
                         if os.path.basename(path)[0:3]==pat and os.stat(path).st_size>4000 :#and os.path.basename(path)[0:8]=='SH600576':
                         #if os.path.basename(path)[0:5]=='SH600' and os.stat(path).st_size!=0: 
-                              resultlist.append(path)
+                              resultlist.append(path[-12:-4])
             return resultlist
       
       
@@ -57,40 +57,20 @@ class ANALYSIS:
       def save6(self,pat):
             snlist=self.getallfile(ROOTPATH,pat)
             i=0
-            j=0 
-            result=pd.DataFrame()
-            gp=pd.DataFrame()
-            for path in snlist:
-                  try:
-                        dbcurrent=result
-                        #db1=result1
-                        _std=STDTB(path)
-                        _stw=STWTB(path)
-                        if _stw.seed() is not None:
-                              _gp=_stw.seed()[['sn','seedmod','areamod','keymod']]
-                              _dgp=_std.seed()[['seedmod','areamod','keymod']]
-                              _dgp.columns=['dseedmod','dareamod','dkeymod']
-                              gp=pd.concat([_gp,_dgp],axis=1)[['sn','seedmod','areamod','keymod','dseedmod','dareamod','dkeymod']]                            
-                              gp['keymod_key']=gp['keymod'].str.split(':').str[0].astype(str)
-                              gp['dkeymod_key']=gp['dkeymod'].str.split(':').str[0].astype(str)
-                              cols=['sn','areamod','dareamod','seedmod','dseedmod','keymod_key','dkeymod_key','keymod','dkeymod']
-                              result=dbcurrent.append(gp[cols])
+            j=0            
+            with open("gp6{}.csv".format(pat),'w',newline='',encoding='gb2312') as csvfile:
+                  wr =  csv.writer(csvfile,quoting=csv.QUOTE_NONE,quotechar='',escapechar='\\')
+                  for path in snlist:
+                        exprow=['' for x in range(2)]
+                        exprow[0]=path
+                        if STS.getkmt(path) is not None:
                               i=i+1
-                                          #print(i)
-                  except:
-                                          #print(path)
-                                          j=j+1  
-                                          continue 
-                             
-                                                                
-            if result.empty == False:
-                  result=result.sort_values(['areamod','dareamod','seedmod','dseedmod'])
-                  print("{}total:{} ,failure:{}".format(pat,i,j))
-                  result.to_csv("gp6{}.csv".format(pat))        
-                  #result.to_csv("gp6{}.csv".format(pat))       
-                  return result                                    
-                              
-  
+                              exprow[1]=STS.getkmt(path)
+                              wr.writerow(exprow)
+                        else:
+                              j=j+1
+              
+            print("{}total:{} ,failure:{}".format(pat,i,j))                                                    
             
             
 

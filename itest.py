@@ -3,6 +3,16 @@ import STTB,STS,imp,STFILE
 import numpy as np
 def getposdf(datatype='day'):
     imp.reload(STS)
+    def computeposmacd(df):
+        
+        df.loc[df['posmacd']==1,'f1']=df.loc[df['posmacd']==1,'f1']+1
+        df.loc[df['posmacd']==2,'f2']=df.loc[df['posmacd']==2,'f2']+1
+        df.loc[df['posmacd']==3,'f3']=df.loc[df['posmacd']==3,'f3']+1
+        df.loc[df['posmacd']==4,'f4']=df.loc[df['posmacd']==4,'f4']+1
+        df['ftotal']=df['ftotal']+1
+        return df
+    
+    
     df1=(STS.getposmacd('ss123456',datatype)
             .drop('posmacd',axis=1)
             .assign(f1=0)
@@ -31,71 +41,20 @@ def getposdf(datatype='day'):
              )
     return np.round(df1,decimals=2)
 
-def computeposmacd(df):
-    
-    df.loc[df['posmacd']==1,'f1']=df.loc[df['posmacd']==1,'f1']+1
-    df.loc[df['posmacd']==2,'f2']=df.loc[df['posmacd']==2,'f2']+1
-    df.loc[df['posmacd']==3,'f3']=df.loc[df['posmacd']==3,'f3']+1
-    df.loc[df['posmacd']==4,'f4']=df.loc[df['posmacd']==4,'f4']+1
-    df['ftotal']=df['ftotal']+1
-    return df
 
 
 
 def ddb(sn='ss123456',datatype='day'):
-    imp.reload(STTB)
-    if datatype=='day':
-        s=STTB.STDTB(sn)
-        gp=s.getexdb()[s.DBF]
+    imp.reload(STS)
+    gp=STS.getdf(sn,datatype)
         #print(gp[-20:].to_csv(sep='\t'))
+    if gp is not None:    
         return gp[-20:]
-    elif datatype=='week':
-        s=STTB.STWTB(sn)
-        gp=s.getexdb()[s.DBF]
-        print(gp[-20:].to_csv(sep='\t'))
-        return gp[-20:]
-
-
-
-def dseed(sn='ss123456',datatype='day'):
-    imp.reload(STTB)
-    if datatype=='day':
-        s=STTB.STDTB(sn)
-        exdb=s.seed()
-        print(exdb.to_csv(sep='\t'))
-        return exdb
-    elif datatype=='week':
-        s=STTB.STWTB(sn)
-        gp=s.seed()
-        print(gp.to_csv(sep='\t'))
-        return gp
-
+    else:
+        return 'None'
       
 def testkmt(sn='ss123456'):
-    imp.reload(STTB)
-    _std=STTB.STDTB(sn)
-    _stw=STTB.STWTB(sn)
-    if _stw.seed() is not None:
-        _gp=_stw.seed()[['sn','seedmod','areamod','keymod']]
-        _dgp=_std.seed()[['seedmod','areamod','keymod']]
-        _dgp.columns=['dseedmod','dareamod','dkeymod']
-        gp=pd.concat([_gp,_dgp],axis=1)[['sn','seedmod','areamod','keymod','dseedmod','dareamod','dkeymod']]
-        gp['keymod_key']=gp['keymod'].str.split(':').str[0].astype(str)
-        gp['dkeymod_key']=gp['dkeymod'].str.split(':').str[0].astype(str)
-        cols=['sn','areamod','dareamod','seedmod','dseedmod','keymod_key','dkeymod_key','keymod','dkeymod']
-        print(gp.to_csv(sep='\t'))
-        return gp[cols]
+    imp.reload(STS)
+    return STS.getkmt(sn)
     
 
-def savedb(sn='ss123456',datatype='day',filename='d.csv'):
-    EXPFIED=['date','macd','sma20']
-    if datatype=='day':
-        s=STTB.STDTB(sn) 
-        gp=(s.getexdb()[EXPFIED]
-             .set_index('date'))
-        gp.to_csv(filename)
-    elif datatype=='week':
-        s=STTB.STWTB(sn)
-        gp=(s.getexdb()[EXPFIED]
-             .set_index('date'))
-        gp.to_csv(filename)

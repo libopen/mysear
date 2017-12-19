@@ -1,9 +1,15 @@
 import pandas as pd
-import STS,imp,STFILE
+import STS,imp,STFILE,sys
 import numpy as np
 
-def getposdf(datatype='day'):
-    imp.reload(STS)
+def getIndexPos(datatype='day'):
+    def computeposmacd(df):
+        df.loc[df['posmacd']==1,'f1']=df.loc[df['posmacd']==1,'f1']+1
+        df.loc[df['posmacd']==2,'f2']=df.loc[df['posmacd']==2,'f2']+1
+        df.loc[df['posmacd']==3,'f3']=df.loc[df['posmacd']==3,'f3']+1
+        df.loc[df['posmacd']==4,'f4']=df.loc[df['posmacd']==4,'f4']+1
+        df.loc[df['posmacd']>0,'ftotal']=df.loc[df['posmacd']>0,'ftotal']+1
+        return df    
     df1=(STS.getposmacd('ss123456',datatype)
          .drop('posmacd',axis=1)
          .assign(f1=0)
@@ -32,17 +38,11 @@ def getposdf(datatype='day'):
         
     return np.round(df1,decimals=2).to_csv("index_{}.csv".format(datatype))
 
-def computeposmacd(df):
-    df.loc[df['posmacd']==1,'f1']=df.loc[df['posmacd']==1,'f1']+1
-    df.loc[df['posmacd']==2,'f2']=df.loc[df['posmacd']==2,'f2']+1
-    df.loc[df['posmacd']==3,'f3']=df.loc[df['posmacd']==3,'f3']+1
-    df.loc[df['posmacd']==4,'f4']=df.loc[df['posmacd']==4,'f4']+1
-    df.loc[df['posmacd']>0,'ftotal']=df.loc[df['posmacd']>0,'ftotal']+1
-    return df
+
 
 
 def saveIndexDetail(datatype='day'):
-    imp.reload(STS)
+    
     a=STFILE.ANALYSIS()
     df=pd.DataFrame()
     for sn in a.getallfile('SH8'):
@@ -54,8 +54,13 @@ def saveIndexDetail(datatype='day'):
 
 
 
-def get2055df(datatype='day'):
-    imp.reload(STS)
+def getIndex2055(datatype='day'):
+    def compute2055(df):
+        df.loc[df['segdown20']==1,'f20']=df.loc[df['segdown20']==1,'f20']+1
+        df.loc[df['segdown55']==1,'f55']=df.loc[df['segdown55']==1,'f55']+1
+        df['ftotal']=df['ftotal']+1
+        return df 
+    
     df1=(STS.get2055('ss123456',datatype)
          .drop('segdown20',axis=1)
          .drop('segdown55',axis=1)
@@ -82,27 +87,43 @@ def get2055df(datatype='day'):
         
     return np.round(df1,decimals=2).to_csv("s2055_{}.csv".format(datatype))
 
-def compute2055(df):
-    df.loc[df['segdown20']==1,'f20']=df.loc[df['segdown20']==1,'f20']+1
-    df.loc[df['segdown55']==1,'f55']=df.loc[df['segdown55']==1,'f55']+1
-    df.loc[df['segdown20']>=0,'ftotal']=df.loc[df['segdown20']>0,'ftotal']+1
-    return df
+
+
 
 
 
 def getsh8():
-    getposdf('day')
-    getposdf('week')
-    get2055df('day')
-    get2055df('week')
+    getIndexPos('day')
+    getIndexPos('week')
+    getIndex2055('day')
+    getIndex2055('week')
    
     
-    
-
+def savedb(sn='ss123456',datatype='day',filename='d.csv'):
+    EXPFIED=['date','macd','ang','ang20']
+    (STS.getdf(sn,datatype)[EXPFIED]
+            .set_index('date')
+            .to_csv(filename))
+def help():
+    print("-i :export index_day.csv")
+    print("-k :export kmt")
+    print("-d :sn dayfilename.csv :export sn day df")
+    print("-w :sn weekfilename.csv :export sn week df ")
 
 def main():
-    getsh8()
-
+    if (sys.argv[1]=='-h'):
+        help()
+    elif (sys.argv[1]=='-i'):
+        getsh8()
+    elif (sys.argv[1]=='-k'):
+        STS.getkmt(sys.argv[2])
+    elif (sys.argv[1]=='-d'):
+        savedb(sn=sys.argv[2], filename=sys.argv[3])
+    else:
+        help()
+         
+        
+   
 if __name__=="__main__":
     main()
 
