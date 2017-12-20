@@ -97,12 +97,13 @@ class STDTB(object):
             else:
                 return "S{}:{}{}{}".format(self.clstype,_posmacdLastdown,_posmacdLastup,db.loc[_IdLastup]['angflag'])
         #get kdj segemnt trend
-        def getKDseg(db):
+        def getKDseg(db,datetype):
             def getSumPosmacd(startid,endid,db):
-                if (endid-startid)==db.loc[startid:endid]['posmacd'].sum():
+                if (endid-startid+1)==db.loc[startid:endid]['posmacd'].sum():
                     return 'in'
                 else:
-                    return 'out'
+                    return 'out'#{}{}".format((endid-startid+1),db.loc[startid:endid]['posmacd']sum())
+                    
                 
             _IdLastdown=db.max(axis=0)['kddown']
             _IdLastup=db.max(axis=0)['kdup'] 
@@ -125,11 +126,11 @@ class STDTB(object):
                 if _id3==0:
                     _id3=db[(db.index<_IdLastdown)&(db.kddown!=0)].min(axis=0)['kddown'] 
                     _id3=_id3-1      
-            return "{}[{}-{}]_{}{}{}".format(curkdjmod,int(_id2-_id3),int(_id1-_id2),curkdjmod,getSumPosmacd(_id3,_id2,db),getSumPosmacd(_id2,_id1,db))        
+            return "{0}[{1}-{2}]_{3}{0}{4}{5}".format(curkdjmod,int(_id2-_id3),int(_id1-_id2),datetype,getSumPosmacd(_id3+1,_id2,db),getSumPosmacd(_id2+1,_id1,db))        
         
         db=self.getexdb()
         if db is not None and len(db)>60:
-            return "{},{}".format(getSegMode(db),getKDseg(db))
+            return "{},{}".format(getSegMode(db),getKDseg(db,self.clstype))
         else:
             return None
     
@@ -178,14 +179,15 @@ class STWTB(STDTB):
             a=exdb[['macd','id',]].values
             exdb.loc[:,'segdown']= np.where(a[:,0]<0,a[:,1],0)   #exdb.apply(lambda x:x.id if (x.k<x.d)   else 0,axis=1)
             exdb.loc[:,'segup']= np.where(a[:,0]>0,a[:,1],0)   #exdb.apply(lambda x:x.id if (x.k>x.d)   else 0,axis=1)            
-            cols=['segdown','segup','posmacd','segdown20','segdown55']
+            cols=['segdown','segup','posmacd','segdown20','segdown55','kdup','kddown']
             exdb[cols]=exdb[cols].applymap(np.int64)           
             exdb.loc[:,'ang']= talib.LINEARREG_ANGLE(np.array(exdb.dif),3)
             exdb=exdb.fillna(0)
             a=exdb[['ang']].values
             exdb.loc[:,'angflag']=np.where(a[:,0]>0,1,0)  #exdb.apply(lambda x :1 if x.ang>0 else 0 ,axis=1) 
             exdb=np.round(exdb,decimals=2)
-            
+            exdb.loc[:,'ang20']= talib.LINEARREG_ANGLE(np.array(exdb.sma20),3)
+            exdb=np.round(exdb,decimals=2)
             return exdb
         except:
             return None  

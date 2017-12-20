@@ -100,7 +100,7 @@ def getsh8():
    
     
 def savedb(sn='ss123456',datatype='day',filename='d.csv'):
-    EXPFIED=['date','macd','ang','ang20']
+    EXPFIED=['date','ang','ang20']
     (STS.getdf(sn,datatype)[EXPFIED]
             .set_index('date')
             .to_csv(filename))
@@ -116,7 +116,7 @@ def main():
     elif (sys.argv[1]=='-i'):
         getsh8()
     elif (sys.argv[1]=='-k'):
-        STS.getkmt(sys.argv[2])
+        print(STS.getkmt(sys.argv[2]))
     elif (sys.argv[1]=='-d'):
         savedb(sn=sys.argv[2], filename=sys.argv[3])
     else:

@@ -58,19 +58,17 @@ class ANALYSIS:
             snlist=self.getallfile(ROOTPATH,pat)
             i=0
             j=0            
-            with open("gp6{}.csv".format(pat),'w',newline='',encoding='gb2312') as csvfile:
-                  wr =  csv.writer(csvfile,quoting=csv.QUOTE_NONE,quotechar='',escapechar='\\')
-                  for path in snlist:
-                        exprow=['' for x in range(2)]
-                        exprow[0]=path
-                        if STS.getkmt(path) is not None:
-                              i=i+1
-                              exprow[1]=STS.getkmt(path)
-                              wr.writerow(exprow)
-                        else:
-                              j=j+1
-              
-            print("{}total:{} ,failure:{}".format(pat,i,j))                                                    
+            df1=pd.DataFrame()
+            for path in snlist:
+                  if STS.getkmt(path) is not None:
+                        df=pd.Series("{},{}".format(path,STS.getkmt(path)))
+                        i=i+1
+                        df1=df1.append(df,ignore_index=True)
+                  j=j+1
+            df1.to_csv("gp6{}.csv".format(pat))                  
+            print("{}total:{} ,failure:{}".format(pat,i,j))       
+           
+                                                              
             
             
 
