@@ -58,4 +58,4 @@
 
 #### 国开学位
     1.清理国开学位数据：  oracle_sql\merge_clearDeg.sql 
-    2.建立国开这位    ：  oracle_sql\merge_easdeg.sql
+    2.建立国开学位    ：  oracle_sql\merge_easdeg.sql
