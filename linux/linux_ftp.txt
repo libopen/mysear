@@ -1,0 +1,1 @@
+ftp 免登录。设置.netrc linux:man ftp 参考.netrc

@@ -14,6 +14,7 @@ def ddb(sn='ss123456',datatype='day'):
       
 def testkmt(sn='ss123456'):
     imp.reload(STS)
+    imp.reload(STTB)
     return STS.getkmt(sn)
     
 

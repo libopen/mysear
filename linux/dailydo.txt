@@ -59,3 +59,11 @@
 #### 国开学位
     1.清理国开学位数据：  oracle_sql\merge_clearDeg.sql 
     2.建立国开学位    ：  oracle_sql\merge_easdeg.sql
+
+
+#### 同步CPS与新教务毕业表的学位申请类型 wh171032229 ,wh17124016
+    1.server183  support\impseg\finish\assemble_student.bat only export cps_gradstudent
+                 support\impseg\csv\student183       student183.zip move to server137 /home/libin/data/student/
+    2.server137  unzip student183.zip 
+                 update_xwbz.sh 导出update_xwbz.sql
+                 
