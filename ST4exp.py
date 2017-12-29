@@ -100,11 +100,49 @@ def getsh8():
    
     
 def savedb(sn='ss123456',datatype='day',filename='d.csv'):
-    EXPFIED=['date','ang','ang20']
+    #1 get the key date ,get the posmacd=1 find sn
+    #2 get every sn sma20,sam55,and index data concat
+    EXPFIED=['date','sma55','sma20','posmacd']
     (STS.getdf(sn,datatype)[EXPFIED]
             .set_index('date')
             .to_csv(filename))
+    
+    
+def getindex(datatype='day'):
+    indexlist=['SZ399001','SZ399005','SZ399006','SZ399106']
+    dfbase=(STS.getdf('ss123456',datatype)[['date','posmacd']]
+          .drop('posmacd',axis=1)
+          .set_index('date'))
+    
+    a=STFILE.ANALYSIS()
+    EXPFIED=['date','sma20']
+    baseColname=['s20']
+    for sn in indexlist:
+        #renameColname=["{}{}".format(x,sn[-3:]) for x in baseColname] #new name s55+sn[-3:],s20+sn[-3]
+        df2=(STS.getdf(sn,datatype)[EXPFIED]
+                .set_index('date')
+                .rename(columns={'sma20':"s20{}".format(sn[-3:])})
+                )
+        if df2 is not None:
+            dfbase=(pd.concat([dfbase,df2],axis=1,join='outer')
+                 .fillna(0)
+
+                 )    
+    a=STFILE.ANALYSIS()
+    for sn in a.getallfile('SH8809'):  
+        if sn[-2:] in ['30','18','44','02']:
+            df2=(STS.getdf(sn,datatype)[EXPFIED]
+                        .set_index('date')
+                        .rename(columns={'sma20':"s20{}".format(sn[-4:])})
+                            ) 
+            dfbase=(pd.concat([dfbase,df2],axis=1,join='outer')
+                     .fillna(0))
+            
+    return dfbase.to_csv('sin9.csv')    
+    
+    
 def help():
+    print("-s :export sin9.csv")
     print("-i :export index_day.csv")
     print("-k :export kmt")
     print("-d :sn dayfilename.csv :export sn day df")
@@ -115,6 +153,8 @@ def main():
         help()
     elif (sys.argv[1]=='-i'):
         getsh8()
+    elif (sys.argv[1]=='-s'):
+            getindex()    
     elif (sys.argv[1]=='-k'):
         print(STS.getkmt(sys.argv[2]))
     elif (sys.argv[1]=='-d'):

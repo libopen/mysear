@@ -16,20 +16,53 @@ ROOTPATH='/home/lib/mypython/export/'
    
       
 class STDTB(object):
-      
-      def __init__(self,file,angtype='f'):
+      DBF=['date','posmacd','c','trn','ang']
+      def __init__(self,file):
             if len(file)==8:
                   self.sn=file[-6:]
                   self.snpath="{}{}.txt".format(ROOTPATH,file)            
             else:
                   self.sn=os.path.splitext(file)[0][-6:] 
                   self.snpath=file
-            self.angtype=angtype
-            self.load()
-      def load(self):
-            self.db=pd.read_csv(self.snpath,header=None,names=['date','o','h','l','c','v','m'])
-            self.db.date=pd.to_datetime(self.db.date)
             
+            self.loadbase()
+            self.loadExtend()
+      def loadbase(self):
+            self.db=( pd.read_csv(self.snpath,header=None,names=['date','o','h','l','c','v','m'])
+                                    .assign(date=lambda x:pd.to_datetime(x['date'])))
+      def loadExtend(self):
+            
+            exdb=self.db
+            exdb.loc[:,'dif'],exdb.loc[:,'dea'],exdb.loc[:,'macd']=talib.MACD(np.array(exdb.c),20,55,6) 
+            exdb.loc[:,'k'],exdb.loc[:,'d']=talib.STOCH(np.array(exdb.h),np.array(exdb.l),np.array(exdb.c),9)
+            exdb.loc[:,'j']=exdb.k*3-exdb.d*2
+            exdb.loc[:,'sma20']=talib.SMA(np.array(exdb.c),20)
+            exdb.loc[:,'sma55']=talib.SMA(np.array(exdb.c),55)
+            exdb.loc[:,'trixl']=talib.TRIX(np.array(exdb.c),12) 
+            exdb.loc[:,'trixs']=talib.SMA(np.array(exdb.trixl),9)
+            exdb=exdb.fillna(0)
+            #macd
+            a=exdb[['macd','dif','dea']].values
+            exdb.loc[:,'pos1']=np.where((a[:,0]>0) & (a[:,1]>0) & (a[:,2]>0),2,1)
+            exdb.loc[:,'pos4']=np.where((a[:,0]<0) & ((a[:,1]>0) & (a[:,2]>0)),3,4)
+            a=exdb[['macd','pos1','pos4']].values
+            exdb.loc[:,'posmacd']=np.where(a[:,0]<0 ,a[:,2],a[:,1])
+            a=exdb[['trixl','trixs']].values
+            exdb['tmacd']= np.where(a[:,0]>a[:,1],1,0)# exdb.apply(lambda x :1 if (x.trixl>=x.trixs)and (x.posmacd==1) else 0 ,axis=1)             
+
+            exdb.loc[:,'id']=exdb.index  
+            a=exdb[['id','k','d']].values        
+            exdb.loc[:,'kdup']  = np.where(a[:,1]>a[:,2],a[:,0],0)   #exdb.apply(lambda x:x.id if (x.k<x.d)   else 0,axis=1)
+            exdb.loc[:,'kddown']= np.where(a[:,1]<=a[:,2],a[:,0],0)   #exdb.apply(lambda x:x.id if (x.k>x.d)   else 0,axis=1)            
+            a=exdb[['c','sma20','sma55']].values
+            exdb.loc[:,'segdown20']= np.where((a[:,0]>=a[:,1]),1,0)
+            exdb.loc[:,'segdown55']= np.where((a[:,0]>=a[:,2]),1,0)
+            cols=['posmacd','kdup','kddown']
+            exdb[cols]=exdb[cols].applymap(np.int64)      
+            self.db=exdb                        
+                
+            
+                        
       def poschange(self,x):
             if (x.nextang1>0 and x.nextang2>0 and x.ang<0 ) or (x.nextang1<0 and x.nextang2<0 and x.ang>0):
                   return x.id
@@ -45,61 +78,21 @@ class STDTB(object):
       def getexdb(self):
             try:
                   exdb=self.db
-                  exdb['dif'],exdb['dea'],exdb['macd']=talib.MACD(np.array(exdb.c),10,20,6) # change
-                  exdb['trixl']=talib.TRIX(np.array(exdb.c),12) 
-                  exdb['trixs']=talib.SMA(np.array(exdb.trixl),9)
-                  exdb['trixlang']=talib.LINEARREG_ANGLE(np.array(exdb.trixl),3) 
-                  exdb['difang']  =talib.LINEARREG_ANGLE(np.array(exdb.dif),3) 
-                  exdb['tmacd']=exdb.trixl-exdb.trixs
-                  exdb['id']=exdb.index
-                  exdb['ang10']= talib.LINEARREG_ANGLE(np.array(exdb.dif),3)
-                  exdb['sma20']=talib.SMA(np.array(exdb.c),20)
-                  exdb['up20']=exdb.apply(lambda x: 1 if (x.c>=x.sma20) else 0 ,axis=1)
-                  exdb['ang20']= talib.LINEARREG_ANGLE(np.array(exdb.sma20),3)     #change
-                  exdb['sma30']=talib.SMA(np.array(exdb.c),30)
-                  exdb['ang30']= talib.LINEARREG_ANGLE(np.array(exdb.sma30),3)
-                  exdb['sma58']=talib.SMA(np.array(exdb.c),58)
-                  exdb['sma89']=talib.SMA(np.array(exdb.c),89)
-                  exdb['sma120']=talib.SMA(np.array(exdb.c),120)
-                  exdb['ang58']=talib.LINEARREG_ANGLE(np.array(exdb.sma58),3)
-                  exdb['ang89']=talib.LINEARREG_ANGLE(np.array(exdb.sma89),3)
-                  exdb['ang120']=talib.LINEARREG_ANGLE(np.array(exdb.sma120),3)
-                  exdb['uphelf']=exdb.apply(lambda x: 1 if (x.sma89>=x.sma120)&(x.ang120>0) else 0 ,axis=1)
-                  #exdb['ang']= talib.LINEARREG_ANGLE(np.array(exdb.dea),3)     #change use macd so much little perords 
-                  if self.angtype=='a':
-                        exdb['ang']= talib.LINEARREG_ANGLE(np.array(exdb.dea),3)     #change
-                  elif self.angtype=='m':
-                        #exdb['ang']= talib.LINEARREG_ANGLE(np.array(exdb.macd),3)     #change
-                        exdb['ang']= exdb.macd
-                  elif self.angtype=='ma':
-                        exdb['ang']= talib.LINEARREG_ANGLE(np.array(exdb.macd),3)     #change
-                  elif self.angtype=='t':
-                        #exdb['ang']= talib.LINEARREG_ANGLE(np.array(exdb.macd),3)     #change
-                        exdb['ang']= exdb.tmacd
-                  elif self.angtype=='2':
-                        exdb['ang']= exdb['ang20']     #change
-                  elif self.angtype=='5':
-                        exdb['ang']= exdb.ang55     #change						
-                  else: #default dif
-                        exdb['ang']= talib.LINEARREG_ANGLE(np.array(exdb.dif),3)
+                  exdb['ang']= exdb.trixl-exdb.trixs     #change
                   exdb['nextang1']=exdb.ang.shift(1)
                   exdb['nextang2']=exdb.ang.shift(2)
-                  
-                  exdb['trn']=exdb.apply(self.poschange,axis=1)
+                  a=exdb[['ang','nextang1','nextang2','id']].values
+                  #exdb['trn']=exdb.apply(self.poschange,axis=1)
+                  exdb.loc[:,'trn']=np.where(((a[:,0]>0)&(a[:,1]<0)&(a[:,2]<0))|((a[:,0]<0)&(a[:,1]>0)&(a[:,2]>0)),a[:,3],0)
                   exdb['gpid']=0
-                  exdb['len']=exdb.apply(lambda x: 1 if x.ang>=0 else -1,axis=1)
-                  exdb['lenmcd']=exdb.apply(lambda x: 1 if x.macd>=0 else -1,axis=1)
-                  exdb['lendif']=exdb.apply(lambda x: 1 if x.dif>=0 else -1,axis=1)
-                  exdb['maxang']=abs(exdb.ang) 
-                  exdb['postrix']=exdb.apply(lambda x: 1 if x.trixl>x.trixs else -1,axis=1)
                   exdb['wdate']=(exdb.date+timedelta(days=1)).dt.to_period('W').apply(lambda r:r.start_time)-timedelta(days=1)
-                  #exdb['doji5']=exdb.apply(lambda x: 1 if (x.h>=x.l*1.05) and x.c>=(x.l+((x.h-x.l)/3.0)) and  x.c<(x.l+((x.h-x.l)*2.0/3.0)) and x.o>=(x.l+((x.h-x.l)/3.0)) and x.o<(x.l+((x.h-x.l)*2.0/3.0))  else 0,axis=1)
-                  
+                  cols=['gpid','posmacd','trn']
+                  exdb[cols]=exdb[cols].applymap(np.int64)                  
                   
             # drop Nan rows
             #db=exdb.dropna(axis=0)
-           
-                  return self.regroup(exdb)
+                  return exdb
+                  #return self.regroup(exdb)
             except:
                   pass
                   #print (self.sn)
@@ -220,7 +213,7 @@ class STDTB(object):
             
 class STWTB(STDTB):
      
-      def load(self):
+      def loadbase(self):
             exdb=pd.read_csv(self.snpath,header=None,names=['date','o','h','l','c','v','m'])
             exdb.date=pd.to_datetime(exdb.date)
             exdb=exdb.set_index('date')
@@ -236,26 +229,7 @@ class STWTB(STDTB):
             
             self.db=wdb.set_index('id')
             self.db.date=pd.to_datetime(self.db.date)
-      #def getexdb(self):
-            #exdb=self.db
-            #exdb['dif'],exdb['dea'],exdb['macd']=talib.MACD(np.array(exdb.c),10,20,6) # change
-            #exdb['id']=exdb.index
-            ##exdb['ang']= talib.LINEARREG_ANGLE(np.array(exdb.macd),3)     #change use macd so much little perords 
-            #if self.angtype=='a':
-                  #exdb['ang']= talib.LINEARREG_ANGLE(np.array(exdb.dea),3)     #default
-            #elif self.angtype=='m':
-                  #exdb['ang']= talib.LINEARREG_ANGLE(np.array(exdb.macd),3)     #change
-            #else: #default dif
-                  #exdb['ang']= talib.LINEARREG_ANGLE(np.array(exdb.dif),3)            
-            #exdb['nextang']=exdb.ang.shift(1)
-            #exdb['trn']=exdb.apply(self.poschange,axis=1)
-            #exdb['gpid']=0
-            #exdb['len']=exdb.apply(lambda x: 1 if x.ang>=0 else -1,axis=1)
-            #exdb['lenmcd']=exdb.apply(lambda x: 1 if x.macd>=0 else -1,axis=1)
-            #exdb['lendif']=exdb.apply(lambda x: 1 if x.dif>=0 else -1,axis=1)
-            #exdb['maxang']=abs(exdb.ang) 
-            #db=exdb.dropna(axis=0)
-            #return self.regroup(db) 
+     
 
 
 

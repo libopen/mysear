@@ -1,1 +1,2 @@
+https://www.cnblogs.com/OldJack/p/6607155.html
 配置空格 awk 用lenght($7)>0 来匹配

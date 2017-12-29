@@ -32,7 +32,7 @@ class ANALYSIS:
                         pass
                   else:
                         # only get lines >60 
-                        if os.path.basename(path)[0:3]==pat and os.stat(path).st_size>4000 :#and os.path.basename(path)[0:8]=='SH600576':
+                        if os.path.basename(path)[0:len(pat)]==pat and os.stat(path).st_size>4000 :#and os.path.basename(path)[0:8]=='SH600576':
                         #if os.path.basename(path)[0:5]=='SH600' and os.stat(path).st_size!=0: 
                               resultlist.append(path[-12:-4])
             return resultlist
