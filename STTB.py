@@ -53,7 +53,7 @@ class STDTB(object):
         self.db.date=pd.to_datetime(self.db.date)
         self.addload()
     #DBF=['date','c','k','d','j','segdown','segup','posmacd','macd','tmacd','angflag','kd']
-    DBF=['date','kdup','kddown','segup','segdown','posmacd','bigup','bigdown','angflag','c','segdown55','segdown20','ang20','ang55flag','ang20flag','sma20','sma55']
+    DBF=['date','kdup','kddown','segup','segdown','posmacd','bigup','bigdown','angflag','c','segdown55','segdown20','ang20','ang55flag','ang20flag','sma20','sma55','isbigup']
     def getexdb(self):
         try:
   
@@ -65,6 +65,7 @@ class STDTB(object):
             exdb.loc[:,'segdown']= np.where(a[:,0]<=0,a[:,1],0)   #exdb.apply(lambda x:x.id if (x.k>x.d)   else 0,axis=1)            
             exdb.loc[:,'bigdown']=   np.where((a[:,2]< a[:,3]),a[:,1],0) 
             exdb.loc[:,'bigup']  =   np.where((a[:,2]>=a[:,3]),a[:,1],0) 
+            exdb.loc[:,'isbigup']  =   np.where((a[:,2]>=a[:,3]),1,0) 
             
             cols=['segdown','segup','posmacd','segdown20','segdown55','kdup','kddown','bigup','bigdown']
             exdb[cols]=exdb[cols].applymap(np.int64)
@@ -203,6 +204,7 @@ class STWTB(STDTB):
             exdb.loc[:,'segdown']= np.where(a[:,0]<=0,a[:,1],0)   #exdb.apply(lambda x:x.id if (x.k>x.d)   else 0,axis=1)            
             exdb.loc[:,'bigdown']=   np.where((a[:,2]< a[:,3]),a[:,1],0) 
             exdb.loc[:,'bigup']  =   np.where((a[:,2]>=a[:,3]),a[:,1],0) 
+            exdb.loc[:,'isbigup']  =   np.where((a[:,2]>=a[:,3]),1,0) 
             
             cols=['segdown','segup','posmacd','segdown20','segdown55','kdup','kddown','bigup','bigdown']
             exdb[cols]=exdb[cols].applymap(np.int64)           

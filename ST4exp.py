@@ -129,8 +129,9 @@ def getindex(datatype='day'):
 
                  )    
     a=STFILE.ANALYSIS()
-    for sn in a.getallfile('SH8809'):  
-        if sn[-2:] in ['30','18','44','02']:
+    lsn=['301','305','459','387','344']
+    for sn in a.getallfile('SH880'):  
+        if sn[-3:] in lsn:
             df2=(STS.getdf(sn,datatype)[EXPFIED]
                         .set_index('date')
                         .rename(columns={'sma20':"s20{}".format(sn[-4:])})

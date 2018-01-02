@@ -5,7 +5,8 @@ import numpy as np
 def ddb(sn='ss123456',datatype='day'):
     imp.reload(STS)
     imp.reload(STTB)
-    gp=STS.getdf(sn,datatype)
+    gp=(STS.getdf(sn,datatype)
+           .set_index('date'))
         #print(gp[-20:].to_csv(sep='\t'))
     if gp is not None:    
         return gp
@@ -18,31 +19,30 @@ def testkmt(sn='ss123456'):
     return STS.getkmt(sn)
     
 
-
-
-
-def getS9(datatype='day'):
+def ct(sn='ss123456',datatype='day',begindate='2017-5-23',enddate='2017-6-23'):
     imp.reload(STS)
     imp.reload(STTB)    
     imp.reload(STFILE)
-    dfbase=(STS.getdf('SZ399001',datatype)[['date','posmacd']]
-          .set_index('date')
-          .loc['2016-1-1':])
-    a=STFILE.ANALYSIS()
-    EXPFIED=['date','posmacd']
-    for sn in a.getallfile('SH8809'):  
-        df2=(STS.getdf(sn,datatype)[EXPFIED]
-                .rename(columns={'posmacd':"{}".format(sn[-2:])})
-                .set_index('date')
-                .loc['2016-1-1':]
-                )
-        dfbase=(pd.concat([dfbase,df2],axis=1,join='outer')
-                  .fillna(0)
-                  .applymap(np.int8))
+    return STS.comTrend(sn,datatype,begindate,enddate)
     
-    for col in dfbase.columns:
-        a=dfbase[['posmacd',col]].values
-        if col!='posmacd':
-            dfbase.loc[:,col]=np.where(a[:,0]==a[:,1],1,0)
-            
-    return dfbase
+
+
+def getS9(datatype='day',begindate='2017-5-23',enddate='2017-6-23'):
+    imp.reload(STS)
+    imp.reload(STTB)    
+    imp.reload(STFILE)
+
+    a=STFILE.ANALYSIS()
+    list3=a.getallfile('SH8803')
+    list4=a.getallfile('SH8804')
+    mylist=list3+list4
+    i,j=0,0
+    dfcomp=pd.DataFrame()
+    for sn in mylist:  
+        dfcomp,prelike=(STS.comTrend(sn,datatype,begindate,enddate))
+        i=i+1
+        if prelike==True:    
+            j=j+1
+            print("{}{}".format( sn,prelike))
+    print( "{i},{j}".format(i=i,j=j))
+

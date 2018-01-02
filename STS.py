@@ -74,3 +74,34 @@ def getdf(sn='ss123456',datatype='day'):
         s=STTB.STWTB(sn)
         if s.getexdb() is not None:
             return s.getexdb()[s.DBF]
+
+
+
+def comTrend(sn='ss123456',datatype='day',begindate='2017-5-12',enddate='2017-6-23'):
+    def comp(df,datatype):
+        a=df[['posmacd','ang20flag','ang55flag','isbigup','segdown20','segdown55']].values 
+        if (datatype=='day'):    
+            df.loc[:,'comvalue']=np.where(((a[:,1]==1) & ( a[:,2]==0) & (a[:,3]==0) &(a[:,4]==1) &(a[:,5]==0)),1,0)
+        else:
+            df.loc[:,'comvalue']=np.where(((a[:,0]==3) & ( a[:,2]==1) & (a[:,3]==1)  &(a[:,5]==1)),1,0)        
+        return df 
+
+    EXPFIELD=['date','posmacd','ang20flag','ang55flag','isbigup','segdown20','segdown55']
+    EXPFIELDN=['posmacdn','ang20flagn','ang55flagn','isbigupn']
+    dfbase=(getdf('SH999999',datatype)[EXPFIELD]
+          .set_index('date')
+          .loc['2017-5-12':'2017-6-23'])
+    df1=(getdf(sn,datatype)[EXPFIELD]
+                .set_index('date')
+                .loc[begindate:enddate]
+                .assign(comvalue=0)
+                .pipe(comp,datatype)
+                )
+    ldate=len(df1.index)
+    _t1=df1['comvalue'].sum()/df1['comvalue'].count() 
+    df2=(df1[0:ldate-1].drop('comvalue',axis=1)
+                       .assign(comvalue=0)
+                       .pipe(comp,datatype)
+            )
+    _t2=df2['comvalue'].sum()/df2['comvalue'].count()
+    return df1 ,_t2>=_t1>0.6
