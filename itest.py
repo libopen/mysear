@@ -1,12 +1,15 @@
 import pandas as pd
 import STTB,STS,imp,STFILE
 import numpy as np
+import datetime
 
-def ddb(sn='ss123456',datatype='day'):
+def ddb(startdate,sn='ss123456',datatype='day',dbf='DBF'):
     imp.reload(STS)
     imp.reload(STTB)
-    gp=(STS.getdf(sn,datatype)
-           .set_index('date'))
+   
+    gp=(STS.getdf(sn,datatype,dbf)
+           .set_index('date')
+           )[:startdate]
         #print(gp[-20:].to_csv(sep='\t'))
     if gp is not None:    
         return gp
@@ -19,15 +22,15 @@ def testkmt(sn='ss123456'):
     return STS.getkmt(sn)
     
 
-def ct(sn='ss123456',datatype='day',begindate='2017-5-23',enddate='2017-6-23'):
+def ct(sn='ss123456',datatype='day',begindate='2017-5-23'):
     imp.reload(STS)
     imp.reload(STTB)    
     imp.reload(STFILE)
-    return STS.comTrend(sn,datatype,begindate,enddate)
+    return STS.comTrend(sn,datatype,begindate)
     
 
 
-def getS9(datatype='day',begindate='2017-5-23',enddate='2017-6-23'):
+def getS9(datatype='day',begindate='2017-6-23'):
     imp.reload(STS)
     imp.reload(STTB)    
     imp.reload(STFILE)
@@ -39,10 +42,10 @@ def getS9(datatype='day',begindate='2017-5-23',enddate='2017-6-23'):
     i,j=0,0
     dfcomp=pd.DataFrame()
     for sn in mylist:  
-        dfcomp,prelike=(STS.comTrend(sn,datatype,begindate,enddate))
+        dfcomp,prelike,t1=(STS.comTrend(sn,datatype,begindate))
         i=i+1
         if prelike==True:    
             j=j+1
-            print("{}{}".format( sn,prelike))
+            print("{}-{}".format( sn,t1))
     print( "{i},{j}".format(i=i,j=j))
 

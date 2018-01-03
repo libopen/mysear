@@ -1,0 +1,7 @@
+1 136 jupyter server
+  sudo jupyter notebook
+
+
+2.135 ftp  sudo /sbin/service vsftpd start
+
+3.137 oracle 

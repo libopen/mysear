@@ -54,6 +54,7 @@ class STDTB(object):
         self.addload()
     #DBF=['date','c','k','d','j','segdown','segup','posmacd','macd','tmacd','angflag','kd']
     DBF=['date','kdup','kddown','segup','segdown','posmacd','bigup','bigdown','angflag','c','segdown55','segdown20','ang20','ang55flag','ang20flag','sma20','sma55','isbigup']
+    TRENDDBF=['date','posmacd','isbigup','c','segdown55','segdown20','ang20','ang20flag','ang55','ang55flag','kddown']
     def getexdb(self):
         try:
   
@@ -90,7 +91,7 @@ class STDTB(object):
    
     
    
-   
+    #['posmacd','bigdown','bigup','segdown','segup','kddown','kdup']
     def seed(self):
         #get big segment trend
         def getBigSegMode(db):

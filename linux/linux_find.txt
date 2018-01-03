@@ -1,0 +1,3 @@
+find exculde path
+####
+  find . -type f -name "*sh" ! -path "./soft/*"

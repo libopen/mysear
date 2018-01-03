@@ -66,34 +66,43 @@ def getkmt(sn='ss123456'):
        
         #return gp[cols]
         
-def getdf(sn='ss123456',datatype='day'):
+def getdf(sn='ss123456',datatype='day',dbf='DBF'):
+    def getdbf(s,dbf):
+        if dbf=='DBF':
+            return s.DBF
+        else:
+            return s.TRENDDBF
+    
     if datatype=='day':
         s=STTB.STDTB(sn)
-        return s.getexdb()[s.DBF]
+        return s.getexdb()[getdbf(s, dbf)]
     elif datatype=='week':
         s=STTB.STWTB(sn)
         if s.getexdb() is not None:
-            return s.getexdb()[s.DBF]
+            return s.getexdb()[getdbf(s, dbf)]
+           
 
 
-
-def comTrend(sn='ss123456',datatype='day',begindate='2017-5-12',enddate='2017-6-23'):
+def comTrend(sn='ss123456',datatype='day',begindate='2017-6-23'):
     def comp(df,datatype):
         a=df[['posmacd','ang20flag','ang55flag','isbigup','segdown20','segdown55']].values 
-        if (datatype=='day'):    
+        if (datatype=='day'):  
+            #                               ang20flag      ang55flag     isbigup     segdown20       segdown55
             df.loc[:,'comvalue']=np.where(((a[:,1]==1) & ( a[:,2]==0) & (a[:,3]==0) &(a[:,4]==1) &(a[:,5]==0)),1,0)
         else:
             df.loc[:,'comvalue']=np.where(((a[:,0]==3) & ( a[:,2]==1) & (a[:,3]==1)  &(a[:,5]==1)),1,0)        
         return df 
 
     EXPFIELD=['date','posmacd','ang20flag','ang55flag','isbigup','segdown20','segdown55']
-    EXPFIELDN=['posmacdn','ang20flagn','ang55flagn','isbigupn']
-    dfbase=(getdf('SH999999',datatype)[EXPFIELD]
-          .set_index('date')
-          .loc['2017-5-12':'2017-6-23'])
+    
+    #week number
+    n=-6
+    if datatype=='day': #day number
+        n=-10
+    
     df1=(getdf(sn,datatype)[EXPFIELD]
                 .set_index('date')
-                .loc[begindate:enddate]
+                .loc[:begindate][n:]
                 .assign(comvalue=0)
                 .pipe(comp,datatype)
                 )
@@ -104,4 +113,4 @@ def comTrend(sn='ss123456',datatype='day',begindate='2017-5-12',enddate='2017-6-
                        .pipe(comp,datatype)
             )
     _t2=df2['comvalue'].sum()/df2['comvalue'].count()
-    return df1 ,_t2>=_t1>0.6
+    return df1 ,_t2>=_t1>0.6,round(_t1,3)

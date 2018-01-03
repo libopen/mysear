@@ -13,3 +13,6 @@ def wdb(sn='ss123456'):
     s=sfindkey2.STWTB(sn)
     gp=s.getexdb()[s.DBF]
     return gp[-20:]
+
+
+    

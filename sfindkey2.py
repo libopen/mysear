@@ -55,7 +55,8 @@ class STDTB(object):
             exdb.loc[:,'kdup']  = np.where(a[:,1]>a[:,2],a[:,0],0)   #exdb.apply(lambda x:x.id if (x.k<x.d)   else 0,axis=1)
             exdb.loc[:,'kddown']= np.where(a[:,1]<=a[:,2],a[:,0],0)   #exdb.apply(lambda x:x.id if (x.k>x.d)   else 0,axis=1)            
             a=exdb[['c','sma20','sma55']].values
-            exdb.loc[:,'segdown20']= np.where((a[:,0]>=a[:,1]),1,0)
+            exdb.loc[:,'pos25']= np.where((a[:,0]>a[:,1])&(a[:,0]>a[:,2])&(a[:,1]>a[:,2]),2,0)
+            exdb.loc[:,'segdown55']= np.where((a[:,0]>=a[:,2]),1,0)
             exdb.loc[:,'segdown55']= np.where((a[:,0]>=a[:,2]),1,0)
             cols=['posmacd','kdup','kddown']
             exdb[cols]=exdb[cols].applymap(np.int64)      
