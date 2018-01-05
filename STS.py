@@ -90,7 +90,7 @@ def comTrend(sn='ss123456',datatype='day',begindate='2017-6-23'):
             #                               ang20flag      ang55flag     isbigup     segdown20       segdown55
             df.loc[:,'comvalue']=np.where(((a[:,1]==1) & ( a[:,2]==0) & (a[:,3]==0) &(a[:,4]==1) &(a[:,5]==0)),1,0)
         else:
-            df.loc[:,'comvalue']=np.where(((a[:,0]==3) & ( a[:,2]==1) & (a[:,3]==1)  &(a[:,5]==1)),1,0)        
+            df.loc[:,'comvalue']=np.where(((a[:,0]==3) & ( a[:,2]==1) & (a[:,3]==1)  ),1,0)        
         return df 
 
     EXPFIELD=['date','posmacd','ang20flag','ang55flag','isbigup','segdown20','segdown55']
@@ -113,4 +113,5 @@ def comTrend(sn='ss123456',datatype='day',begindate='2017-6-23'):
                        .pipe(comp,datatype)
             )
     _t2=df2['comvalue'].sum()/df2['comvalue'].count()
-    return df1 ,_t2>=_t1>0.6,round(_t1,3)
+    _up55_1=df1['segdown55'].sum() #total  up55
+    return df1 ,_t2>=_t1>0.6,round(_t1,3),_up55_1

@@ -108,7 +108,7 @@ def savedb(sn='ss123456',datatype='day',filename='d.csv'):
             .to_csv(filename))
     
     
-def getindex(datatype='day'):
+def getindex(patlist,datatype='day'):
     indexlist=['SZ399001','SZ399005','SZ399006','SZ399106']
     dfbase=(STS.getdf('ss123456',datatype)[['date','posmacd']]
           .drop('posmacd',axis=1)
@@ -129,9 +129,10 @@ def getindex(datatype='day'):
 
                  )    
     a=STFILE.ANALYSIS()
-    lsn=['301','305','459','387','344']
-    for sn in a.getallfile('SH880'):  
-        if sn[-3:] in lsn:
+    #lsn=['SZ000983','SH880301','SH880324','SZ000960']
+    lsn=patlist.split(",")
+    for sn in lsn:  
+        #if sn[-3:] in lsn:
             df2=(STS.getdf(sn,datatype)[EXPFIED]
                         .set_index('date')
                         .rename(columns={'sma20':"s20{}".format(sn[-4:])})
@@ -143,7 +144,7 @@ def getindex(datatype='day'):
     
     
 def help():
-    print("-s :export sin9.csv")
+    print("-s list:export sin9.csv")
     print("-i :export index_day.csv")
     print("-k :export kmt")
     print("-d :sn dayfilename.csv :export sn day df")
@@ -155,7 +156,7 @@ def main():
     elif (sys.argv[1]=='-i'):
         getsh8()
     elif (sys.argv[1]=='-s'):
-            getindex()    
+            getindex(patlist=sys.argv[2])    
     elif (sys.argv[1]=='-k'):
         print(STS.getkmt(sys.argv[2]))
     elif (sys.argv[1]=='-d'):

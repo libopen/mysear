@@ -30,22 +30,23 @@ def ct(sn='ss123456',datatype='day',begindate='2017-5-23'):
     
 
 
-def getS9(datatype='day',begindate='2017-6-23'):
+def getS9(datatype='day',begindate='2017-6-23',pat='SH8803'):
     imp.reload(STS)
     imp.reload(STTB)    
     imp.reload(STFILE)
 
     a=STFILE.ANALYSIS()
-    list3=a.getallfile('SH8803')
-    list4=a.getallfile('SH8804')
-    mylist=list3+list4
+    #list3=a.getallfile('SH880')
+    #list4=a.getallfile('SH8804')
+    #mylist=list3+list4
+    mylist=a.getallfile(pat)
     i,j=0,0
     dfcomp=pd.DataFrame()
     for sn in mylist:  
-        dfcomp,prelike,t1=(STS.comTrend(sn,datatype,begindate))
+        dfcomp,prelike,t1,u55=(STS.comTrend(sn,datatype,begindate))
         i=i+1
         if prelike==True:    
             j=j+1
-            print("{}-{}".format( sn,t1))
+            print("{}-{}-{}".format( sn,t1,u55))
     print( "{i},{j}".format(i=i,j=j))
 
