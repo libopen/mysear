@@ -43,10 +43,10 @@ def getS9(datatype='day',begindate='2017-6-23',pat='SH8803'):
     i,j=0,0
     dfcomp=pd.DataFrame()
     for sn in mylist:  
-        dfcomp,prelike,t1,u55=(STS.comTrend(sn,datatype,begindate))
+        dfcomp,prelike,t1,u55,u55ang=(STS.comTrend(sn,datatype,begindate))
         i=i+1
-        if prelike==True:    
+        if prelike==True and u55>0.5:    
             j=j+1
-            print("{}-{}-{}".format( sn,t1,u55))
+            print("{}-{}-{}-{}".format( sn,t1,u55,u55ang))
     print( "{i},{j}".format(i=i,j=j))
 

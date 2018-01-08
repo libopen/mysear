@@ -2,7 +2,7 @@ import pandas as pd
 import STS,imp,STFILE,sys
 import numpy as np
 
-def getIndexPos(datatype='day'):
+def getIndexPos(datatype='day',pat=''):
     def computeposmacd(df):
         df.loc[df['posmacd']==1,'f1']=df.loc[df['posmacd']==1,'f1']+1
         df.loc[df['posmacd']==2,'f2']=df.loc[df['posmacd']==2,'f2']+1
@@ -19,7 +19,8 @@ def getIndexPos(datatype='day'):
          .assign(ftotal=0)
          .loc['2014-6-1':])
     a=STFILE.ANALYSIS()
-    for sn in a.getallfile('SH8'):
+    lsn=a.getallfile('SH8803')+a.getallfile('SH8804')
+    for sn in lsn:
         df2=STS.getposmacd(sn,datatype)
         if df2 is not None:
             df1=(pd.concat([df1,df2],axis=1,join='outer')
@@ -43,13 +44,25 @@ def getIndexPos(datatype='day'):
 
 def saveIndexDetail(datatype='day'):
     
+    indexlist=['SZ399001','SZ399005','SZ399006','SZ399106']
+    dfbase=(STS.getdf('ss123456',datatype)[['date','posmacd']]
+          .drop('posmacd',axis=1)
+          .set_index('date')['2017-1-1':])
     a=STFILE.ANALYSIS()
-    df=pd.DataFrame()
-    for sn in a.getallfile('SH8'):
-        df2=STS.GetPosmacdDetail(sn,datatype)
-        df=df.append(df2)
-    return df.to_csv("indexDetail_".format(datatype))
-
+    lsn=a.getallfile('SH8803')+a.getallfile('SH8804')
+    for sn in lsn:
+    
+        df2=(STS.getposmacd(sn,datatype)
+                .rename(columns={'posmacd':"{}".format(sn[-3:])})
+                )['2017-1-1':]
+        if df2 is not None:
+            dfbase=(pd.concat([dfbase,df2],axis=1,join='outer')
+                 .fillna(0))
+         
+    #return dfbase.to_csv("s34_{}.csv".format(datatype)) 
+    dfbase.index=dfbase.index.astype(str)
+    tdf=dfbase.T
+    return tdf,dfbase
 
 
 
