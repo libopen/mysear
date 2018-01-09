@@ -20,7 +20,11 @@ def testkmt(sn='ss123456'):
     imp.reload(STS)
     imp.reload(STTB)
     return STS.getkmt(sn)
-    
+ 
+def seed(sn='ss123456',datatype='day',begindate='2017-5-23'):
+    imp.reload(STS)
+    imp.reload(STTB)
+    return STS.seed(sn, datatype,begindate)   
 
 def ct(sn='ss123456',datatype='day',begindate='2017-5-23'):
     imp.reload(STS)
@@ -45,8 +49,8 @@ def getS9(datatype='day',begindate='2017-6-23',pat='SH8803'):
     for sn in mylist:  
         dfcomp,prelike,t1,u55,u55ang=(STS.comTrend(sn,datatype,begindate))
         i=i+1
-        if prelike==True and u55>0.5:    
+        if prelike==True and u55>0:    
             j=j+1
-            print("{}-{}-{}-{}".format( sn,t1,u55,u55ang))
+            print("{}-{}-{}-{}-{}".format( sn,t1,u55,u55ang,seed(sn=sn,datatype='week',begindate=begindate)))
     print( "{i},{j}".format(i=i,j=j))
 
