@@ -68,6 +68,7 @@ def getkmt(sn='ss123456'):
         
 def getdf(sn='ss123456',datatype='day',dbf='DBF'):
     def getdbf(s,dbf):
+        
         if dbf=='DBF':
             return s.DBF
         else:
@@ -118,30 +119,44 @@ def comTrend(sn='ss123456',datatype='day',begindate='2017-6-23'):
     return df1 ,_t2>=.6 or _t1>=0.6,round(_t1,3),_up55,_up55ang
 
 def seed(sn='ss123456',datatype='day',begindate='2017-6-23'):
-    #get big segment trend
-    def getBigSegMode(db,clstype):
-        #get posmacdtail-posmacdhead-anghead
-        _IdLastdown=db.max(axis=0)['bigdown']
-        _IdLastup=db.max(axis=0)['bigup'] 
-        if _IdLastdown>_IdLastup: 
-            return "B{0}:do{1}-{2}".format(clstype[0].upper(),db.loc[_IdLastdown]['ang20flag'],(_IdLastdown-_IdLastup))
+    def getpositions(db,segupname,segdownname):
+        
+        _idlast,_idmid,_idfirst=0,0,0
+        _idmid  =min(db.max(axis=0)[segupname],db.max(axis=0)[segdownname])
+        _idfirst=max(db.max(axis=0)[segupname],db.max(axis=0)[segdownname])
+        if (db.loc[_idmid][segupname]==0): # segup==0 show that _idmin is down
+            _idlast=db.loc[(db.index<_idmid)].max(axis=0)[segupname]
         else:
-            return "B{0}:up{1}-{2}".format(clstype[0].upper(),db.loc[_IdLastup]['ang20flag'],(_IdLastup-_IdLastdown))
-
+            _idlast=db.loc[(db.index<_idmid)].max(axis=0)[segdownname]
+        return int(_idlast),int(_idmid),int(_idfirst)
+            
+        
+   
     #get  segment trend
     def getMacdMode(db,clstype):
         #get posmacdtail-posmacdhead-anghead
-        _IdLastdown=db.max(axis=0)['segdown']
-        _IdLastup=db.max(axis=0)['segup'] 
-        _posmacdLastdown=db.loc[_IdLastdown]['posmacd']
-        _posmacdLastup=db.loc[_IdLastup]['posmacd']
-        if _IdLastdown>_IdLastup: 
-            _bInbigup=db.loc[_IdLastup:_IdLastdown]['bigup'].sum()==0
-            return "M{}{}{}-{}{}{}".format(clstype[0].upper(),_posmacdLastup,_posmacdLastdown,db.loc[_IdLastdown]['ang55flag'],db.loc[_IdLastdown]['ang55flag'],_bInbigup)
+        _IDLast,_IDMid,_IDFirst=getpositions(db,segupname='segup',segdownname='segdown')
+        # compare bigup get ratinBig
+        _ratInBig=0.0
+        if db.loc[_IDFirst]['segdown']==0: #current is up compare preseg with bigup
+            df=db.loc[_IDLast+1:_IDMid]['segdown']==db.loc[_IDLast+1:_IDMid]['bigup']
+            _ratInBig=df[df==True].count()/df.count()
         else:
-            _bInbigup=db.loc[_IdLastup:_IdLastdown]['bigup'].sum()==0
-            return "M{}{}{}-{}{}{}".format(clstype[0].upper(),_posmacdLastdown,_posmacdLastup,db.loc[_IdLastup]['ang55flag'],db.loc[_IdLastup]['ang55flag'],_bInbigup)
-    #get kdj segemnt trend
+            df=db.loc[_IDMid+1:_IDFirst]['segdown']==db.loc[_IDMid+1:_IDFirst]['bigup']
+            _ratInBig=df[df==True].count()/df.count()
+        _mod="{}{}{}".format(int(db.loc[_IDLast]['posmacd']),int(db.loc[_IDMid]['posmacd']),int(db.loc[_IDFirst]['posmacd']))    
+        _b55up=db.loc[_IDMid]['ang55']<db.loc[_IDFirst]['ang55']
+        #return _mod,_b55up,df[df==True].count()/df.count(),_ratInBig
+        #if _IdLastdown>_IdLastup: 
+            #_bInbigup=(db.loc[_IdLastup+1:_IdLastdown]['bigdown'].sum()==0)
+            #_b55up   =(db.loc[_IdLastup+1:_IdLastdown]['ang55'].max()==db['ang55'][-1:].values[0])
+            #print(_b55up)
+            #return "M{}-{}{}-{}{}".format(clstype[0].upper(),_posmacdLastup,_posmacdLastdown,db.loc[_IdLastup]['ang55']<db.loc[_IdLastdown]['ang55'],_bInbigup)
+        #else:
+            #_bInbigup=db.loc[_IdLastdown+1:_IdLastup]['bigdown'].sum()==0
+            #_b55up   =(db.loc[_IdLastup+1:_IdLastdown]['ang55'].max()==db['ang55'][-1:].values[0])
+        return "M{}-{}-{}-{:.2f}".format(clstype[0].upper(),_mod,_b55up,_ratInBig)
+    ##get kdj segemnt trend
     def getKDseg(db,clstype):
         def IsInSeg1(startid,endid,db):
             if (endid-startid+1)==db.loc[startid:endid]['posmacd'].sum():
@@ -177,16 +192,17 @@ def seed(sn='ss123456',datatype='day',begindate='2017-6-23'):
                 _id3=db[(db.index<_IdLastdown)&(db.kddown!=0)].min(axis=0)['kddown'] 
                 _id3=_id3-1      
         return "KD{0}[{1}-{2}]_{3}{0}[{3}pos1 {4}-{5}][{3}big {6}-{7}]".format(curkdjmod,int(_id2-_id3),int(_id1-_id2),clstype[0].upper(),IsInSeg1(_id3+1,_id2,db),IsInSeg1(_id2+1,_id1,db),IsInBigUp(_id3+1,_id2,db),IsInBigUp(_id2+1,_id1,db))        
-    SEEDDBF=['date','posmacd','bigdown','bigup','segdown','segup','kddown','kdup','angflag','ang20flag','ang55flag','id']
+    SEEDDBF=['date','posmacd','bigdown','bigup','segdown','segup','kddown','kdup','angflag','ang20flag','ang55','id']
     
     db=(getdf(sn,datatype)[SEEDDBF]
                     .set_index('date')
                     .loc[:begindate]
                     .set_index('id')
                     )
+    #return getpositions(db,segupname='bigup', segdownname='bigdown')
+    return getMacdMode(db,datatype)
+    #if db is not None and len(db)>60:
+        #return "{},{}".format(getMacdMode(db,datatype),getKDseg(db,datatype))
 
-    if db is not None and len(db)>60:
-        return "{},{}".format(getMacdMode(db,datatype),getKDseg(db,datatype))
-
-    else:
-        return None
+    #else:
+        #return None

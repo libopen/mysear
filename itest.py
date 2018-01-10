@@ -8,8 +8,9 @@ def ddb(startdate,sn='ss123456',datatype='day',dbf='DBF'):
     imp.reload(STTB)
    
     gp=(STS.getdf(sn,datatype,dbf)
-           .set_index('date')
-           )[:startdate]
+           .set_index('date')[:startdate]
+           .set_index('id')
+           )
         #print(gp[-20:].to_csv(sep='\t'))
     if gp is not None:    
         return gp
@@ -51,6 +52,6 @@ def getS9(datatype='day',begindate='2017-6-23',pat='SH8803'):
         i=i+1
         if prelike==True and u55>0:    
             j=j+1
-            print("{}-{}-{}-{}-{}".format( sn,t1,u55,u55ang,seed(sn=sn,datatype='week',begindate=begindate)))
+            print("{}-{}-{}-{:.2f}-{}".format( sn,t1,u55,u55ang,seed(sn=sn,datatype='week',begindate=begindate)))
     print( "{i},{j}".format(i=i,j=j))
 

@@ -53,7 +53,7 @@ class STDTB(object):
         self.db.date=pd.to_datetime(self.db.date)
         self.addload()
     #DBF=['date','c','k','d','j','segdown','segup','posmacd','macd','tmacd','angflag','kd']
-    DBF=['date','kdup','kddown','segup','segdown','posmacd','bigup','bigdown','angflag','c','segdown55','segdown20','ang20','ang55flag','ang20flag','sma20','sma55','isbigup','id']
+    DBF=['date','kdup','kddown','segup','segdown','posmacd','bigup','bigdown','angflag','c','segdown55','segdown20','ang20','ang55flag','ang20flag','sma20','sma55','isbigup','id','ang55']
     TRENDDBF=['date','posmacd','isbigup','c','segdown55','segdown20','ang20','ang20flag','ang55','ang55flag','kddown']
     
     def getexdb(self):
