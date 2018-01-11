@@ -48,10 +48,10 @@ def getS9(datatype='day',begindate='2017-6-23',pat='SH8803'):
     i,j=0,0
     dfcomp=pd.DataFrame()
     for sn in mylist:  
-        dfcomp,prelike,t1,u55,u55ang=(STS.comTrend(sn,datatype,begindate))
+        dfcomp,prelike,ratpos,ratbigup=(STS.comTrend(sn,datatype,begindate))
         i=i+1
-        if prelike==True and u55>0:    
+        if prelike>=0.5 and ratpos>0.4:    
             j=j+1
-            print("{}-{}-{}-{:.2f}-{}".format( sn,t1,u55,u55ang,seed(sn=sn,datatype='week',begindate=begindate)))
+            print("{}-{}-{:.2f}-{:.2f}-{}".format( sn,prelike,ratpos,ratbigup,seed(sn=sn,datatype='week',begindate=begindate)))
     print( "{i},{j}".format(i=i,j=j))
 

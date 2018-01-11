@@ -85,38 +85,56 @@ def getdf(sn='ss123456',datatype='day',dbf='DBF'):
 
 
 def comTrend(sn='ss123456',datatype='day',begindate='2017-6-23'):
+    def shiftang(df):
+        df.loc[:,'ang20_1']=df.loc[:,'ang20'].shift(1)
+        df.loc[:,'ang55_1']=df.loc[:,'ang55'].shift(1)
+        df=df.fillna(0)
+        return df
     def comp(df,datatype):
         a=df[['posmacd','ang20flag','ang55flag','isbigup','segdown20','segdown55']].values 
         if (datatype=='day'):  
-            #                               posmacd      ang20flag        ang55         isbigup     segdown20       segdown55
+            #                               posmacd                   ang20flag        ang55         isbigup     segdown20       segdown55
             df.loc[:,'comvalue']=np.where((((a[:,0]==2)|(a[:,0]==3)) & (a[:,1]==1)& ( a[:,2]==0) & (a[:,3]==0) &(a[:,4]==1) ),1,0)
         else:
             df.loc[:,'comvalue']=np.where(((a[:,0]==3) & ( a[:,2]==1) & (a[:,3]==1)  ),1,0)        
         return df 
 
-    EXPFIELD=['date','posmacd','ang20flag','ang55flag','isbigup','segdown20','segdown55']
+    EXPFIELD=['date','posmacd','ang20flag','ang55flag','isbigup','segdown20','segdown55','ang20','ang55','sma20','sma55']
     
     #week number
     n=-6
     if datatype=='day': #day number
         n=-10
-    
+    #
     df1=(getdf(sn,datatype)[EXPFIELD]
+                .pipe(shiftang)
                 .set_index('date')
                 .loc[:begindate][n:]
                 .assign(comvalue=0)
                 .pipe(comp,datatype)
                 )
-    ldate=len(df1.index)
-    _t1=df1['comvalue'].sum()/df1['comvalue'].count() 
-    df2=(df1[0:ldate-1].drop('comvalue',axis=1)
-                       .assign(comvalue=0)
-                       .pipe(comp,datatype)
-            )
-    _t2=df2['comvalue'].sum()/df2['comvalue'].count()
-    _up55=df1['segdown55'].sum()/df2['comvalue'].count() #total  up55
-    _up55ang=df1['ang55flag'].sum()
-    return df1 ,_t2>=.6 or _t1>=0.6,round(_t1,3),_up55,_up55ang
+    df=df1[df1.ang20>0.0]['ang20']>df1[df1.ang20>0]['ang20_1'] #ang20>0 and ang20>ang20_1
+    _rat20=df[df==True].count()/df1['ang20'].count()
+    df=df1[df1.ang55<0.0]['ang55']>df1[df1.ang55<0]['ang55_1'] #ang55<0 and ang55>ang55_1
+    _rat55=df[df==True].count()/df1['ang55'].count()
+    df=df1['isbigup']==0
+    _ratbigup=df[df==True].count()/df1['isbigup'].count()
+    df=df1['posmacd']==2
+    _ratpos=df[df==True].count()/df1['posmacd'].count()
+    
+    #compare ang20 ang20_1 ang55 and ang55_1
+    
+    return df1,min(_rat20,_rat55),_ratpos,_ratbigup
+    #ldate=len(df1.index)
+    #_t1=df1['comvalue'].sum()/df1['comvalue'].count() 
+    #df2=(df1[0:ldate-1].drop('comvalue',axis=1)
+                       #.assign(comvalue=0)
+                       #.pipe(comp,datatype)
+            #)
+    #_t2=df2['comvalue'].sum()/df2['comvalue'].count()
+    #_up55=df1['segdown55'].sum()/df2['comvalue'].count() #total  up55
+    #_up55ang=df1['ang55flag'].sum()
+    #return df1 ,_t2>=.6 or _t1>=0.6,round(_t1,3),_up55,_up55ang
 
 def seed(sn='ss123456',datatype='day',begindate='2017-6-23'):
     def getpositions(db,segupname,segdownname):
@@ -147,14 +165,6 @@ def seed(sn='ss123456',datatype='day',begindate='2017-6-23'):
         _mod="{}{}{}".format(int(db.loc[_IDLast]['posmacd']),int(db.loc[_IDMid]['posmacd']),int(db.loc[_IDFirst]['posmacd']))    
         _b55up=db.loc[_IDMid]['ang55']<db.loc[_IDFirst]['ang55']
         #return _mod,_b55up,df[df==True].count()/df.count(),_ratInBig
-        #if _IdLastdown>_IdLastup: 
-            #_bInbigup=(db.loc[_IdLastup+1:_IdLastdown]['bigdown'].sum()==0)
-            #_b55up   =(db.loc[_IdLastup+1:_IdLastdown]['ang55'].max()==db['ang55'][-1:].values[0])
-            #print(_b55up)
-            #return "M{}-{}{}-{}{}".format(clstype[0].upper(),_posmacdLastup,_posmacdLastdown,db.loc[_IdLastup]['ang55']<db.loc[_IdLastdown]['ang55'],_bInbigup)
-        #else:
-            #_bInbigup=db.loc[_IdLastdown+1:_IdLastup]['bigdown'].sum()==0
-            #_b55up   =(db.loc[_IdLastup+1:_IdLastdown]['ang55'].max()==db['ang55'][-1:].values[0])
         return "M{}-{}-{}-{:.2f}".format(clstype[0].upper(),_mod,_b55up,_ratInBig)
     ##get kdj segemnt trend
     def getKDseg(db,clstype):
