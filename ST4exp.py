@@ -115,8 +115,8 @@ def getsh8():
 def savedb(sn='ss123456',datatype='day',filename='d.csv'):
     #1 get the key date ,get the posmacd=1 find sn
     #2 get every sn sma20,sam55,and index data concat
-    EXPFIED=['date','sma55','sma20','posmacd']
-    (STS.getdf(sn,datatype)[EXPFIED]
+    EXPFIED=['date','sma55','sma20']
+    (STS.getdf(sn,datatype)
             .set_index('date')
             .to_csv(filename))
     
@@ -128,7 +128,7 @@ def getindex(patlist,datatype='day'):
           .set_index('date'))
     
     a=STFILE.ANALYSIS()
-    EXPFIED=['date','sma20']
+    EXPFIED=['date','sma20','sma55']
     baseColname=['s20']
     for sn in indexlist:
         #renameColname=["{}{}".format(x,sn[-3:]) for x in baseColname] #new name s55+sn[-3:],s20+sn[-3]
@@ -173,7 +173,7 @@ def main():
     elif (sys.argv[1]=='-k'):
         print(STS.getkmt(sys.argv[2]))
     elif (sys.argv[1]=='-d'):
-        savedb(sn=sys.argv[2], filename=sys.argv[3])
+        savedb(sn=sys.argv[2], datatype=sys.argv[3],filename=sys.argv[4])
     else:
         help()
          
