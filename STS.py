@@ -82,9 +82,42 @@ def getdf(sn='ss123456',datatype='day',dbf='DBF'):
         if s.getexdb() is not None:
             return s.getexdb()[getdbf(s, dbf)]
            
+# search by week :3 rule ang55 is up and isbigup and the segment is posmacd==3
+def SearchByWeek1(sn='ss123456',datatype='week',begindate='2017-6-23'):
+    # sma55>0 up and sma22 is up sma55 in the week
+    def shiftang(df):
+        df.loc[:,'ang20_1']=df.loc[:,'ang20'].shift(1)
+        df.loc[:,'ang55_1']=df.loc[:,'ang55'].shift(1)
+        df=df.fillna(0)
+        return df
 
-
-def comTrend(sn='ss123456',datatype='day',begindate='2017-6-23'):
+    EXPFIELD=['date','posmacd','ang20flag','ang55flag','isbigup','segdown20','segdown55','ang20','ang55','sma20','sma55','kdup']
+    
+    #week number
+    n=-6
+    if datatype=='day': #day number
+        n=-10
+    #
+    df1=(getdf(sn,datatype)[EXPFIELD]
+                .pipe(shiftang)
+                .set_index('date')
+                .loc[:begindate][n:]
+                )
+    df=df1['kdup']>0 #kdup have >0
+    _ratkdup=df[df==True].count()/df1['kdup'].count()
+    df=df1[df1.ang55>0]['ang55']>df1[df1.ang55>0]['ang55_1'] #ang55<0 and ang55>ang55_1
+    _rat55=df[df==True].count()/df1['ang55'].count()
+    df=df1['isbigup']==1
+    _ratbigup=df[df==True].count()/df1['isbigup'].count()
+    df=df1['posmacd']==3
+    _ratpos=df[df==True].count()/df1['posmacd'].count()
+    
+    #compare ang20 ang20_1 ang55 and ang55_1
+    
+    return  (_rat55>0.5 and _ratpos>0.9 and _ratbigup>0.9),df1,_ratkdup,_rat55,_ratpos,_ratbigup
+#search by day and week 
+def SearchByDay(sn='ss123456',datatype='day',begindate='2017-6-23'):
+    
     def shiftang(df):
         df.loc[:,'ang20_1']=df.loc[:,'ang20'].shift(1)
         df.loc[:,'ang55_1']=df.loc[:,'ang55'].shift(1)
@@ -136,7 +169,8 @@ def comTrend(sn='ss123456',datatype='day',begindate='2017-6-23'):
     #_up55ang=df1['ang55flag'].sum()
     #return df1 ,_t2>=.6 or _t1>=0.6,round(_t1,3),_up55,_up55ang
 
-def seed(sn='ss123456',datatype='day',begindate='2017-6-23'):
+
+def SearchByWeek(sn='ss123456',datatype='day',begindate='2017-6-23'):
     def shiftang(df):
             df.loc[:,'ang20_1']=df.loc[:,'ang20'].shift(1)
             df.loc[:,'ang55_1']=df.loc[:,'ang55'].shift(1)
@@ -174,12 +208,12 @@ def seed(sn='ss123456',datatype='day',begindate='2017-6-23'):
         _rat55=df[df==True].count()/db.loc[_IDMid:_IDFirst]['ang55'].count()        
         #_b55up=db.loc[_IDMid]['ang55']<db.loc[_IDFirst]['ang55']
         #return _mod,_b55up,df[df==True].count()/df.count(),_ratInBig
-        return "M{}-{}-{:2f}-{:.2f}".format(clstype[0].upper(),_mod,_rat55,_ratInBig)
+        return (_rat55>0.9 and _ratInBig>0.9),"M{}-{}-{:2f}-{:.2f}".format(clstype[0].upper(),_mod,_rat55,_ratInBig)
     ##get kdj segemnt trend
     def getKDseg(db,clstype):
         _IDLast,_IDMid,_IDFirst=getpositions(db,segupname='kdup',segdownname='kddown')
         
-        return "Kup={0}[{1}-{2}]".format(db.loc[_IDFirst]['kdup']>0,int(_IDFirst-_IDMid),int(_IDMid-_IDLast))        
+        return (db.loc[_IDFirst]['kdup']>0),"[{0}-{1}]".format(int(_IDFirst-_IDMid),int(_IDMid-_IDLast))        
     SEEDDBF=['date','posmacd','bigdown','bigup','segdown','segup','kddown','kdup','angflag','ang20flag','ang20','ang55','id']
     
     db=(getdf(sn,datatype)[SEEDDBF]
@@ -189,7 +223,8 @@ def seed(sn='ss123456',datatype='day',begindate='2017-6-23'):
                     .set_index('id')
                     )
     #return getpositions(db,segupname='bigup', segdownname='bigdown')
-    return "{0},{1}".format(getMacdMode(db,datatype),getKDseg(db, datatype))
+    return (getMacdMode(db,datatype)[0]==True and getKDseg(db, datatype)[0]==True), "{0},{1}".format(getMacdMode(db,datatype),getKDseg(db, datatype))
+    #return  "{0},{1}".format(getMacdMode(db,datatype),getKDseg(db, datatype))
     #if db is not None and len(db)>60:
         #return "{},{}".format(getMacdMode(db,datatype),getKDseg(db,datatype))
 

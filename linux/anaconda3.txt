@@ -1,0 +1,6 @@
+1 .server136:
+      install packages:
+            如果是conda自己包使用 anaconda search -t conda packagename
+            如果找到就可以安装 conda install packagename
+
+      安装之外的包

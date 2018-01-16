@@ -40,6 +40,39 @@ def getIndexPos(datatype='day',pat=''):
     return np.round(df1,decimals=2).to_csv("index_{}.csv".format(datatype))
 
 
+def getIndexAng20(datatype='day',pat=''):
+    def computeposmacd(df):
+        df.loc[df['ang20ang']>0,'f1']=df.loc[df['ang20ang']>0,'f1']+1
+        df.loc[df['ang20ang']<0,'f2']=df.loc[df['ang20ang']<0,'f2']+1
+        df.loc[:,'ftotal']=df.loc[:,'ftotal']+1
+        return df    
+    df1=(STS.getposmacd('ss123456',datatype)
+         .drop('posmacd',axis=1)
+         .assign(f1=0)
+         .assign(f2=0)
+         .assign(ftotal=0)
+         .loc['2014-6-1':])
+    a=STFILE.ANALYSIS()
+    lsn=a.getallfile('SH8803')+a.getallfile('SH8804')
+    for sn in lsn:
+        df2=(STS.getdf(sn,datatype)[['date','ang20ang']]
+                .set_index('date'))
+
+        if df2 is not None:
+            df1=(pd.concat([df1,df2],axis=1,join='outer')
+                 .fillna(0)
+                 .pipe(computeposmacd)
+                 .drop('ang20ang',axis=1)
+
+                 )
+
+        #cols=['f1','f2','f3','f4']
+        #df1[cols]=df1[cols].applymap(np.int64)  
+    df1=(df1.assign(ratf1=lambda x: x['f1']/x['ftotal'])
+         .assign(ratf2=lambda x: x['f2']/x['ftotal'])
+          )
+        
+    return np.round(df1,decimals=2).to_csv("indexang20_{}.csv".format(datatype))
 
 
 def saveIndexDetail(datatype='day'):
@@ -110,12 +143,13 @@ def getsh8():
     getIndexPos('week')
     getIndex2055('day')
     getIndex2055('week')
+    getIndexAng20('day')
    
     
 def savedb(sn='ss123456',datatype='day',filename='d.csv'):
     #1 get the key date ,get the posmacd=1 find sn
     #2 get every sn sma20,sam55,and index data concat
-    EXPFIED=['date','sma55','sma20']
+    EXPFIED=['date','sma55','sma20','ang20ang']
     (STS.getdf(sn,datatype)
             .set_index('date')
             .to_csv(filename))
@@ -128,13 +162,13 @@ def getindex(patlist,datatype='day'):
           .set_index('date'))
     
     a=STFILE.ANALYSIS()
-    EXPFIED=['date','sma20','sma55']
+    EXPFIED=['date','ang20']
     baseColname=['s20']
     for sn in indexlist:
         #renameColname=["{}{}".format(x,sn[-3:]) for x in baseColname] #new name s55+sn[-3:],s20+sn[-3]
         df2=(STS.getdf(sn,datatype)[EXPFIED]
                 .set_index('date')
-                .rename(columns={'sma20':"s20{}".format(sn[-3:])})
+                .rename(columns={'ang20':"a20{}".format(sn[-3:])})
                 )
         if df2 is not None:
             dfbase=(pd.concat([dfbase,df2],axis=1,join='outer')
@@ -143,17 +177,19 @@ def getindex(patlist,datatype='day'):
                  )    
     a=STFILE.ANALYSIS()
     #lsn=['SZ000983','SH880301','SH880324','SZ000960']
-    lsn=patlist.split(",")
+    #lsn=patlist.split(",")
+    lsn=a.getallfile('SH8803')+a.getallfile('SH8804')
+    
     for sn in lsn:  
         #if sn[-3:] in lsn:
-            df2=(STS.getdf(sn,datatype)[EXPFIED]
+            df2=(STS.getdf(sn,datatype)[['date','ang20ang']]
                         .set_index('date')
-                        .rename(columns={'sma20':"s20{}".format(sn[-4:])})
+                        .rename(columns={'ang20ang':"a20{}".format(sn[-4:])})
                             ) 
             dfbase=(pd.concat([dfbase,df2],axis=1,join='outer')
                      .fillna(0))
             
-    return dfbase.to_csv('sin9.csv')    
+    return dfbase.to_csv('ang20_hy.csv')    
     
     
 def help():

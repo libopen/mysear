@@ -71,4 +71,4 @@
 #### 推送学位名单和平均分 wh18014132 wh17062066
    1.server183  1.将给定的数据导入到指定表 ，注意给定表的名称与要求一致  step1_importdata.sql
                 2.数据打包整理  support\xw_avg\assembly_xw.bat、
-                3. 
+   2.server135  导入后的处理\support\oracle_sql\merge_xwavg.sql ,  merge_xwavg2.sql
