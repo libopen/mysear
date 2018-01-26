@@ -193,7 +193,7 @@ def SearchByWeek(sn='ss123456',datatype='day',begindate='2017-6-23'):
     def getMacdMode(db,clstype):
         #get posmacdtail-posmacdhead-anghead
         _IDLast,_IDMid,_IDFirst=getpositions(db,segupname='segup',segdownname='segdown')
-        print("{}-{}-{}".format(_IDLast,_IDMid,_IDFirst))
+        #print("{}-{}-{}".format(_IDLast,_IDMid,_IDFirst))
         # compare bigup get ratinBig
         _ratInBig=0.0
         if db.loc[_IDFirst]['segdown']==0: #current is up compare preseg with bigup

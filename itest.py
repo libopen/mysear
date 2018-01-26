@@ -17,15 +17,15 @@ def ddb(startdate,sn='ss123456',datatype='day',dbf='DBF'):
     else:
         return 'None'
       
-def Search(sn='ss123456',methodtype='day',begindate='2017-5-23'):
+def Search(sn='ss123456',methodtype='day',datetype='day',begindate='2017-5-23'):
     imp.reload(STS)
     imp.reload(STTB)
     if methodtype=='day':
-        return STS.SearchByDay(sn, 'day',begindate)   
+        return STS.SearchByDay(sn, datetype,begindate)   
     elif methodtype=='week':
-        return STS.SearchByWeek(sn, 'week',begindate)   
+        return STS.SearchByWeek(sn, datetype,begindate)   
     elif methodtype=='week1':
-        return STS.SearchByWeek1(sn, 'week',begindate)   
+        return STS.SearchByWeek1(sn, datetype,begindate)   
 
 
     
@@ -43,11 +43,11 @@ def getS9(datatype='day',begindate='2017-6-23',pat='SH8803'):
     dfcomp=pd.DataFrame()
     for sn in mylist:  
         try:
-            dfcomp,prelike,ratpos,ratbigup=(STS.comTrend(sn,datatype,begindate))
+            seed=Search(sn,'week','week',begindate)
             i=i+1
-            if prelike>=0.5 and ratpos>0.4:    
+            if '23' in seed[1]:    
                 j=j+1
-                print("{}-{}-{:.2f}-{:.2f}-{}".format( sn,prelike,ratpos,ratbigup,seed(sn=sn,datatype='week',begindate=begindate)))
+                print("{},{}".format( sn,seed))
 
            #dfcomp,ratkd,rat55,ratpos,ratinbig=(STS.KDTrend(sn,datatype,begindate))
            #if rat55>=0.5 and ratpos==1.0 and ratinbig==1.0:
