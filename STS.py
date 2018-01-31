@@ -83,7 +83,7 @@ def getdf(sn='ss123456',datatype='day',dbf='DBF'):
             return s.getexdb()[getdbf(s, dbf)]
            
 # search by week :3 rule ang55 is up and isbigup and the segment is posmacd==3
-def SearchByWeek1(sn='ss123456',datatype='week',begindate='2017-6-23'):
+def DfWeek(sn='ss123456',datatype='week',begindate='2017-6-23'):
     # sma55>0 up and sma22 is up sma55 in the week
     def shiftang(df):
         df.loc[:,'ang20_1']=df.loc[:,'ang20'].shift(1)
@@ -116,7 +116,7 @@ def SearchByWeek1(sn='ss123456',datatype='week',begindate='2017-6-23'):
     
     return  (_rat55>0.5 and _ratpos>0.9 and _ratbigup>0.9),df1,_ratkdup,_rat55,_ratpos,_ratbigup
 #search by day and week 
-def SearchByDay(sn='ss123456',datatype='day',begindate='2017-6-23'):
+def DfDay(sn='ss123456',datatype='day',begindate='2017-6-23'):
     
     def shiftang(df):
         df.loc[:,'ang20_1']=df.loc[:,'ang20'].shift(1)
@@ -208,7 +208,7 @@ def SearchByWeek(sn='ss123456',datatype='day',begindate='2017-6-23'):
         _rat55=df[df==True].count()/db.loc[_IDMid:_IDFirst]['ang55'].count()        
         #_b55up=db.loc[_IDMid]['ang55']<db.loc[_IDFirst]['ang55']
         #return _mod,_b55up,df[df==True].count()/df.count(),_ratInBig
-        return (_rat55>0.9 and _ratInBig>0.9),"M{}-{}-{:2f}-{:.2f}".format(clstype[0].upper(),_mod,_rat55,_ratInBig)
+        return (_rat55>0.5 and _ratInBig>0.5),"M{}-{}-{:2f}-{:.2f}".format(clstype[0].upper(),_mod,_rat55,_ratInBig)
     ##get kdj segemnt trend
     def getKDseg(db,clstype):
         _IDLast,_IDMid,_IDFirst=getpositions(db,segupname='kdup',segdownname='kddown')
@@ -230,3 +230,22 @@ def SearchByWeek(sn='ss123456',datatype='day',begindate='2017-6-23'):
 
     #else:
         #return None
+        
+        
+def getS9bysn(sn,startdate):
+    try:
+            # 
+        seed=SearchByWeek(sn,'day',startdate)[1].split(',')[1]
+        con = SearchByWeek(sn,'day',startdate)[0]
+        if ('42' in seed ) and  (con==True):
+            return True,seed
+        else:
+            return False,''
+        
+                #dfcomp,ratkd,rat55,ratpos,ratinbig=(STS.KDTrend(sn,datatype,begindate))
+                #if rat55>=0.5 and ratpos==1.0 and ratinbig==1.0:
+                #    print("{}-{}".format(sn,ratkd))
+    except:      
+        return False,'except'
+
+

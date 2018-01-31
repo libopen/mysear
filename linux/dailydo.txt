@@ -72,3 +72,7 @@
    1.server183  1.将给定的数据导入到指定表 ，注意给定表的名称与要求一致  step1_importdata.sql
                 2.数据打包整理  support\xw_avg\assembly_xw.bat、
    2.server135  导入后的处理\support\oracle_sql\merge_xwavg.sql ,  merge_xwavg2.sql
+
+
+#### 从excel文件合并数据库学生信息
+     server135  /home/libin/mypython/csv/mergeStudentInfo.py  

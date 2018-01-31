@@ -42,18 +42,16 @@ def getS9(datatype='day',begindate='2017-6-23',pat='SH8803'):
     i,j=0,0
     dfcomp=pd.DataFrame()
     for sn in mylist:  
-        try:
-            seed=Search(sn,'week','week',begindate)
+        getit,seed=STS.getS9bysn(sn,begindate)
+        if getit==True:
             i=i+1
-            if '23' in seed[1]:    
-                j=j+1
-                print("{},{}".format( sn,seed))
+            j=j+1
+            print("{},{}".format( sn,seed))
+        else:
+            i=i+1
 
            #dfcomp,ratkd,rat55,ratpos,ratinbig=(STS.KDTrend(sn,datatype,begindate))
            #if rat55>=0.5 and ratpos==1.0 and ratinbig==1.0:
            #    print("{}-{}".format(sn,ratkd))
-        except:
-            print(sn)
-            continue
     print( "{i},{j}".format(i=i,j=j))
 

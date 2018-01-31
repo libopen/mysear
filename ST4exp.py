@@ -83,6 +83,7 @@ def saveIndexDetail(datatype='day'):
           .set_index('date')['2017-1-1':])
     a=STFILE.ANALYSIS()
     lsn=a.getallfile('SH8803')+a.getallfile('SH8804')
+    
     for sn in lsn:
     
         df2=(STS.getposmacd(sn,datatype)
@@ -93,6 +94,10 @@ def saveIndexDetail(datatype='day'):
                  .fillna(0))
          
     #return dfbase.to_csv("s34_{}.csv".format(datatype)) 
+    if datatype=='day':
+        dfbase.to_csv('df2.csv')
+    else:
+        dfbase.to_csv('dfw2.csv')
     dfbase.index=dfbase.index.astype(str)
     tdf=dfbase.T
     return tdf,dfbase
@@ -144,7 +149,8 @@ def getsh8():
     getIndex2055('day')
     getIndex2055('week')
     getIndexAng20('day')
-   
+    saveIndexDetail('day')
+    saveIndexDetail('week')
     
 def savedb(sn='ss123456',datatype='day',filename='d.csv'):
     #1 get the key date ,get the posmacd=1 find sn
