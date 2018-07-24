@@ -2,6 +2,7 @@
 #### server137 202.205.161.137
 #### server138 202.205.160.138
 #### server136 202.205.161.136
+#### server16 202.205.161.16 Libin2014!@
 #### server103 10 .96 .142.103
 #### server108 10 .96 .142.108 用于ER的发布服务器apache
 
@@ -10,8 +11,10 @@
      虚拟机XP修改数据结构 导出所有结构为HTM格式，建立SQL文件 
      1  server103 文件通过共享方式导到103服务器目录
         server103 to7zw.bat 执行压缩ER到w.zip w2108 发布ER SCP到108 /home/user/目录，
-     2  server108 执行w.sh 发布到WEB服务器 重新启用apache sudo service httpd restart
-     3  server103 在103上打开ER 截图，并通过jira 上传截图和SQL角本 .
+     
+     2  scp server108 copy 到本地再copy 202.206.161.16:/home/user 
+     3  server16 /usr/local/apache2/htdocs/gitOuchn/ouchn/   执行sudo unzip w.zip -d .  发布到WEB服务器 重新启用apache sudo service httpd restart
+     3  http://202.205.161.16/ouchnEAS_ER.htm 验证
 
 ####从Excel 文件导出选课，报考，成绩信息 --wh17113527 wh17113540
 目标：lib@lib-OptiPlex-7010:/media/lib/新加卷/ouchn/export/exp2017$
@@ -19,7 +22,7 @@
      选课表命名以elc***** .xls(xlxs)
      报考表命名以signup4(5)***** .xls(xlxs) 根据试卷号长度
      成绩表命名以score4(5)***** .xls(xlxs)
-     执行使用 Exp900.sh 文件名
+     执行使用 elxExport.sh 文件名
      导出文件存在export目录内 使用verElc.sh verScore.sh verSignup.sh校验数据有效性，包括是否重复记录，
      mkexec_ctl.sh 用于生成CTL文件文件位于export/目录下以exec_
      数据文件导入临时表后的SQL计算角本
@@ -28,11 +31,17 @@
 #### 行业学院文件导出，有选课没成绩，有成绩不报考 --wh17113540
      ftp: support/900score/export_900_3kind.sql 
 
-#### 数据迁移：专业规则模块课程表 wh17113467
-     1.server137 服务器data/split_tcp.sh 生成数据于eas_tcp_modulecourses1表中
-     2.server135 临时表数据合并到正式表 \oracle_sql\imp_tcp_guidance.sql
-     3.server135 重新计算指导性专业规则模块分部和总学分\oracle_sql\imp_tcp_guidance2.sql
+
+## 专业规则
+   #### 数据迁移：专业规则模块课程表 wh17113467
+        1.server137 服务器data/split_tcp.sh 生成数据于eas_tcp_modulecourses1表中
+        2.server135 临时表数据合并到正式表 \oracle_sql\imp_tcp_guidance.sql
+        3.server135 重新计算指导性专业规则模块分部和总学分\oracle_sql\imp_tcp_guidance2.sql
        
+  ### 重新设置专业规则
+        1.server135 重新设置指导性专业规则 \oracle_sql\recoverGuidance_wh17051552.sql 
+  ### 手动下发已经启用的指导性专业规则
+        1.需要修改pr_tcp_reenableguidance 为指定的分部代码
 
      
 ###  导入招生数据 --wh17103276,wh17113488,wh17103174,wh17113557,wh17113674
@@ -41,7 +50,7 @@
      2.server135 CTL导入，导入后处理 \oracle_sql\impnewstudent.sql
 
 ###  导入老系统学生，提供excel形式的xsb,xsjbqkb,bjxxb --wh17113577
-     1.server183 手工方式导入178 数据库CPS 建立同名表
+     1.server183 手工方式导入183本地数据库 导入前将同名表删除 CPS 建立同名表
      2 server138 d:\support\impnewstudent2017 assemble_student.bat 导入CSV文件 mkexec_student.bat 生成ctl 
      
      
@@ -54,6 +63,26 @@
          2.server137 /home/libin/data/split_allscore.sh 拆分各分部成绩角本生成CTL
          3.server135 导入后的处理 \oracle_sql\merge_studystatusfromnetexamscore.sql
      2.) 2.) 
+
+    ####  总部，分部，学习中心开设专业 
+        1.） 从CPS导出总部，分部，学习中心开设专业
+             1. server138 d:\support\impseg\assemble_spy.bat
+             2. server137 /home/libin/data/split_spy.sh    拆分各分部
+             3. server135 导入后处理 \oracle_sql\merge_spy.sql
+
+   ####  同步课程总表
+         1 . server138 d:\support\impseg\assemble_course.bat 导出CPS课程总表到CSV
+                       d:\support\impseg\mkexec_course.bat  --> d:\support\impseg\exec 构造exec_course.ctl 
+             到数据库服务器批量导入数据sqlldr  control=exec_course.ctl
+             server135   导入后处理  、\oracle_sql\merge_course.sql
+
+  ####  同步CPS学生信息
+         1   server138  d:\support\impseg\assemble_student.bat  或 assemble_studentsync.bat 生成CSV文件后执行student183.bat 打包上传server137
+         2 . server137 : /home/libin/data/split_studentsync.sh ,生成两个ctl 文件同步到oracle 数据库进行信息比对
+         3.   对比结果处理：d:\support\oracle_sql\merge_syncstudent.sql 生成SQL文件直接执行
+  ####  同步CPS学校名称
+         1   server138 d:\support\impseg\assemble_org.bat  生成CSV文件传到server137 /home/libin/data/org 目录下
+         2.  server137 : /home/libin/data/export_orgbasicinfo.sh  生成 SQL文件进行更新 
 
 
 #### 国开学位
@@ -76,3 +105,27 @@
 
 #### 从excel文件合并数据库学生信息
      server135  /home/libin/mypython/csv/mergeStudentInfo.py  
+#### server135 202.205.161.135
+#### server137 202.205.161.137
+
+####   通用 excel 文件转化为指定格式CSV CTL：  班级
+      local :   1. 生成CSV文件 /home/lib/mypython/mysear/mysear/openapp/Exlapp/exlExp.py 
+            expElc 方法将一个班级信息的EXCEL文件导出为相同文件名的CSV文件 
+                2.将此文件复制到server183 d:\support\impnewstudent2017\csv\目录下
+                3.执行d:\support\impnewstudent2017\mkexec_student.bat 生成对应的班级导入文件 exec_classtemp.ctl
+
+#### 从DBF文件导入考试号
+     server135  1. /home/libin/mypython/ksh/expksh.py  导出DBF文件中学生号与考生号到CSV ，上传CSV到server137 /home/libin/data/student/目录
+     server137  2. /home/libin/data/student/export_ksh.sh 将CSV转化为sql文件直接更新 。
+ 
+
+####  比较ORACLE数据库报考数据与CPS数据差异例子
+     server137  1. /home/libin/data/stucourse/export_signup.sh 主要过程，利用比较关键字段找到差异    
+
+
+
+####  删除新生信息 主要涉及三个表:eas_schroll_student,eas_schroll_studentbasicinfo,eas_grad_student 
+      人数多采用生成以主键删除的方式 给定数据为excel
+      1。server137  将给定的EXCEL文件别存为CSV保存在 \home\libin\data\student\export_impcpsstudent.sh 
+      2. 正式数据库 执行exec_getstudent.sql 获取学生的主键信息studentid
+      3. server137  生成三个删除文件

@@ -3,12 +3,18 @@
 rpm -qa|grep 'glibc'）
 选择安装 anaconda3-4.1.1-Linux-x86_64.sh
 在136上运行 bash anaconda3-4.1.1-Linux-x86_64.sh 
-默认安装 只到安装成功
+默认安装 直到安装成功
 安装后也同时安装了jupyter 
 
 2.配置jupyter 可以远程访问 （本机为服务器，使用浏览器）
 运行jupyter notebook --generate-config
+jupyter_notebook_config.py
+
 配置ip port 
+c.NotebookApp.ip='202.205.161.136' 
+c.NotebookApp.open_browser= False 运行服务器不会打开本地浏览器
+c.NotebookApp.port='8888'
+
 
 运行
 

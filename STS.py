@@ -213,7 +213,7 @@ def SearchByWeek(sn='ss123456',datatype='day',begindate='2017-6-23'):
     def getKDseg(db,clstype):
         _IDLast,_IDMid,_IDFirst=getpositions(db,segupname='kdup',segdownname='kddown')
         
-        return (db.loc[_IDFirst]['kdup']>0),"[{0}-{1}]".format(int(_IDFirst-_IDMid),int(_IDMid-_IDLast))        
+        return (db.loc[_IDFirst]['kdup']>0),"[{2}{0}-{1}]".format(int(_IDFirst-_IDMid),int(_IDMid-_IDLast),db.loc[_IDFirst]['kdup']>0)        
     SEEDDBF=['date','posmacd','bigdown','bigup','segdown','segup','kddown','kdup','angflag','ang20flag','ang20','ang55','id']
     
     db=(getdf(sn,datatype)[SEEDDBF]
@@ -222,17 +222,13 @@ def SearchByWeek(sn='ss123456',datatype='day',begindate='2017-6-23'):
                     .loc[:begindate]
                     .set_index('id')
                     )
-    #return getpositions(db,segupname='bigup', segdownname='bigdown')
-    return (getMacdMode(db,datatype)[0]==True and getKDseg(db, datatype)[0]==True), "{0},{1}".format(getMacdMode(db,datatype),getKDseg(db, datatype))
-    #return  "{0},{1}".format(getMacdMode(db,datatype),getKDseg(db, datatype))
-    #if db is not None and len(db)>60:
-        #return "{},{}".format(getMacdMode(db,datatype),getKDseg(db,datatype))
-
-    #else:
-        #return None
+    
+    #return (getMacdMode(db,datatype)[0]==True and getKDseg(db, datatype)[0]==True), "{0},{1}".format(getMacdMode(db,datatype),getKDseg(db, datatype))
+    return (getMacdMode(db,datatype)[0]==True ), "{0},{1}".format(getMacdMode(db,datatype),getKDseg(db, datatype))
+    
         
         
-def getS9bysn(sn,startdate):
+def getS9daybysn(sn,startdate):
     try:
             # 
         seed=SearchByWeek(sn,'day',startdate)[1].split(',')[1]
@@ -248,4 +244,32 @@ def getS9bysn(sn,startdate):
     except:      
         return False,'except'
 
+def getS9weekbysn(sn,startdate):
+    try:
+            # 
+        seed=SearchByWeek(sn,'week',startdate)[1].split(',')[1]
+        con = SearchByWeek(sn,'day',startdate)[0]
+        if ('324' in seed ) :
+            return True,seed
+        else:
+            return False,''
+        
+                #dfcomp,ratkd,rat55,ratpos,ratinbig=(STS.KDTrend(sn,datatype,begindate))
+                #if rat55>=0.5 and ratpos==1.0 and ratinbig==1.0:
+                #    print("{}-{}".format(sn,ratkd))
+    except:      
+        return False,'except'
 
+def getS9bysn(sn,startdate):
+    try:
+        seedweek=SearchByWeek(sn,'week',startdate)
+        if seedweek[0]==False and 'MW-423' in seedweek[1]:
+            seedday=SearchByWeek(sn,'day',startdate)
+            if (seedday[0]==True) and 'MD-142' in seedday[1]:
+                return True,seedday[1]
+            else:
+                return False,''
+        else:
+            return False,''
+    except:
+        return False,'except'

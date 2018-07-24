@@ -1,0 +1,6 @@
+centos:
+  1 install libevent-2.0.2.22-stable
+  2. install tmux-2.3.tar.gz
+  3. ln -s /usr/local/lib/libevent-2.0.so.5 /usr/lib64/libevent-2.0.so.5
+
+

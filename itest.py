@@ -42,6 +42,8 @@ def getS9(datatype='day',begindate='2017-6-23',pat='SH8803'):
     i,j=0,0
     dfcomp=pd.DataFrame()
     for sn in mylist:  
+        #getit,seed=STS.getS9daybysn(sn,begindate)
+        #getit,seed=STS.getS9weekbysn(sn,begindate)
         getit,seed=STS.getS9bysn(sn,begindate)
         if getit==True:
             i=i+1

@@ -1,0 +1,31 @@
+ed -n 'np' file 显示指定行
+
+
+
+行尾加
+
+sed -i 's/$/;/g filename
+
+
+
+替换中加单引号
+
+sed -i 's/***/'\''/g' filename
+
+
+
+删除指定行
+
+sed -i '1d' filename
+
+
+
+批量删除最后一行
+
+sed -i '$d' *.txt
+
+
+
+每行尾加新字符
+
+sed 's/\r/,end/g filename

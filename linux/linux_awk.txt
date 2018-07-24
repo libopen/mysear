@@ -1,2 +1,12 @@
 https://www.cnblogs.com/OldJack/p/6607155.html
 配置空格 awk 用lenght($7)>0 来匹配
+
+csv 中空格处理
+1。先用sed 处理再awk
+sed 's/ //g' stuclass.csv|awk -F, '{print "update eas_schroll_student set classcode=\047"$3"\047 where studentcode=\047"$1"\047 and classcode=\047"$2"\047 ;"}' 
+
+awk 字符串连接 用空格
+│awk -F, -v OFS=','  '{print $3 substr($4,1,2) $7 $8 $11 $13,$18}' exmm_signup320.csv> signup320_old.csv
+
+字段长度 length
+

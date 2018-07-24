@@ -1,0 +1,10 @@
+1 用ffmpeg 切割MP4 
+  ffmpeg -ss 00:00:11 -i source.mp4 -vcodec copy -acodec copy -t 00:00:15 out.mp4
+2 用ffmpeg 转MP4 到MP3
+ ffmpeg -i The.IT.Crowd.S01E01.DVDRip.x264-TAR.mp4 -b:a 192K -vn it01.mp3
+ 多路音频时采第2路
+ffmpeg -i baby.daddy.s01e01.web-dlrip.rus.eng..avi -map 0:a:1 -b:a 192K -vn bds0101.mp3
+
+3. mp4 视频压缩：
+ ffmpeg -i out4.mp4 -c:a copy -c:v libx264 -profile:v high -preset slower -crf:v 21 out4s.mp4
+
