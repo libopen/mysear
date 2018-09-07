@@ -11,6 +11,7 @@ def expElc(xlsfile,csvname,sheetindex=0):
         wr =  csv.writer(csvfile,quoting=csv.QUOTE_NONE,quotechar='',escapechar='\\')
         wb = xlrd.open_workbook(xlsfile)
         sh = wb.sheet_by_index(sheetindex)
+        
         # deal with mutilplines
         # from the second line 
         iTotal=0

@@ -1,4 +1,4 @@
-ed -n 'np' file 显示指定行
+sed -n 'np' file 显示指定行
 
 
 
