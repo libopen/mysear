@@ -78,7 +78,7 @@ def expElc(csvname,xlsfile):
        #deal with numeric
         studict=getstuinfoDic()
         col_elc=['学号','教学点代码','课程ID','选课年度','选课学期','考试单位类型','选课次数']
-        batlist={"秋季":"09","春季":"03"}
+        batlist={"秋季":"09","春季":"03","秋":"09","春":"03"}
         examunitlist={"中央":"1","省":"2"}
         rnNum =[0,1,2,3,4,5] # deal \n
         intnum=[11,12,13,14,15,16,17,23,24]
@@ -95,7 +95,7 @@ def expElc(csvname,xlsfile):
         
         
                 for sh in wb.sheets():
-                        if sh.nrows==0:
+                        if sh.nrows==0 :
                                 print("{} is empty".format(sh.name))
                                 continue
                         # deal with mutilplines
@@ -120,10 +120,7 @@ def expElc(csvname,xlsfile):
                                 csvlist=["1" for x in range(18)]
                                 #all conver to string and remove return char and             
                                 rowlist =[str(item).replace('\n',' ').replace(',',' ').strip() for item in sh.row_values(rownum)  ]
-                                #print("{},{}".format(rowlist[0],is_number(rowlist[0])))
-                                csvlist[1]="{}{}".format(rowlist[3][:4],batlist[rowlist[4]])
-                                csvlist[2]=removelast(rowlist[0]) #studentcode
-                                csvlist[3]=str(removelast(rowlist[2])).zfill(5)  #courseid
+                                
                                 #get info by redis
                                 #stuinfo = getRedis(rowlist[0])
                                 # find studentcode in studict 
@@ -132,6 +129,10 @@ def expElc(csvname,xlsfile):
                                         print("{}:{},{},{}, no find".format(sh.name,rownum,rowlist[0],rowlist[1]))
                                 else:
                                         #dic = eval(stuinfo[1])
+                                        #print("{},{}".format(rowlist[0],is_number(rowlist[0])))
+                                        csvlist[1]="{}{}".format(rowlist[3][:4],batlist[rowlist[4]])
+                                        csvlist[2]=removelast(rowlist[0]) #studentcode
+                                        csvlist[3]=str(removelast(rowlist[2])).zfill(5)  #courseid                                        
                                         dic=studict[removelast(rowlist[0])]
                                         csvlist[4]=dic['LEARNINGCENTERCODE']#learningcentercode
                                         csvlist[5]=dic['CLASSCODE'] #classcode
@@ -146,7 +147,7 @@ def expElc(csvname,xlsfile):
                                 iTotal+=1
                                 if bvalid==True:
                                         iValid+=1
-                                wr.writerow(csvlist)
+                                        wr.writerow(csvlist)
                         print("{}:Totla{},valid{}".format(sh.name,iTotal,iValid))
         csvfile.close()
 
@@ -217,9 +218,11 @@ def expScore(csvname,xlsfile,papercodetype='4'):
                                             
                                 rowlist =[str(item).replace('\n',' ').replace(',',' ').strip() for item in sh.row_values(rownum)]
                                 #print("{},{}".format(rownum,rowlist))
+                                # get current student's info dicts
+                                dic_current=studict[removelast(rowlist[0])]
                                 csvlist[0]="1" # SN
-                                csvlist[1]=rowlist[9][:3] #segmentcode
-                                csvlist[2]=rowlist[9][:5] #collegecode
+                                csvlist[1]=dic_current['LEARNINGCENTERCODE'][:3] #segmentcode
+                                csvlist[2]=dic_current['LEARNINGCENTERCODE'][:5] #collegecode
                                 #get info by dic
 
                                 if removelast(rowlist[0]) not in studict.keys():
@@ -227,17 +230,21 @@ def expScore(csvname,xlsfile,papercodetype='4'):
                                         print("{}:{},{}:{} no find".format(sh.name,rownum+1,rowlist[0],rowlist[9]))
                                 else:
                                         #dic = eval(infodic[1])
-                                        dic=studict[removelast(rowlist[0])]
-                                        csvlist[3]=dic['CLASSCODE'] #classcode
+                                        # get current student's info dicts
+                                        
+                                        csvlist[3]=dic_current['CLASSCODE'] #classcode
                                         csvlist[4]=rowlist[2].rstrip('0').rstrip('.') #examPlanCode
-                                        csvlist[5]=rowlist[3] #ExamCategory
+                                        csvlist[5]=str(rowlist[3].rstrip('0').rstrip('.')).zfill(2) #ExamCategory
                                         csvlist[6]=examunitlist[rowlist[10]]
                                         csvlist[7]=str(removelast(rowlist[1])).zfill(5) #courseid
                                         if papercodetype=='4':
-                                                csvlist[8]=newPaperCode('%d'%float(removelast(rowlist[4]))) if len(removelast(rowlist[4]))==4 else removelast(rowlist[4])
+                                                oldpapercode=str(removelast(rowlist[4])) # if papercode 's lenght is 3 or 4
+                                                if len(oldpapercode)<4:
+                                                        oldpapercode=oldpapercode.zfill(4)
+                                                csvlist[8]=newPaperCode(oldpapercode) if len(oldpapercode)==4 else oldpapercode
                                         else:    
                                                 csvlist[8]=str(removelast(rowlist[4])).zfill(5)
-                                        csvlist[9]=dic['LEARNINGCENTERCODE'] #learningcentercode
+                                        csvlist[9]=dic_current['LEARNINGCENTERCODE'] #learningcentercode
                                         csvlist[10]=removelast(rowlist[0]) #studentcode
                                         scorelist=()
                                         #print("{key}{val}".format(key=rowlist[5],val=getRedis(rowlist[5])))
@@ -324,6 +331,8 @@ def expSignup(csvname,xlsfile,papercodetype='4'):
                                             
                                 rowlist =[str(item).replace('\n',' ').replace(',',' ').strip() for item in sh.row_values(rownum)]
                                 #print("{},{}".format(rownum,rowlist))
+                                # get current student's dict by first row 
+                                dic_current=studict[removelast(rowlist[0])]
                                 csvlist[0]="1" # SN
                                 csvlist[1]=rowlist[1][:6] #exambatchcode
                                 csvlist[2]=rowlist[1][:6] #exambatchcode
@@ -340,16 +349,16 @@ def expSignup(csvname,xlsfile,papercodetype='4'):
                                 #csvlist[8] # exampapermemo
                                 csvlist[9]=str(removelast(rowlist[2])).zfill(5) #courseid
                                 #csvlist[10] tcpcode
-                                csvlist[11]=rowlist[3][:3] #segmentcode
-                                csvlist[12]=rowlist[3][:5] #collegecode
-                                csvlist[13]=removelast(rowlist[3])     #learningcentercode
+                                csvlist[11]=removelast(dic_current['LEARNINGCENTERCODE'])[:3] #segmentcode
+                                csvlist[12]=removelast(dic_current['LEARNINGCENTERCODE'])[:5] #collegecode
+                                csvlist[13]=removelast(dic_current['LEARNINGCENTERCODE'])     #learningcentercode
                                 #get info by redis
                                 if removelast(rowlist[0]) not in studict.keys():
                                         bvalid=False
                                         print("{}:{},{},{} no find".format(sh.name,rownum,rowlist[0],rowlist[3]))
                                 else:
-                                        dic=studict[removelast(rowlist[0])]
-                                        csvlist[14]=dic['CLASSCODE'] #classcode
+                                        
+                                        csvlist[14]=dic_current['CLASSCODE'] #classcode
                                         csvlist[15]=removelast(rowlist[0]) #studentcode
                                         csvlist[16]=examunitlist[rowlist[4]] #examunit
                                         csvlist[17]='elximp'
