@@ -1,0 +1,5 @@
+---不另外排序直接比较 
+join -1 1 -2 1 -t "," <(sort -k1 ksh1.csv)<(sort k1 ksh2.csv)
+
+左包含：
+ join -1 1 -2 1 -t "," ksh1.csv ksh2.csv -a 1 

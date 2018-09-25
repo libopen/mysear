@@ -9,4 +9,34 @@ awk 字符串连接 用空格
 │awk -F, -v OFS=','  '{print $3 substr($4,1,2) $7 $8 $11 $13,$18}' exmm_signup320.csv> signup320_old.csv
 
 字段长度 length
+当使用比较命令时最后一列可以会产生回车符，可以采用以下方式
+ head ksh3.csv| awk -F , '{print substr($3,1,length($2)}'
 
+
+target :  excel文件包含学号，考试号及其它信息，数据量176,219 ，要求将这些考试号更新到正式库
+          17W 数据不想直接更新，只更新数据库中与17W不匹配的数据。 
+operate:
+ step 1 : get ksh1.csv:   /home/libin/mypython/
+               1)  python3.5 xls2csv.py ksh.xlsx 生成     --> 电大在线_.csv
+               2)  rename filename to ksh1.csv            --> mv 电大在线_.csv ksh.csv 
+               3)  抽取学号，考试号字段，并排序用于join   --> awk -F, -v OFS=',' '{print $3,$1}' ksh.csv|sort -k1>ksh1.csv 
+                                                             或 awk -F,-v OFS=',' '{print $3,$1,","}' ksh.csv|sort -k1 >ksh1.csv
+ step 2 : get ksh2.csv:   从数据库中导出的所有学生数据,只包含学号与考试号字段， 大约 9,449,191  about 9.4 million
+               1)   排序                                  --> sort -k1 ksh2.txt > ksh2.csv 
+                                                             或 awk -F, -v OFS=',' '{print $1,substr($2,1,length($2)-1),","}' ksh2.txt >ksh2.csv
+ step 3 :  返回包含所有ksh1的 
+               1）生成ksh3.csv                            --> join -1 1 -2 1 -t "," ksh1.csv ksh2.csv >ksh3.csv
+
+ step 4 :  校验：
+               1）两列数据join 后，最后一列会包含回车字符，这个一个可能的因素，为避免问题，可以考虑在
+                  要生成数据中在ksh1.csv,ksh2.csv是增加一个‘，’作为替代。length($3)==0 表示没有$3 记录
+                  查看 不包含在ksh2.csv，只包含在ksh1.csv 中的记录 --> awk -F, '{if ((substr($3,1,length($2))!=$2) && (length($3)==0)) {print $0}}' ksh3.csv 
+               2) 经过分析，现在数据存在两种情况，（一）在数据库中的考生号为空
+                                                   （二）查看，数据库的记录在新的记录中发生的变化 : 
+                              awk -F, '{if ((length($3)!=0) && (length($3)>1) && (substr($3,1,length($2)!=$2)) {print $0}}' ksh3.csv
+               3) 抽检：
+                          grep "学号“ *csv 或 ack "学号" *csv
+
+
+ step 5 : 直接输出更新结果。筛选ksh3.csv中 $2,$3 不一致的为需求变更的记录
+                awk -F, '{if (substr($3,1,length($2)!=$2) {print "udpate eas_schroll_student set examno=\047"$2"\047 where studentcode=\047"$1"\047 ;"}} ksh3.csv
