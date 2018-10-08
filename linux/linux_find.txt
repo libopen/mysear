@@ -1,3 +1,6 @@
 find exculde path
 ####
   find . -type f -name "*sh" ! -path "./soft/*"
+
+find large file
+  find ~/mypython/ -type f -size +100M -exec ls -lh {} \;
