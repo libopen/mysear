@@ -1,31 +1,27 @@
 sed -n 'np' file 显示指定行
 
-
-
 行尾加
-
 sed -i 's/$/;/g filename
 
-
-
 替换中加单引号
-
 sed -i 's/***/'\''/g' filename
-
-
+如果替换字符为/ 前边加\
+sed -i 's/<\/i>//g' *lrc
 
 删除指定行
-
 sed -i '1d' filename
-
-
+sed -i '1,5d;10d' filename
 
 批量删除最后一行
-
 sed -i '$d' *.txt
-
-
 
 每行尾加新字符
 
 sed 's/\r/,end/g filename
+
+# 将一些全角字符换成半角字符
+echo "你好，朋友"|sed 'y/。，？；：‘“、（）｀～！＠＃％＊ABCDEFGHIJKLMNOPQRSTUVWXYZ/.,?;:\"\",()`~!@#%*abcdefghijklmnopqrstuvwxyz/'
+
+#window install sed for windows
+/support/sed-4.2.1-setup.exe
+dos 下直接运行有效，注意　sed.exe -i "（）/()/" 但在批处理文件中无法执行？
