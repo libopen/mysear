@@ -1,4 +1,5 @@
 1 136 jupyter server
+  # 1 tmux new -s jupyter
   sudo jupyter notebook
 
 

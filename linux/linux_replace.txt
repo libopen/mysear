@@ -1,0 +1,15 @@
+# sed 替换
+sed -i 's/\t//' filename
+#sed 对应字符替换 corresponding character 
+sed -i 'y/()/()/' filename
+
+#linux 下显示十六进制
+grep '123232' schroll_student.csv|hexdump 
+
+#linux 下显示ascii
+
+grep '123232' schroll_student.csv|hexdump -c
+
+#linux sed 替换十六进制字符
+sed 's/\x20\x20//' filename
+

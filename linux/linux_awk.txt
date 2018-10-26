@@ -1,3 +1,9 @@
+#显示行号 使用列
+awk -F , '{if (NF!=28) {print NR,$0}}' file.csv
+
+# sed正则表达式过滤　可以查找名字列出有字母组合的名字
+sed -F, '$2!~/[A-Z]/' stufile.txt 
+
 https://www.cnblogs.com/OldJack/p/6607155.html
 配置空格 awk 用lenght($7)>0 来匹配
 

@@ -25,3 +25,6 @@ echo "你好，朋友"|sed 'y/。，？；：‘“、（）｀～！＠＃％�
 #window install sed for windows
 /support/sed-4.2.1-setup.exe
 dos 下直接运行有效，注意　sed.exe -i "（）/()/" 但在批处理文件中无法执行？
+
+#sed 替换十六进制空格
+awk -F, '$2!~/[A-Z]/' stuinfo.txt|sed 's/[\x20]//g'
