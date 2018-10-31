@@ -1,0 +1,12 @@
+for i in *;
+do
+ 
+ extname=`echo $i|rev|cut -d . -f 1|rev`;
+ 
+ if [[ $extname == srt ]]
+ then
+    firstname=`echo $i|cut -d _ -f 4`
+    newname=`echo "it"$firstname".srt"`;
+    mv $i $newname;
+ fi
+done
