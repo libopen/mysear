@@ -13,3 +13,12 @@ grep '123232' schroll_student.csv|hexdump -c
 #linux sed 替换十六进制字符
 sed 's/\x20\x20//' filename
 
+
+
+--------vi ---replace
+匹配　<li class="level2" id="/Teacher/index"> 
+%s/<li class="level2" id="\w*">//g
+
+删除空行
+:g/^$/d
+

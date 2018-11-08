@@ -4,3 +4,6 @@ find exculde path
 
 find large file
   find ~/mypython/ -type f -size +100M -exec ls -lh {} \;
+
+# 在一个目录中查找指定字符，结果包含文件名和行数
+find /backup/ftpdata/support -type f -name "*sql" -exec grep -i -n -H "enrollmentstatus" {} \;

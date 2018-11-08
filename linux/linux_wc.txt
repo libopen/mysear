@@ -1,0 +1,9 @@
+＃统计　行，单词，字节出现的次数
+wc -l :prints the number of lines in a file
+wc -w :prints the number of words in a file
+wc -c :display the count of bytes in a file
+wc -m :prints the count of characters from a file
+wc -L: prints only the length of the longest lines in a file
+
+统计　行，总共多少词，多少字节
+wc file

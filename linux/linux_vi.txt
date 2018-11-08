@@ -1,0 +1,17 @@
+highlight search text
+:set hlsearch
+
+
+replace 
+:%s/pattern/desc/g
+
+替换所有字符
+:%s/title=".*"//g
+
+替换所有由空格组成的空行
+查找：:/^[[:space:]]*$
+删除这些空行：:g/^[[:space:]]*$/
+
+删除字符前的空格
+查找：:/^[[:space:]]*<
+替换：:s%/^[[:space:]]*<//
