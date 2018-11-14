@@ -22,3 +22,12 @@ sed 's/\x20\x20//' filename
 删除空行
 :g/^$/d
 
+
+
+去回车换行符　\r \n
+用od -c 可以看到
+grep "dsfd"|od -c 
+可以用tr -d '\r\ 完成去除
+unbuntu : cat exam_2.txt|tr -d '\r' >exam_21.txt
+
+

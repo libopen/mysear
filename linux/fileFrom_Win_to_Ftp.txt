@@ -1,0 +1,10 @@
+文件从windows上传到ＦＴＰ服务器后
+windows下的文件会带有'\r\n'回车和换行两个字符，而linux下只有一个'\n
+所以一些操作会由于存在\r\n产生问题。解决办法去掉'\r
+试了一些方法
+１看是否有\r\n :  grep "dfsf" filename|oc -d
+2除去　　　　　： cat filename|tr -d '\r' >outfilename.
+或
+　　　　　　　　　sed -i 's/\r//' filename
+
+

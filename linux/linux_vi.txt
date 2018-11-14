@@ -7,11 +7,33 @@ replace
 
 替换所有字符
 :%s/title=".*"//g
+:%s/<h3 class="\w*"><\/h3>//
+:%s/<ul><li class="\w*" id="\w*">//
+:%s/<div class="\w*" id="\w*"><span class="\w*">//
+:%s/<a h/ah/
+:%s/<li c/lic/
 
-替换所有由空格组成的空行
+
+替换所有由空格组成的空行 ^ 行开始　$ 行尾 [[:space:]]空格
 查找：:/^[[:space:]]*$
-删除这些空行：:g/^[[:space:]]*$/
+删除这些空行：:g/^[[:space:]]*$/d
 
 删除字符前的空格
 查找：:/^[[:space:]]*<
-替换：:s%/^[[:space:]]*<//
+替换：:%s/^[[:space:]]*<//
+
+去掉行首的<: <a href="dfdfd">sdfsfd">sfsdf</a>
+%s/^<//
+
+
+去回车换行符　\r \n
+用od -c 可以看到
+grep "dsfd"|od -c 
+可以用tr -d '\r\ 完成去除
+
+
+^M 用CRTL+V 可以显示
+
+＃从Ｎ１到Ｎ２行，复制到Ｎ３行
+:n1,n2 co n3
+
