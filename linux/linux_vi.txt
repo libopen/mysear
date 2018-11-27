@@ -1,17 +1,82 @@
+########################打开多个文件
+:e filename
+切换：:bn,:bp
+:ls    列出打开的文件
+:b1~n //切换到第n个文件
+
+##########################设置结果高亮
 highlight search text
 :set hlsearch
 
 
-replace 
+##########################replace 
 :%s/pattern/desc/g
 
 替换所有字符
-:%s/title=".*"//g
+:%s/title=".*"//
+:%s/<img class="\w*" >//
 :%s/<h3 class="\w*"><\/h3>//
 :%s/<ul><li class="\w*" id="\w*">//
 :%s/<div class="\w*" id="\w*"><span class="\w*">//
-:%s/<a h/ah/
-:%s/<li c/lic/
+
+＃多个字符串查找
+/<div class="\w*">\|<span class="\w*">\|
+#并列多个字符串替换
+
+
+##################### delete
+删除从指定行到匹配行　　:0;/<ul class="ls4">/d
+从匹配行到最后一行　　　:/<p class="co">/;$d
+
+
+
+ ######### 对ouchn exam 的操作
+##########　１　将原始文件中的格式文件去掉，只保存中文信息和一些关键信息
+:%s/<span class="\w*">\|<div class="\w*">//
+:%s</\div>\|<\/li><\/ul>//
+:%s<\/li><li class="\w*" id="\w*">//
+# 替换主菜单项目为li
+:%s/<\li><li class="\w*">/li>/
+:%s/<a href=".*">/ah>/
+:%s/<\/span>//
+:%s<\a>/,kw,3,end/
+
+#删除空格
+:%s/[[:space:]]*//
+#删除空行
+:g/^$/d
+
+###同时替换<li>或</li>
+:%s/<\/\?li>         \/\? 表示有０或１个/
+
+#########  ２　将整理后的文件生成标准csv格式　
+　./awk_ouchn.sh > ouchn.txt  生成教务部分的所有命令
+　./awk_exam.sh > exam.txt  生成考务部分的所有命令
+
+#########   3 生成的文件后续处理
+  vi -e ouchn.txt < ouchn_order.txt
+
+
+#########   4.按给定的顺序显示教务的所有功能及对应的明细处理命令
+   :sort n
+
+
+
+
+############################对　行到行进行替换
+:31,53 s/aaa/bbb/
+
+
+
+############################## 不打开文件批量替换
+vi -e ouchn.txt < ouchn_order.txt
+
+############################### 将一些行另存为另外的文件
+:22,31 w newfilename
+
+###############################排序
+:sort i n 按数字大小排序
+
 
 
 替换所有由空格组成的空行 ^ 行开始　$ 行尾 [[:space:]]空格
@@ -37,3 +102,24 @@ grep "dsfd"|od -c
 ＃从Ｎ１到Ｎ２行，复制到Ｎ３行
 :n1,n2 co n3
 
+
+#打开多个文档后切换
+:sp
+:bn
+:bp
+
+
+
+######################New Yorker
+:%s/<svg/\r<svg/g
+:%s/<\/svg>/<\/svg>\r/
+
+delete <svg version="1.1"
+delete <svg role="img"
+delete <svg > <source media="
+delete <svg data-source
+
+
+#########################统计出现了多少次
+1.全部：:%s/{pattern}//gn [%表示全部]
+2.指定行：n1,n2s/{pattern}//gn 
