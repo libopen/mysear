@@ -1,0 +1,7 @@
+1.ack 
+2.grep
+3.sift
+4.pt
+5.ripgrep
+find . -name "*.txt"|xarge grep "dfdf"
+

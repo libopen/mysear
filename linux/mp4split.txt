@@ -8,3 +8,4 @@ ffmpeg -i baby.daddy.s01e01.web-dlrip.rus.eng..avi -map 0:a:1 -b:a 192K -vn bds0
 3. mp4 视频压缩：
  ffmpeg -i out4.mp4 -c:a copy -c:v libx264 -profile:v high -preset slower -crf:v 21 out4s.mp4
 
+4. Audacity 导出音频时使用比特率模式：静态　可保证与原速度一致

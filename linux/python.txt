@@ -1,0 +1,5 @@
+#install pip2 pip3
+sudo apt-get install python-pip
+suto apt-get install python3-pip
+
+

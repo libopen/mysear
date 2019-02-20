@@ -36,7 +36,7 @@ highlight search text
 :%s</\div>\|<\/li><\/ul>//
 :%s<\/li><li class="\w*" id="\w*">//
 # 替换主菜单项目为li
-:%s/<\li><li class="\w*">/li>/
+：:%s/<\li><li class="\w*">/li>/
 :%s/<a href=".*">/ah>/
 :%s/<\/span>//
 :%s<\a>/,kw,3,end/
@@ -45,6 +45,13 @@ highlight search text
 :%s/[[:space:]]*//
 #删除空行
 :g/^$/d
+#删除匹配的行
+:g/^<\/li>/d
+
+
+#############合并行
+1,3 join
+
 
 ###同时替换<li>或</li>
 :%s/<\/\?li>         \/\? 表示有０或１个/
@@ -61,7 +68,9 @@ highlight search text
    :sort n
 
 
-
+######### 有关正则表达式
+１。数字
+/\d\{2}:    -----find [12:]  
 
 ############################对　行到行进行替换
 :31,53 s/aaa/bbb/
@@ -110,16 +119,17 @@ grep "dsfd"|od -c
 
 
 
-######################New Yorker
-:%s/<svg/\r<svg/g
-:%s/<\/svg>/<\/svg>\r/
+######################关闭buffer
+:ls 查看已经存在的buffer
+:bd n  
 
-delete <svg version="1.1"
-delete <svg role="img"
-delete <svg > <source media="
-delete <svg data-source
 
 
 #########################统计出现了多少次
 1.全部：:%s/{pattern}//gn [%表示全部]
-2.指定行：n1,n2s/{pattern}//gn 
+2.指定行：a1,a2f/{cnggrea}//gn 
+
+###################### vi 的可视化操作  help v_
+v or V ctrl+v块可视化
+y,p
+实现可视化下的删除，复制粘贴

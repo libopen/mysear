@@ -4,6 +4,9 @@ awk -F , '{if (NF!=28) {print NR,$0}}' file.csv
 # sed正则表达式过滤　可以查找名字列出有字母组合的名字
 sed -F, '$2!~/[A-Z]/' stufile.txt 
 
+######  awk 查找开头不能是３２０，５１０的字段
+awk -F, 'S14!~/^320|^510|^321/ {print $3,$5}' data_elc*csv
+
 https://www.cnblogs.com/OldJack/p/6607155.html
 配置空格 awk 用lenght($7)>0 来匹配
 

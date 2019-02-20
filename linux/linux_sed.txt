@@ -28,3 +28,6 @@ dos 下直接运行有效，注意　sed.exe -i "（）/()/" 但在批处理文�
 
 #sed 替换十六进制空格
 awk -F, '$2!~/[A-Z]/' stuinfo.txt|sed 's/[\x20]//g'
+
+# 从一个文件tmpmyread.dat插入到文件myvob_model.html的指定行<tbody id="begin">
+sed -E '/<tbody id="begin">/r tmpmyread.dat' myvob_model.html 

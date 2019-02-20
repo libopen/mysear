@@ -1,0 +1,3 @@
+# 歌词显示可以和smplayer配合
+~/soft/
+sudo dpkg -i osdlyrics_0.4.3-1_precise1_amd64.deb 
